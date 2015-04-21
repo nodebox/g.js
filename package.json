@@ -1,0 +1,27 @@
+{
+  "name": "grob",
+  "version": "0.0.1",
+  "description": "Graphic Objects Library",
+  "main": "src/grob.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nodebox/grob.git"
+  },
+  "keywords": [
+    "vector",
+    "graphics",
+    "canvas",
+    "image",
+    "pixels",
+    "2d"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nodebox/grob/issues"
+  },
+  "homepage": "https://github.com/nodebox/grob"
+}
