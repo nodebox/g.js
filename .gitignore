@@ -1,0 +1,7 @@
+/node_modules
+/build
+npm-debug.log
+.DS_Store
+Thumbs.db
+*.iml
+.idea

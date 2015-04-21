@@ -4,7 +4,11 @@
   "description": "Graphic Objects Library",
   "main": "src/grob.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --recursive && jshint .",
+    "watchify": "mkdir -p build && watchify src/grob.js --standalone grob --debug -o build/grob.js -v",
+    "browserify": "browserify src/grob.js --standalone grob > dist/grob.js",
+    "uglify": "browserify src/grob.js --standalone grob -g uglifyify > dist/grob.min.js",
+    "dist": "npm run test && npm run browserify && npm run uglify"
   },
   "repository": {
     "type": "git",
@@ -23,5 +27,15 @@
   "bugs": {
     "url": "https://github.com/nodebox/grob/issues"
   },
-  "homepage": "https://github.com/nodebox/grob"
+  "homepage": "https://github.com/nodebox/grob",
+  "dependencies": {
+    "vg.js": "^0.6.1"
+  },
+  "devDependencies": {
+    "browserify": "^9.0.8",
+    "jshint": "^2.7.0",
+    "mocha": "^2.2.4",
+    "uglifyify": "^3.0.1",
+    "watchify": "^3.1.2"
+  }
 }
