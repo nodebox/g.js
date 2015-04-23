@@ -1,6 +1,6 @@
 {
   "name": "grob",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Graphic Objects Library",
   "main": "src/grob.js",
   "scripts": {
