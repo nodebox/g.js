@@ -1,7 +1,28 @@
 'use strict';
 
 var vg = require('vg.js');
+var img = require('img.js');
+
+var grob = {};
 
 for (var k in vg) {
-    exports[k] = vg[k];
+    grob[k] = vg[k];
 }
+
+for (var k in img) {
+    grob[k] = img[k];
+}
+
+grob.merge = function(objects) {
+    if (Array.isArray(objects) && objects.length > 0) {
+        var o = objects[0];
+        if (o && (o.commands || o.shapes)) {
+            return vg.merge(objects);
+        } else if (o instanceof img.Img) {
+            return img.merge(objects);
+        }
+    }
+    return null;
+};
+
+module.exports = grob;
