@@ -4,7 +4,6 @@
   "description": "Graphic Objects Library",
   "main": "src/grob.js",
   "scripts": {
-    "test": "mocha --recursive && jshint .",
     "watchify": "mkdir -p build && watchify src/grob.js --standalone grob --debug -o build/grob.js -v",
     "browserify": "browserify src/grob.js --standalone grob > dist/grob.js",
     "uglify": "browserify src/grob.js --standalone grob -g uglifyify > dist/grob.min.js",
