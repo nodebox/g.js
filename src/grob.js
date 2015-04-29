@@ -1,5 +1,6 @@
 'use strict';
 
+var _ = require("lodash");
 var vg = require('vg.js');
 var img = require('img.js');
 
@@ -13,7 +14,8 @@ for (var k in img) {
     grob[k] = img[k];
 }
 
-grob.merge = function(objects) {
+grob.merge = function () {
+    var objects = _.flatten(arguments, true);
     if (Array.isArray(objects) && objects.length > 0) {
         var o = objects[0];
         if (o && (o.commands || o.shapes)) {
