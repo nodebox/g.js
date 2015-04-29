@@ -1,5 +1,6 @@
 'use strict';
 
+var util = require('./util');
 var grob = {};
 
 grob.changeCase = function (s, caseMethod) {
@@ -85,6 +86,17 @@ grob.makeStrings = function (s, separator) {
     }
     s = String(s);
     return s.split(separator);
+};
+
+grob.randomCharacter = function (characterSet, amount, seed) {
+    var index,
+        result = [],
+        rand = util.randomGenerator(seed || 0);
+    for (var i = 0; i < amount; i += 1) {
+        index = Math.floor(rand() * characterSet.length);
+        result.push(characterSet.charAt(index));
+    }
+    return result;
 };
 
 grob.replace = function (s, old, new_) {

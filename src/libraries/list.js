@@ -1,5 +1,6 @@
 'use strict';
 
+var util = require('./util');
 var grob = {};
 
 grob.combine = function () {
@@ -45,6 +46,24 @@ grob.last = function (l) {
     return l[l.length - 1];
 };
 
+grob.pick = function (l, amount, seed, method) {
+    if (!l || l.length === 0 || amount <= 0) {
+        return [];
+    }
+    method = method || 'shuffle';
+    if (method === 'shuffle') {
+        var shuffledlist = grob.shuffle(l, seed);
+        return grob.slice(shuffledlist, 0, amount);
+    } else if (method === 'grab') {
+        var rand = util.randomGenerator(seed || 0);
+        var results = [];
+        for (var i = 0; i < amount; i += 1) {
+            results.push(l[Math.floor(rand(0, l.length))]);
+        }
+        return results;
+    }
+};
+
 grob.repeat = function (l, amount, perItem) {
     if (!l) { return []; }
     if (amount <= 0) { return []; }
@@ -88,6 +107,18 @@ grob.shift = function (l, amount) {
         result = l.slice(amount);
     result.push.apply(result, head);
     return result;
+};
+
+grob.shuffle = function (l, seed) {
+    var i, j, tmp, r;
+    r = util.randomGenerator(seed || 0);
+    for (i = l.length - 1; i > 0; i--) {
+        j = Math.floor(r(0, i + 1));
+        tmp = l[i];
+        l[i] = l[j];
+        l[j] = tmp;
+    }
+    return l;
 };
 
 grob.slice = function (l, startIndex, size, invert) {

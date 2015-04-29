@@ -1,5 +1,6 @@
 'use strict';
 
+var util = require('./util');
 var vg = require('vg.js');
 
 var grob = {};
@@ -149,6 +150,20 @@ grob.pow = Math.pow;
 
 grob.radians = function (degrees) {
     return degrees * Math.PI / 180;
+};
+
+grob.randomNumbers = function (amount, min, max, seed) {
+    min = min || 0;
+    max = max || 1;
+    var v;
+    var delta = max - min;
+    var numbers = [];
+    var rand = util.randomGenerator(seed || 0);
+    for (var i = 0; i < amount; i += 1) {
+        v = min + (rand(0, 1) * delta);
+        numbers.push(v);
+    }
+    return numbers;
 };
 
 grob.range = function (min, max, step) {
