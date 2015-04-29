@@ -180,6 +180,10 @@ grob.sin = Math.sin;
 
 grob.sqrt = Math.sqrt;
 
+grob.subtract = function (a, b) {
+    return a - b;
+};
+
 grob.sum = function (values) {
     if (values.length === 0) { return 0; }
     var i, sum = 0;
