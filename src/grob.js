@@ -15,6 +15,7 @@ function importCommands(module) {
 
 importCommands(require('./libraries/math'));
 importCommands(require('./libraries/string'));
+importCommands(require('./libraries/list'));
 
 for (var k in vg) {
     grob[k] = vg[k];
