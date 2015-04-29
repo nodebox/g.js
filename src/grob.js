@@ -13,6 +13,7 @@ function importCommands(module) {
     }
 }
 
+importCommands(require('./libraries/math'));
 importCommands(require('./libraries/string'));
 
 for (var k in vg) {
