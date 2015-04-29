@@ -6,6 +6,15 @@ var img = require('img.js');
 
 var grob = {};
 
+// Commands
+function importCommands(module) {
+    for (var k in module) {
+        grob[k] = module[k];
+    }
+}
+
+importCommands(require('./libraries/string'));
+
 for (var k in vg) {
     grob[k] = vg[k];
 }
