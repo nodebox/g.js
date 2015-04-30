@@ -131,6 +131,12 @@ grob.subString = function (s, start, end, endOffset) {
     return s.substring(start, end);
 };
 
+grob.trim = function (s) {
+    if (!s) { return null; }
+    s = String(s);
+    return s.trim();
+};
+
 grob.toUnicode = function(s, radix, padding) {
     function format(f, val) {
         return val;
