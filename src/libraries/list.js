@@ -1,5 +1,6 @@
 'use strict';
 
+var deepEqual = require('./deepequal');
 var util = require('./util');
 var grob = {};
 
@@ -34,6 +35,30 @@ grob.cull = function (l, booleans) {
         }
     }
     return results;
+};
+
+grob.distinct = function(l) {
+    function contains(l, value) {
+        for (var i = 0; i < l.length; i += 1) {
+            if (deepEqual.deepEqual(l[i], value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    if (!l) { return []; }
+    var i, length, value,
+        result = [],
+        seen = [];
+    for (i = 0, length = l.length; i < length; i += 1) {
+        value = l[i];
+        if (!contains(seen, value)) {
+            seen.push(value);
+            result.push(l[i]);
+        }
+    }
+    return result;
 };
 
 grob.first = function (l) {
