@@ -16,6 +16,7 @@ function importCommands(module) {
 importCommands(require('./libraries/math'));
 importCommands(require('./libraries/string'));
 importCommands(require('./libraries/list'));
+importCommands(require('./libraries/data'));
 importCommands(require('./libraries/image'));
 
 for (var k in vg) {
