@@ -18,6 +18,7 @@ importCommands(require('./libraries/string'));
 importCommands(require('./libraries/list'));
 importCommands(require('./libraries/data'));
 importCommands(require('./libraries/image'));
+importCommands(require('./libraries/graphics'));
 
 for (var k in vg) {
     grob[k] = vg[k];
