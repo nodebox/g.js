@@ -1,0 +1,11 @@
+# Site settings
+title: grob.io
+email: info@grob.io
+description: A JavaScript library for graphical objects
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: "https://www.grob.io/" # the base hostname & protocol for your site
+twitter_username: jekyllrb
+github_username:  jekyll
+
+# Build settings
+markdown: kramdown
