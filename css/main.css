@@ -18,6 +18,13 @@ header h1 a {
 header h1 a:hover {
   color: #ccc;
 }
+
+main:after {
+  content: '';
+  clear: both;
+  margin-bottom: 2rem;
+}
+
 .icon img {
   display: inline-block;
   height: 3rem;
@@ -78,4 +85,54 @@ header h1 a:hover {
 
 .tag-time {
   background-color: #6a3d9a;
+}
+
+.nav {
+  font-size: 1.4rem;
+}
+
+.nav h2 {
+  font-size: 2rem;
+  color: #666;
+}
+
+.nav ul {
+  border-left: 1px solid #eee;
+
+}
+
+.nav li {
+  list-style: none;
+  margin-left: 1rem;
+}
+
+.nav a {
+  text-decoration: none;
+}
+
+.content a {
+  text-decoration: none;
+}
+
+.guides a {
+  position: relative;
+  display: inline-block;
+  float: left;
+  width: 290px;
+  height: 100px;
+  margin: 5px;
+  text-decoration: none;
+  color: #666;
+  padding: 10px 0 0 10px;
+  border-radius: 3px;
+  font-size: 2rem;
+  border: 1px solid #ddd;
+}
+
+.guides a img {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 0.5;
+  height: 80px;
 }
