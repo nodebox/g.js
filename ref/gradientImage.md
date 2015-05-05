@@ -5,7 +5,7 @@ tags: image
 ---
 Create a gradient image.
 
-    grob.gradientImage(150, 150, 'red', 'yellow')
+    grob.gradientImage(150, 150, 'red', 'yellow');
 
 ## Parameters
 - `width`: The width of the resulting image.

@@ -5,7 +5,7 @@ tags: image
 ---
 Create an image filled with a solid color.
 
-    grob.colorImage(240, 160, 'salmon')
+    grob.colorImage(240, 160, 'salmon');
 
 ## Parameters
 - `width`: The width of the resulting image.
