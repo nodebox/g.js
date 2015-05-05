@@ -5,7 +5,7 @@ tags: [image, vector]
 ---
 Fit a shape within bounds.
 
-    var e = g.ellipse({x: 0, y: 0}, 100, 100);
+    var e = grob.ellipse({x: 0, y: 0}, 100, 100);
     grob.fit(e, {x: 0, y: 0}, 100, 100);
 
 ## Parameters

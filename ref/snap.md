@@ -5,7 +5,7 @@ tags: vector
 ---
 Snap geometry to a grid.
 
-    var e = g.ellipse({x: 0, y: 0}, 100, 100);
+    var e = grob.ellipse({x: 0, y: 0}, 100, 100);
     grob.snap(e, 50, 75, {x: 0, y: 0});
 
 ## Parameters

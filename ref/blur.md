@@ -6,7 +6,7 @@ tags: image
 Blur an image.
 
     var i = grob.import('cat-sunbeam.jpg');
-    [i, g.blur(i, 20)];
+    [i, grob.blur(i, 20)];
 
 ## Parameters
 - `image`: The input image.

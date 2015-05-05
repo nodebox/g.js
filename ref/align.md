@@ -5,7 +5,7 @@ tags: [image, vector]
 ---
 Align a shape in relation to the origin.
 
-    var e = g.ellipse({x: 0, y: 0}, 50, 50);
+    var e = grob.ellipse({x: 0, y: 0}, 50, 50);
     grob.align(e, {x: 0, y: 0}, 'left', 'top');
 
 ## Parameters

@@ -5,7 +5,7 @@ tags: color, vector
 ---
 Change the color of a shape.
 
-    var e = g.ellipse({x: 0, y: 0}, 100, 100);
+    var e = grob.ellipse({x: 0, y: 0}, 100, 100);
     grob.colorize(e, 'indigo', 'orange', 2);
 
 ## Parameters

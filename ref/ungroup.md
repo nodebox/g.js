@@ -5,9 +5,9 @@ tags: vector
 ---
 Decompose the input group into a list of paths.
 
-    var r = g.rect({x: -75, y: 0}, 100, 100);
-    var e = g.ellipse({x: 75, y: 0}, 100, 100);
-    var group = g.group([r, e]);
+    var r = grob.rect({x: -75, y: 0}, 100, 100);
+    var e = grob.ellipse({x: 75, y: 0}, 100, 100);
+    var group = grob.group([r, e]);
     grob.ungroup(group);
 
 ## Parameters

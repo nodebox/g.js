@@ -21,7 +21,7 @@ The reverse can be achieved by inverting the masking image:
 
     var i1 = grob.import('butterfly.jpg');
     var i2 = grob.import('butterfly-mask.jpg');
-    grob.mask(i1, g.invert(i2));
+    grob.mask(i1, grob.invert(i2));
 
 ## Parameters
 - `image`: The input image (the destination).

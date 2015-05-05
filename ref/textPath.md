@@ -6,12 +6,12 @@ tags: vector
 Create a path out of text.
 
     var font = '/static/fonts/FiraSans-Regular.otf';
-    grob.textPath("Hello", font, 48);
+    grob.textPath('Hello', font, 48);
 
 Because these are paths you can apply any vector filter, such as [snap](/ref/snap.html):
 
     var font = '/static/fonts/FiraSans-Regular.otf';
-    var path = g.textPath("Hello", font, 72);
+    var path = grob.textPath('Hello', font, 72);
     grob.snap(path, 20, 75, {x: 0, y: 0});
 
 Note that, because of browser limitations, you have to upload an `.otf` or `.ttf` file before you can use text paths.

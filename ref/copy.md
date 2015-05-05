@@ -5,7 +5,7 @@ tags: [image, vector]
 ---
 Create multiple copies of a shape.
 
-    var e = g.ellipse({x: 0, y: 0}, 10, 10);
+    var e = grob.ellipse({x: 0, y: 0}, 10, 10);
     grob.copy(e, 6, 'trs', {x: 10, y: 10}, 0, {x: 0, y: 0});
 
 ## Parameters
@@ -19,8 +19,8 @@ Create multiple copies of a shape.
 ## Examples
 By combining translate, rotate and scale you can get some wildly different results:
 
-    grob.copy(g.ellipse({x: 0, y: 0}, 3, 3), 300, 'rst', {x: 0.2, y: 0}, 23, {x: 0.01, y: 0.01})
+    grob.copy(grob.ellipse({x: 0, y: 0}, 3, 3), 300, 'rst', {x: 0.2, y: 0}, 23, {x: 0.01, y: 0.01})
 ---
-    var e = g.ellipse({x: 0, y: 0}, 1, 1);
-    e = g.colorize(e, 'rgba(0, 0, 0, 0.04)');
+    var e = grob.ellipse({x: 0, y: 0}, 1, 1);
+    e = grob.colorize(e, 'rgba(0, 0, 0, 0.04)');
     grob.copy(e, 50, 'rst', {x: 0, y: 0}, 8, {x: 2, y: 3})

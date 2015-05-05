@@ -5,7 +5,7 @@ tags: geometry
 ---
 Calculate the geometric center point of a shape.
 
-    grob.centroid(g.ellipse({x: 0, y: 0}, 100, 100));
+    grob.centroid(grob.ellipse({x: 0, y: 0}, 100, 100));
 
 ## Parameters
 - `shape`: The input shape.

@@ -7,7 +7,7 @@ Blend two images together using a blending method.
 
     var i1 = grob.import('leaf.jpg');
     var i2 = grob.import('cat-sunbeam.jpg');
-    [i1, i2, g.blend(i1, i2, 'luminosity')];
+    [i1, i2, grob.blend(i1, i2, 'luminosity')];
 
 ## Parameters
 - `image1`: The destination image.

@@ -6,11 +6,11 @@ tags: [color, vector, image]
 Lookup the RGB or HSB value of a color.
 
 
-    var col = g.hsb(120, 255, 255, 255, 255);
+    var col = grob.hsbColor(120, 255, 255, 255, 255);
     grob.colorLookup(col, 'h');
 <br>
 
-    var col = g.rgb(120, 255, 255, 255, 255);
+    var col = grob.rgbColor(120, 255, 255, 255, 255);
     grob.colorLookup(col, 'b');
 
 ## Parameters
