@@ -1,7 +1,7 @@
 ---
 layout: ref
 title: colorize
-tags: color, vector
+tags: [color, vector]
 ---
 Change the color of a shape.
 
