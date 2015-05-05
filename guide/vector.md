@@ -1,12 +1,13 @@
 ---
 layout: guide
 title: Vector Graphics
+image: vector
 ---
 NodeBox Live has great support for working with vector shapes such as paths, text, lines and points.
 
 ### Basic Shapes
 
-[rect](/ref/rect.html) | [ellipse](/ref/ellipse.html) | [polygon](/ref/polygon.html) | [arc](/ref/arc.html) | [star](/ref/star.html)
+[rect](/ref/rect.html) / [ellipse](/ref/ellipse.html) / [polygon](/ref/polygon.html) / [arc](/ref/arc.html) / [star](/ref/star.html)
 
 [line](/ref/line.html) — a line between two points
 
@@ -34,7 +35,7 @@ NodeBox Live has great support for working with vector shapes such as paths, tex
 
 [reflect](/ref/reflect.html) — mirror shapes
 
-[translate](/ref/translate.html) | [rotate](/ref/rotate.html) | [scale](/ref/scale.html) | [skew](/ref/skew.html)
+[translate](/ref/translate.html) / [rotate](/ref/rotate.html) / [scale](/ref/scale.html) / [skew](/ref/skew.html)
 
 ### Distorting Shapes
 
@@ -54,7 +55,7 @@ NodeBox Live has great support for working with vector shapes such as paths, tex
 
 [fitTo](/ref/fitTo.html) — fit a shape within the bounds of another shape
 
-[group](/ref/group.html) | [ungroup](/ref/ungroup.html)
+[group](/ref/group.html) / [ungroup](/ref/ungroup.html)
 
 [link](/ref/link.html) — visually link two shapes together
 
@@ -80,7 +81,7 @@ NodeBox Live has great support for working with vector shapes such as paths, tex
 
 [colorLookup](/ref/colorLookup.html) — lookup a color component
 
-[rgb](/ref/rgb.html) | [hsb](/ref/hsb.html) | [gray](/ref/gray.html)
+[rgbColor](/ref/rgb.html) / [hsbColor](/ref/hsb.html) / [grayColor](/ref/gray.html)
 
 ### Geometry
 
@@ -92,7 +93,7 @@ NodeBox Live has great support for working with vector shapes such as paths, tex
 
 [pointOnPath](/ref/pointOnPath.html) — calculate a point on the path
 
-[angle](/ref/angle.html) | [distance](/ref/distance.html)
+[angle](/ref/angle.html) / [distance](/ref/distance.html)
 
 ### Importing Shapes
 
