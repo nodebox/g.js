@@ -1,0 +1,59 @@
+body {
+  font-family: helvetica, sans-serif;
+}
+
+.tags {
+  font-size: 12px;
+}
+
+.tags .tag {
+  border-radius: 3px;
+  padding: 3px 6px;
+  color: white;
+}
+
+.tags .tag a {
+  color: white;
+  text-decoration: none;
+  text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.tag-vector {
+  background-color: #a6cee3;
+}
+
+.tag-image {
+  background-color: #1f78b4;
+}
+
+.tag-geometry {
+  background-color: #b2df8a;
+}
+
+.tag-color {
+  background-color: #33a02c;
+}
+
+.tag-list {
+  background-color: #fb9a99;
+}
+
+.tag-math {
+  background-color: #e31a1c;
+}
+
+.tag-data {
+  background-color: #fdbf6f;
+}
+
+.tag-string {
+  background-color: #ff7f00;
+}
+
+.tag-animation {
+  background-color: #cab2d6;
+}
+
+.tag-time {
+  background-color: #6a3d9a;
+}
