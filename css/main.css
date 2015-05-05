@@ -1,5 +1,26 @@
 body {
-  font-family: helvetica, sans-serif;
+  /*font-family: helvetica, sans-serif;*/
+}
+
+header {
+  padding-top: 2rem;
+  background-color: #490A3D;
+  color: #fff;
+  border-bottom: 4px solid #E97F02;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  font-size: 3rem;
+}
+
+header h1 a {
+  color: #fff;
+  text-decoration: none;
+}
+
+header h1 a:hover {
+  color: #ccc;
 }
 
 .tags {
