@@ -112,4 +112,25 @@ grob.merge = function () {
     return null;
 };
 
+grob.mix = function (a, b, t) {
+    t = t !== undefined ? t : 0.5;
+    if (typeof a === 'number') {
+        return (a * (1 - t)) + (b * t);
+    } else if (typeof a === 'object') {
+        var result = {};
+        var keys = Object.keys(a);
+        for (var i = 0, n = keys.length; i < n; i += 1) {
+            var k = keys[i];
+            var va = a[k];
+            var vb = b[k];
+            if (va !== undefined && vb !== undefined) {
+                result[k] = math.mix(va, vb, t);
+            }
+        }
+        return result;
+    } else {
+        return 0;
+    }
+};
+
 module.exports = grob;
