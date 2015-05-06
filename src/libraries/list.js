@@ -15,6 +15,15 @@ grob.combine = function () {
     return result;
 };
 
+grob.contains = function (l, value) {
+    for (var i = 0; i < l.length; i += 1) {
+        if (deepEqual.deepEqual(l[i], value)) {
+            return true;
+        }
+    }
+    return false;
+};
+
 grob.count = function (l) {
     if (l && l.length) {
         return l.length;
@@ -38,22 +47,13 @@ grob.cull = function (l, booleans) {
 };
 
 grob.distinct = function(l) {
-    function contains(l, value) {
-        for (var i = 0; i < l.length; i += 1) {
-            if (deepEqual.deepEqual(l[i], value)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     if (!l) { return []; }
     var i, length, value,
         result = [],
         seen = [];
     for (i = 0, length = l.length; i < length; i += 1) {
         value = l[i];
-        if (!contains(seen, value)) {
+        if (!grob.contains(seen, value)) {
             seen.push(value);
             result.push(l[i]);
         }
@@ -66,27 +66,40 @@ grob.first = function (l) {
     return l[0];
 };
 
+grob.get = function (l, i) {
+    if (!l || l.length === 0) { return null; }
+    return l[i];
+};
+
 grob.last = function (l) {
     if (!l || l.length === 0) { return null; }
     return l[l.length - 1];
 };
 
-grob.pick = function (l, amount, seed, method) {
+grob.pick = function (l, amount, seed) {
     if (!l || l.length === 0 || amount <= 0) {
         return [];
     }
-    method = method || 'shuffle';
-    if (method === 'shuffle') {
-        var shuffledlist = grob.shuffle(l, seed);
-        return grob.slice(shuffledlist, 0, amount);
-    } else if (method === 'grab') {
-        var rand = util.randomGenerator(seed || 0);
-        var results = [];
-        for (var i = 0; i < amount; i += 1) {
-            results.push(l[Math.floor(rand(0, l.length))]);
-        }
-        return results;
+    if (!seed && seed !== 0) {
+        seed = Math.random();
     }
+    var rand = util.randomGenerator(seed || 0);
+    var results = [];
+    for (var i = 0; i < amount; i += 1) {
+        results.push(l[Math.floor(rand(0, l.length))]);
+    }
+    return results;
+};
+
+grob.randomSample = function (l, amount, seed) {
+    if (!l || l.length === 0 || amount <= 0) {
+        return [];
+    }
+    if (!seed && seed !== 0) {
+        seed = Math.random();
+    }
+    var shuffledlist = grob.shuffle(l, seed);
+    return grob.slice(shuffledlist, 0, amount);
 };
 
 grob.repeat = function (l, amount, perItem) {
@@ -136,6 +149,9 @@ grob.shift = function (l, amount) {
 
 grob.shuffle = function (l, seed) {
     var i, j, tmp, r;
+    if (!seed && seed !== 0) {
+        seed = Math.random();
+    }
     r = util.randomGenerator(seed || 0);
     for (i = l.length - 1; i > 0; i--) {
         j = Math.floor(r(0, i + 1));
@@ -146,14 +162,14 @@ grob.shuffle = function (l, seed) {
     return l;
 };
 
-grob.slice = function (l, startIndex, size, invert) {
+grob.slice = function (l, start, size, invert) {
     if (!l) { return []; }
     var firstList, secondList;
     if (!invert) {
-        return l.slice(startIndex, startIndex + size);
+        return l.slice(start, start + size);
     } else {
-        firstList = l.slice(0, startIndex);
-        secondList = l.slice(startIndex + size);
+        firstList = l.slice(0, start);
+        secondList = l.slice(start + size);
         firstList.push.apply(firstList, secondList);
         return firstList;
     }
@@ -168,10 +184,11 @@ grob.switch = function (index) {
     return arguments[index + 1];
 };
 
-grob.takeEvery = function (l, n) {
+grob.takeEvery = function (l, n, offset) {
     var i, results = [];
+    offset = offset || 0;
     for (i = 0; i < l.length; i += 1) {
-        if (i % n === 0) {
+        if (i % n === offset) {
             results.push(l[i]);
         }
     }
