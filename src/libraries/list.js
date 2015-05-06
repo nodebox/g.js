@@ -99,6 +99,7 @@ grob.randomSample = function (l, amount, seed) {
         seed = Math.random();
     }
     var shuffledlist = grob.shuffle(l, seed);
+    if (!amount) { return shuffledlist; }
     return grob.slice(shuffledlist, 0, amount);
 };
 
