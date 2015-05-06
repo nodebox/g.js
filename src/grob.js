@@ -21,6 +21,9 @@ importCommands(require('./libraries/image'));
 importCommands(require('./libraries/graphics'));
 
 for (var k in vg) {
+    if (k === 'sort') {
+        k = 'shapeSort';
+    }
     grob[k] = vg[k];
 }
 
