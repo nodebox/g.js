@@ -124,7 +124,7 @@ grob.mix = function (a, b, t) {
             var va = a[k];
             var vb = b[k];
             if (va !== undefined && vb !== undefined) {
-                result[k] = math.mix(va, vb, t);
+                result[k] = grob.mix(va, vb, t);
             }
         }
         return result;
