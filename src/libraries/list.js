@@ -176,6 +176,24 @@ grob.slice = function (l, start, size, invert) {
     }
 };
 
+grob.sort = function (l, key) {
+    if (key) {
+        if (typeof key === 'string') {
+            return l.slice().sort(function (a, b) {
+                if (a[key] > b[key]) { return 1; }
+                else if (a[key] === b[key]) { return 0; }
+                else { return -1; }
+            });
+        } else if (typeof key === 'function') {
+            return l.slice().sort(key);
+        }
+    }
+    if (l && l[0] !== undefined && l[0] !== null && typeof l[0] === 'number') {
+        return l.slice().sort(function (a, b) { return a - b; });
+    }
+    return l.slice().sort();
+};
+
 grob.switch = function (index) {
     var nLists = (arguments.length - 1);
     index = index % nLists;
