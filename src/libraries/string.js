@@ -49,11 +49,11 @@ grob.concatenate = function (s1, s2, s3, s4) {
     return s1 + s2 + s3 + s4;
 };
 
-grob.contains = function (s, value) {
+/*grob.contains = function (s, value) {
     if (!s || !value) { return false; }
     s = String(s);
     return s.indexOf(value) !== -1;
-};
+};*/
 
 grob.endsWith = function (s, value) {
     if (!s || !value) { return false; }
