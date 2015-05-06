@@ -21,11 +21,11 @@ importCommands(require('./libraries/image'));
 importCommands(require('./libraries/graphics'));
 
 for (var k in vg) {
-    if (k === 'sort') {
-        k = 'shapeSort';
+    if (k !== 'sort') {
+        grob[k] = vg[k];
     }
-    grob[k] = vg[k];
 }
+grob.shapeSort = vg.sort;
 
 for (var k in img) {
     grob[k] = img[k];
