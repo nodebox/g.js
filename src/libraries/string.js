@@ -11,7 +11,92 @@ grob.characterAt = function (s, index) {
     return s.charAt(index);
 };
 
-grob.characterCodes = function(s, radix, padding) {
+grob.concatenate = function (s1, s2, s3, s4) {
+    s1 = String(s1) || "";
+    s2 = String(s2) || "";
+    s3 = String(s3) || "";
+    s4 = String(s4) || "";
+    return s1 + s2 + s3 + s4;
+};
+
+grob.endsWith = function (s, value) {
+    if (!s || !value) { return false; }
+    s = String(s);
+    return s.indexOf(value, s.length - value.length) !== -1;
+};
+
+grob.equal = function (s, value, caseSensitive) {
+    s = String(s);
+    if (!s || !value) {
+        return false;
+    }
+    if (caseSensitive) {
+        return s === value;
+    } else {
+        return s.toLowerCase() === value.toLowerCase();
+    }
+};
+
+grob.replace = function (s, old, new_) {
+    s = String(s);
+    return s.replace(new RegExp(old, "g"), new_);
+};
+
+grob.reverse = function (l) {
+    return l.slice().reverse();
+};
+
+grob.startsWith = function (s, value) {
+    if (!s || !value) { return false; }
+    s = String(s);
+    return s.indexOf(value) === 0;
+};
+
+grob["string"] = String;
+
+grob.stringContains = function (s, sub) {
+    if (!s || !sub) { return false; }
+    s = String(s);
+    return s.indexOf(sub) !== -1;
+};
+
+grob.stringLength = function (s) {
+    if (!s) { return 0; }
+    s = String(s);
+    return s.length;
+};
+
+grob.stringSplit = function (s, separator) {
+    if (!s) { return []; }
+    if (!separator || separator.length === 0) {
+        separator = "";
+    }
+    s = String(s);
+    return s.split(separator);
+};
+
+grob.stringTrim = function (s) {
+    if (!s) { return null; }
+    s = String(s);
+    return s.trim();
+};
+
+grob.substring = function (s, start, end, endOffset) {
+    if (!s) { return null; }
+    s = String(s);
+    start -= 1;
+    end -= 1;
+    start = start % s.length;
+
+    if (endOffset) {
+        end = (end % s.length) + 1;
+    } else {
+        end = end % (s.length + 1);
+    }
+    return s.substring(start, end);
+};
+
+grob.toCharacterCodes = function(s, radix, padding) {
     function format(f, val) {
         return val;
     }
@@ -82,102 +167,6 @@ grob.characterCodes = function(s, radix, padding) {
     return numberList;
 };
 
-grob.concatenate = function (s1, s2, s3, s4) {
-    s1 = String(s1) || "";
-    s2 = String(s2) || "";
-    s3 = String(s3) || "";
-    s4 = String(s4) || "";
-    return s1 + s2 + s3 + s4;
-};
-
-/*grob.contains = function (s, value) {
-    if (!s || !value) { return false; }
-    s = String(s);
-    return s.indexOf(value) !== -1;
-};*/
-
-grob.endsWith = function (s, value) {
-    if (!s || !value) { return false; }
-    s = String(s);
-    return s.indexOf(value, s.length - value.length) !== -1;
-};
-
-grob.equal = function (s, value, caseSensitive) {
-    s = String(s);
-    if (!s || !value) {
-        return false;
-    }
-    if (caseSensitive) {
-        return s === value;
-    } else {
-        return s.toLowerCase() === value.toLowerCase();
-    }
-};
-
-grob.length = function (s) {
-    if (!s) { return 0; }
-    s = String(s);
-    return s.length;
-};
-
-grob.makeStrings = function (s, separator) {
-    if (!s) { return []; }
-    if (!separator || separator.length === 0) {
-        separator = "";
-    }
-    s = String(s);
-    return s.split(separator);
-};
-
-grob.randomCharacter = function (characterSet, amount, seed) {
-    var index,
-        result = [],
-        rand = util.randomGenerator(seed || 0);
-    for (var i = 0; i < amount; i += 1) {
-        index = Math.floor(rand() * characterSet.length);
-        result.push(characterSet.charAt(index));
-    }
-    return result;
-};
-
-grob.replace = function (s, old, new_) {
-    s = String(s);
-    return s.replace(new RegExp(old, "g"), new_);
-};
-
-grob.reverse = function (l) {
-    return l.slice().reverse();
-};
-
-grob.startsWith = function (s, value) {
-    if (!s || !value) { return false; }
-    s = String(s);
-    return s.indexOf(value) === 0;
-};
-
-grob["string"] = String;
-
-grob.subString = function (s, start, end, endOffset) {
-    if (!s) { return null; }
-    s = String(s);
-    start -= 1;
-    end -= 1;
-    start = start % s.length;
-
-    if (endOffset) {
-        end = (end % s.length) + 1;
-    } else {
-        end = end % (s.length + 1);
-    }
-    return s.substring(start, end);
-};
-
-grob.trim = function (s) {
-    if (!s) { return null; }
-    s = String(s);
-    return s.trim();
-};
-
 grob.toCharacters = function (s) {
     if (!s) { return []; }
     s = String(s);
@@ -214,5 +203,14 @@ grob.wordCount = function (s) {
     var split = s.split(new RegExp("\\w+"));
     return split.length - 1;
 };
+
+grob.toWords = function (s) {
+    var l = s.split(/\W+/);
+    if (l[l.length - 1] === '') {
+        l.pop();
+    }
+    return l;
+};
+
 
 module.exports = grob;
