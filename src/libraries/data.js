@@ -17,19 +17,28 @@ function domainExtent(domain) {
     }
 }
 
-// Convert values from the input domain to the output range
-grob.convert = function(scale, v) {
-    var extent = domainExtent(scale.domain),
-        inMin = extent[0],
-        inMax = extent[1];
-    // Convert value to 0.0-1.0 range.
+// Convert values from one range to another
+grob.convert = function (v, inMin, inMax, outMin, outMax) {
+    var argLength = arguments.length;
+    if (argLength === 2) {
+        var d = arguments[1];
+        inMin = d.inMin;
+        inMax = d.inMax;
+        outMin = d.outMin;
+        outMax = d.outMax;
+    } else if (argLength === 3) {
+        inMin = arguments[1][0];
+        inMax = arguments[1][1];
+        outMin = arguments[2][0];
+        outMax = arguments[2][1];
+    }
     try {
         v = (v - inMin) / (inMax - inMin);
     } catch (e) {
         v = inMin;
     }
     // Convert value to target range.
-    return scale.outMin + v * (scale.outMax - scale.outMin);
+    return outMin + v * (outMax - outMin);
 };
 
 grob.filterData = function (data, key, op, value) {
@@ -61,7 +70,7 @@ grob.groupBy = function (data, key) {
     return _.values(_.groupBy(data, key));
 };
 
-// Draw a legend.
+/* // Draw a legend. ==> rename to axis?
 grob.legend = function (scale, position, direction, nTicks) {
     var ticks = grob.ticks(scale, nTicks),
         group = new vg.Group(),
@@ -82,7 +91,7 @@ grob.legend = function (scale, position, direction, nTicks) {
         group.add(t);
     }
     return group;
-};
+}; */
 
 grob.lookup = function (table, key) {
     var obj, v;
@@ -113,34 +122,11 @@ grob.dataScale = function (domain, outMin, outMax) {
 };
 
 
-// Lookup the table given a list of keys and values.
-grob.tableLookup = function (key, keys, values, delimiter) {
-    delimiter = delimiter || ',';
-    var i, m = {};
-    if(_.isString(keys)) {
-        keys = keys.split(delimiter);
-    }
-    if(_.isString(values)) {
-        values = values.split(delimiter);
-    }
-    if (_.isArray(keys) && _.isArray(values) && keys.length === values.length) {
-        for (i = 0; i < keys.length; i += 1) {
-            m[keys[i].trim()] = values[i].trim();
-        }
-        return m[key];
-    } else {
-        return null;
-    }
-};
-
 // Generate about n values for the given scale.
-grob.ticks = function (scale, n) {
+grob.ticks = function (min, max, n) {
     n = n !== undefined ? n : 10;
 
-    var extent = domainExtent(scale.domain),
-        min = extent[0],
-        max = extent[1],
-        span = max - min,
+    var span = max - min,
         step = Math.pow(10, Math.floor(Math.log(span / n) / Math.LN10)),
         err = n / span * step,
         ticks = [],
