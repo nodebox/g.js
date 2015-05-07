@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require("lodash");
+var list = require('./list');
 
 var grob = {};
 
@@ -92,6 +93,14 @@ grob.legend = function (scale, position, direction, nTicks) {
     }
     return group;
 }; */
+
+grob.keys = function (data) {
+    var allKeys = [];
+    for (var i = 0; i < data.length; i++) {
+        allKeys = allKeys.concat(_.keys(data[i]));
+    }
+    return list.distinct(allKeys);
+};
 
 grob.lookup = function (table, key) {
     var obj, v;
