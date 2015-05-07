@@ -7,18 +7,6 @@ var vg = require('vg.js');
 
 var grob = {};
 
-grob.angle = function (point1, point2) {
-    return grob.degrees(Math.atan2(point2.y - point1.y, point2.x - point1.x));
-};
-
-grob.coordinates = function (point1, distance, angle) {
-    return vg.geo.coordinates(point1.x, point1.y, distance, angle);
-};
-
-grob.distance = function (point1, point2) {
-    return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
-};
-
 grob.abs = Math.abs;
 
 grob.accumulate = function (values) {
