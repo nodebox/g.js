@@ -37,11 +37,6 @@ grob.equal = function (s, value, caseSensitive) {
     }
 };
 
-grob.replace = function (s, old, new_) {
-    s = String(s);
-    return s.replace(new RegExp(old, "g"), new_);
-};
-
 grob.reverse = function (l) {
     return l.slice().reverse();
 };
@@ -64,6 +59,11 @@ grob.stringLength = function (s) {
     if (!s) { return 0; }
     s = String(s);
     return s.length;
+};
+
+grob.stringReplace = function (s, old, new_) {
+    s = String(s);
+    return s.replace(new RegExp(old, "g"), new_);
 };
 
 grob.stringSplit = function (s, separator) {
