@@ -11,10 +11,75 @@ grob.characterAt = function (s, index) {
     return s.charAt(index);
 };
 
-grob.characters = function (s) {
-    if (!s) { return []; }
+grob.characterCodes = function(s, radix, padding) {
+    function format(f, val) {
+        return val;
+    }
+    var i, j, cval, val, result,
+        numberList = [];
+    if (radix < 2 || !s) { return numberList; }
     s = String(s);
-    return s.split("");
+    if (padding) {
+        if (radix === 2) { // binary
+            for (i = 0; i < s.length; i += 1) {
+                cval = s.charCodeAt(i);
+                result = "";
+                for (j = 0; j < 8; j += 1) {
+                    result += (cval & 128) == 0 ? "0" : "1";
+                    cval <<= 1;
+                }
+                numberList.push(result);
+            }
+        } else if (radix == 3) {
+            for (i = 0; i < s.length; i += 1) {
+                cval = s.charCodeAt(i);
+                val = parseInt(cval, radix);
+                numberList.push(format("%06d", val));
+            }
+        } else if (radix > 3 && radix < 7) {
+            for (i = 0; i < s.length; i += 1) {
+                cval = s.charCodeAt(i);
+                val = parseInt(cval, radix);
+                numberList.push(format("%04d", val));
+            }
+        } else if (radix < 15) {
+            for (i = 0; i < s.length; i += 1) {
+                cval = s.charCodeAt(i);
+                result = parseInt(cval, radix);
+                for (j = result.length; j < 3; j += 1) {
+                    result = "0" + result;
+                }
+                numberList.push(result);
+            }
+        } else {
+            for (i = 0; i < s.length; i += 1) {
+                cval = s.charCodeAt(i);
+                result = parseInt(cval, radix);
+                for (j = result.length; j < 2; j += 1) {
+                    result = "0" + result;
+                }
+                numberList.push(result);
+            }
+        }
+    } else {
+        if (radix === 2) { // binary
+            for (i = 0; i < s.length; i += 1) {
+                cval = s.charCodeAt(i);
+                result = "";
+                for (j = 0; j < 8; j += 1) {
+                    result += (cval & 128) == 0 ? "0" : "1";
+                    cval <<= 1;
+                }
+                numberList.push(result);
+            }
+        } else {
+            for (i = 0; i < s.length; i += 1) {
+                cval = s.charCodeAt(i);
+                numberList.add(parseInt(cval, radix));
+            }
+        }
+    }
+    return numberList;
 };
 
 grob.concatenate = function (s1, s2, s3, s4) {
@@ -113,6 +178,12 @@ grob.trim = function (s) {
     return s.trim();
 };
 
+grob.toCharacters = function (s) {
+    if (!s) { return []; }
+    s = String(s);
+    return s.split("");
+};
+
 grob.toLowerCase = function (s) {
     s = String(s);
     return s.toLowerCase();
@@ -135,77 +206,6 @@ grob.toTitleCase = function (s) {
 grob.toUpperCase = function (s) {
     s = String(s);
     return s.toUpperCase();
-};
-
-grob.toUnicode = function(s, radix, padding) {
-    function format(f, val) {
-        return val;
-    }
-    var i, j, cval, val, result,
-        numberList = [];
-    if (radix < 2 || !s) { return numberList; }
-    s = String(s);
-    if (padding) {
-        if (radix === 2) { // binary
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                result = "";
-                for (j = 0; j < 8; j += 1) {
-                    result += (cval & 128) == 0 ? "0" : "1";
-                    cval <<= 1;
-                }
-                numberList.push(result);
-            }
-        } else if (radix == 3) {
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                val = parseInt(cval, radix);
-                numberList.push(format("%06d", val));
-            }
-        } else if (radix > 3 && radix < 7) {
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                val = parseInt(cval, radix);
-                numberList.push(format("%04d", val));
-            }
-        } else if (radix < 15) {
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                result = parseInt(cval, radix);
-                for (j = result.length; j < 3; j += 1) {
-                    result = "0" + result;
-                }
-                numberList.push(result);
-            }
-        } else {
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                result = parseInt(cval, radix);
-                for (j = result.length; j < 2; j += 1) {
-                    result = "0" + result;
-                }
-                numberList.push(result);
-            }
-        }
-    } else {
-        if (radix === 2) { // binary
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                result = "";
-                for (j = 0; j < 8; j += 1) {
-                    result += (cval & 128) == 0 ? "0" : "1";
-                    cval <<= 1;
-                }
-                numberList.push(result);
-            }
-        } else {
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                numberList.add(parseInt(cval, radix));
-            }
-        }
-    }
-    return numberList;
 };
 
 grob.wordCount = function (s) {
