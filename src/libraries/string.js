@@ -3,30 +3,6 @@
 var util = require('./util');
 var grob = {};
 
-grob.changeCase = function (s, caseMethod) {
-    var i, c, result;
-    caseMethod = caseMethod.toLowerCase();
-    s = String(s);
-    if (caseMethod === "lowercase") {
-        return s.toLowerCase();
-    } else if (caseMethod === "uppercase") {
-        return s.toUpperCase();
-    } else if (caseMethod === "titlecase") {
-        result = "";
-        for (i = 0; i < s.length; i += 1) {
-            c = s[i];
-            if (result.length === 0 || result[result.length - 1] === " ") {
-                result += c.toUpperCase();
-            } else {
-                result += c;
-            }
-        }
-        return result;
-    } else {
-        return s;
-    }
-};
-
 grob.characterAt = function (s, index) {
     if (!s || s.length === 0) { return null; }
     s = String(s);
@@ -135,6 +111,30 @@ grob.trim = function (s) {
     if (!s) { return null; }
     s = String(s);
     return s.trim();
+};
+
+grob.toLowerCase = function (s) {
+    s = String(s);
+    return s.toLowerCase();
+};
+
+grob.toTitleCase = function (s) {
+    var c, result = "";
+    s = String(s);
+    for (var i = 0; i < s.length; i += 1) {
+        c = s[i];
+        if (result.length === 0 || result[result.length - 1] === " ") {
+            result += c.toUpperCase();
+        } else {
+            result += c;
+        }
+    }
+    return result;
+};
+
+grob.toUpperCase = function (s) {
+    s = String(s);
+    return s.toUpperCase();
 };
 
 grob.toUnicode = function(s, radix, padding) {
