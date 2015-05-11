@@ -40,6 +40,10 @@ grob.importImage = function (image) {
     return new g.Img(layer.toCanvas());
 };
 
+grob.importText = function (string) {
+    return string ? String(string) : '';
+};
+
 grob.importCSV = function (csvString, delimiter) {
     // Try to parse the string as a number.
     // Return a number or else the string, unchanged.
