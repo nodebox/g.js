@@ -2,6 +2,8 @@ GROB
 ====
 Grob is a JavaScript library for working with GRaphical OBjects. It provides a unified API for working with vector graphics (rectangles, paths, and text) and images.
 
+Build status: [![Build Status](https://travis-ci.org/nodebox/grob.svg?branch=master)](https://travis-ci.org/nodebox/grob)
+
 Installation
 ------------
 
