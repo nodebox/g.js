@@ -5,19 +5,6 @@ var list = require('./list');
 
 var grob = {};
 
-// Return a tuple showing the beginning and end values of the domain.
-// Note that this function does not order the domain list, so the values
-// might not be the largest and smallest values.
-function domainExtent(domain) {
-    var begin = domain[0],
-        end = domain[domain.length - 1];
-    if (begin < end) {
-        return [begin, end];
-    } else {
-        return [end, begin];
-    }
-}
-
 // Convert values from one range to another
 grob.convert = function (v, inMin, inMax, outMin, outMax) {
     var argLength = arguments.length;
