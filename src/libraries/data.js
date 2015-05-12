@@ -37,9 +37,9 @@ grob.filterData = function (data, key, op, value) {
     for (var i = 0; i < data.length; i += 1) {
         var row = data[i];
         var obj = row[key];
-        if (op === '==' && obj === value) {
+        if (op === '==' && obj == value) { // jshint ignore:line
             results.push(row);
-        } else if (op === '!=' && obj !== value) {
+        } else if (op === '!=' && obj != value) { // jshint ignore:line
             results.push(row);
         } else if (op === '>' && obj > value) {
             results.push(row);
