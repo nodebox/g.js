@@ -36,8 +36,8 @@ grob.importSVG = function (svgString) {
 };
 
 grob.importImage = function (image) {
-    var layer = g.Layer.fromImage(image);
-    return new g.Img(layer.toCanvas());
+    var layer = grob.Layer.fromImage(image);
+    return new grob.Img(layer.toCanvas());
 };
 
 grob.importText = function (string) {
