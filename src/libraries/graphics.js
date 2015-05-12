@@ -92,11 +92,11 @@ grob.copy = function (shape, copies, order, translate, rotate, scale) {
     return shapes;
 };
 
-grob.fit = function (shape, position, width, height, keepProportions) {
+grob.fit = function (shape, position, width, height, stretch) {
     if (!shape) {
         return;
     }
-    keepProportions = keepProportions !== undefined ? keepProportions : true;
+    stretch = stretch !== undefined ? stretch : false;
     var t, sx, sy,
         bounds = shape.bounds(),
         bx = bounds.x,
@@ -112,7 +112,7 @@ grob.fit = function (shape, position, width, height, keepProportions) {
     t = new vg.Transform();
     t = t.translate(position.x, position.y);
 
-    if (keepProportions) {
+    if (!stretch) {
         // don't scale widths or heights that are equal to zero.
         sx = (bw > 0) ? (width / bw) : Number.MAX_VALUE;
         sy = (bh > 0) ? (height / bh) : Number.MAX_VALUE;
@@ -127,7 +127,7 @@ grob.fit = function (shape, position, width, height, keepProportions) {
     return transform(shape, t);
 };
 
-grob.fitTo = function (shape, bounding, keepProportions) {
+grob.fitTo = function (shape, bounding, stretch) {
     if (!shape) {
         return;
     }
@@ -141,7 +141,7 @@ grob.fitTo = function (shape, bounding, keepProportions) {
         bw = bounds.width,
         bh = bounds.height;
 
-    return grob.fit(shape, {x: bx + bw / 2, y: by + bh / 2}, bw, bh, keepProportions);
+    return grob.fit(shape, {x: bx + bw / 2, y: by + bh / 2}, bw, bh, stretch);
 };
 
 // TODO: Make this work for vector shapes
