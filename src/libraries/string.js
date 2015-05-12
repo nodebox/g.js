@@ -1,6 +1,5 @@
 'use strict';
 
-var util = require('./util');
 var grob = {};
 
 grob.characterAt = function (s, index) {
@@ -47,7 +46,7 @@ grob.startsWith = function (s, value) {
     return s.indexOf(value) === 0;
 };
 
-grob['string'] = String;
+grob.string = String;
 
 grob.stringContains = function (s, sub) {
     if (!s || !sub) { return false; }
@@ -110,12 +109,12 @@ grob.toCharacterCodes = function(s, radix, padding) {
                 cval = s.charCodeAt(i);
                 result = '';
                 for (j = 0; j < 8; j += 1) {
-                    result += (cval & 128) == 0 ? '0' : '1';
+                    result += (cval & 128) === 0 ? '0' : '1';
                     cval <<= 1;
                 }
                 numberList.push(result);
             }
-        } else if (radix == 3) {
+        } else if (radix === 3) {
             for (i = 0; i < s.length; i += 1) {
                 cval = s.charCodeAt(i);
                 val = parseInt(cval, radix);
@@ -152,7 +151,7 @@ grob.toCharacterCodes = function(s, radix, padding) {
                 cval = s.charCodeAt(i);
                 result = '';
                 for (j = 0; j < 8; j += 1) {
-                    result += (cval & 128) == 0 ? '0' : '1';
+                    result += (cval & 128) === 0 ? '0' : '1';
                     cval <<= 1;
                 }
                 numberList.push(result);

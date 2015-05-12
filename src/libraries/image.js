@@ -115,7 +115,7 @@ grob.histogram = function (image, channel, relative) {
     var pixels = image.getPixels();
     var vals = new Array(256);
     var i, c, pixel, comp;
-    for (i = 0; i < vals.length; i += 1) { vals[i] = 0 }
+    for (i = 0; i < vals.length; i += 1) { vals[i] = 0; }
     if (channel === 'lum') {
         for (i = 0; i < pixels.width * pixels.height; i += 1) {
             pixel = pixels.get(i);
