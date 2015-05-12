@@ -4,7 +4,7 @@
   "description": "Graphic Objects Library",
   "main": "src/grob.js",
   "scripts": {
-    "test": "jshint .",
+    "test": "mocha --recursive && jshint .",
     "watchify": "mkdir -p build && watchify src/grob.js --standalone grob --debug -o build/grob.js -v",
     "browserify": "browserify src/grob.js --standalone grob > dist/grob.js",
     "uglify": "browserify src/grob.js --standalone grob -g uglifyify > dist/grob.min.js",
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/nodebox/grob",
   "dependencies": {
-    "img.js": "^0.1.3",
+    "img.js": "^0.1.4",
     "lodash": "^3.7.0",
     "vg.js": "^0.6.2"
   },
