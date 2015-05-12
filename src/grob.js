@@ -65,7 +65,7 @@ grob.importCSV = function (csvString, delimiter) {
                 } else {
                     inString = !inString;
                 }
-            } else if (c === ',') {
+            } else if (c === delimiter) {
                 if (!inString) {
                     row.push(col);
                     col = '';
