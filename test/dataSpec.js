@@ -7,7 +7,7 @@ var it = mocha.it;
 
 var grob = require('../src/grob');
 
-describe('filterData', function () {
+describe('The filterData function', function () {
 
     it('works with strings', function () {
         var data = [{name: 'Alice', age: 42}, {name: 'Bob', age: 33}];

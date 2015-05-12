@@ -16,7 +16,7 @@ describe('The library', function () {
 
 });
 
-describe('Import function', function () {
+describe('The import function', function () {
 
     it('can import an empty SVG', function () {
         var group = grob.importSVG('<svg></svg>');
