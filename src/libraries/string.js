@@ -12,10 +12,10 @@ grob.characterAt = function (s, index) {
 };
 
 grob.concatenate = function (s1, s2, s3, s4) {
-    s1 = String(s1) || "";
-    s2 = String(s2) || "";
-    s3 = String(s3) || "";
-    s4 = String(s4) || "";
+    s1 = String(s1) || '';
+    s2 = String(s2) || '';
+    s3 = String(s3) || '';
+    s4 = String(s4) || '';
     return s1 + s2 + s3 + s4;
 };
 
@@ -47,7 +47,7 @@ grob.startsWith = function (s, value) {
     return s.indexOf(value) === 0;
 };
 
-grob["string"] = String;
+grob['string'] = String;
 
 grob.stringContains = function (s, sub) {
     if (!s || !sub) { return false; }
@@ -63,13 +63,13 @@ grob.stringLength = function (s) {
 
 grob.stringReplace = function (s, old, new_) {
     s = String(s);
-    return s.replace(new RegExp(old, "g"), new_);
+    return s.replace(new RegExp(old, 'g'), new_);
 };
 
 grob.stringSplit = function (s, separator) {
     if (!s) { return []; }
     if (!separator || separator.length === 0) {
-        separator = "";
+        separator = '';
     }
     s = String(s);
     return s.split(separator);
@@ -108,9 +108,9 @@ grob.toCharacterCodes = function(s, radix, padding) {
         if (radix === 2) { // binary
             for (i = 0; i < s.length; i += 1) {
                 cval = s.charCodeAt(i);
-                result = "";
+                result = '';
                 for (j = 0; j < 8; j += 1) {
-                    result += (cval & 128) == 0 ? "0" : "1";
+                    result += (cval & 128) == 0 ? '0' : '1';
                     cval <<= 1;
                 }
                 numberList.push(result);
@@ -119,20 +119,20 @@ grob.toCharacterCodes = function(s, radix, padding) {
             for (i = 0; i < s.length; i += 1) {
                 cval = s.charCodeAt(i);
                 val = parseInt(cval, radix);
-                numberList.push(format("%06d", val));
+                numberList.push(format('%06d', val));
             }
         } else if (radix > 3 && radix < 7) {
             for (i = 0; i < s.length; i += 1) {
                 cval = s.charCodeAt(i);
                 val = parseInt(cval, radix);
-                numberList.push(format("%04d", val));
+                numberList.push(format('%04d', val));
             }
         } else if (radix < 15) {
             for (i = 0; i < s.length; i += 1) {
                 cval = s.charCodeAt(i);
                 result = parseInt(cval, radix);
                 for (j = result.length; j < 3; j += 1) {
-                    result = "0" + result;
+                    result = '0' + result;
                 }
                 numberList.push(result);
             }
@@ -141,7 +141,7 @@ grob.toCharacterCodes = function(s, radix, padding) {
                 cval = s.charCodeAt(i);
                 result = parseInt(cval, radix);
                 for (j = result.length; j < 2; j += 1) {
-                    result = "0" + result;
+                    result = '0' + result;
                 }
                 numberList.push(result);
             }
@@ -150,9 +150,9 @@ grob.toCharacterCodes = function(s, radix, padding) {
         if (radix === 2) { // binary
             for (i = 0; i < s.length; i += 1) {
                 cval = s.charCodeAt(i);
-                result = "";
+                result = '';
                 for (j = 0; j < 8; j += 1) {
-                    result += (cval & 128) == 0 ? "0" : "1";
+                    result += (cval & 128) == 0 ? '0' : '1';
                     cval <<= 1;
                 }
                 numberList.push(result);
@@ -170,7 +170,7 @@ grob.toCharacterCodes = function(s, radix, padding) {
 grob.toCharacters = function (s) {
     if (!s) { return []; }
     s = String(s);
-    return s.split("");
+    return s.split('');
 };
 
 grob.toLowerCase = function (s) {
@@ -179,11 +179,11 @@ grob.toLowerCase = function (s) {
 };
 
 grob.toTitleCase = function (s) {
-    var c, result = "";
+    var c, result = '';
     s = String(s);
     for (var i = 0; i < s.length; i += 1) {
         c = s[i];
-        if (result.length === 0 || result[result.length - 1] === " ") {
+        if (result.length === 0 || result[result.length - 1] === ' ') {
             result += c.toUpperCase();
         } else {
             result += c;
@@ -200,7 +200,7 @@ grob.toUpperCase = function (s) {
 grob.wordCount = function (s) {
     if (!s) { return 0; }
     s = String(s);
-    var split = s.split(new RegExp("\\w+"));
+    var split = s.split(new RegExp('\\w+'));
     return split.length - 1;
 };
 

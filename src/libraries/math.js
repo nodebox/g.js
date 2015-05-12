@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require("lodash");
+var _ = require('lodash');
 
 var util = require('./util');
 var vg = require('vg.js');
@@ -34,7 +34,7 @@ grob.and = function (bool1, bool2) {
     } else if (argLength === 1) {
         return !!bool1;
     } else if (argLength === 0) {
-        throw new Error("Wrong number of arguments");
+        throw new Error('Wrong number of arguments');
     }
     return _.reduce(arguments, function(b1, b2) {
         return b1 && b2;
@@ -70,7 +70,7 @@ grob.compare = function (v1, v2, comparator) {
     } else if (comparator === '!=') {
         return v1 !== v2;
     }
-    throw new Error("Unknown comparison operation " + comparator);
+    throw new Error('Unknown comparison operation ' + comparator);
 };
 
 grob.cos = Math.cos;
@@ -83,7 +83,7 @@ grob.divide = function (a, b) {
     var argLength = arguments.length;
     function checkIfZero(arg) {
         if (arg === 0) {
-            throw new Error("Divide by zero");
+            throw new Error('Divide by zero');
         }
     }
     if (argLength === 2) {
@@ -93,7 +93,7 @@ grob.divide = function (a, b) {
         checkIfZero(a);
         return 1 / a;
     } else if (argLength === 0) {
-        throw new Error("Wrong number of arguments");
+        throw new Error('Wrong number of arguments');
     }
     return _.reduce([].slice.call(arguments, 1), function(total, n) {
         checkIfZero(n);
@@ -139,7 +139,7 @@ grob.max = function () {
         values = arguments[0];
     }
     if (values.length === 0) {
-        throw new Error("Wrong number of arguments");
+        throw new Error('Wrong number of arguments');
     }
     return Math.max.apply(null, values);
 };
@@ -150,7 +150,7 @@ grob.min = function () {
         values = arguments[0];
     }
     if (values.length === 0) {
-        throw new Error("Wrong number of arguments");
+        throw new Error('Wrong number of arguments');
     }
     return Math.min.apply(null, values);
 };
@@ -191,7 +191,7 @@ grob.or = function (bool1, bool2) {
     } else if (argLength === 1) {
         return !!bool1;
     } else if (argLength === 0) {
-        throw new Error("Wrong number of arguments");
+        throw new Error('Wrong number of arguments');
     }
     return _.reduce(arguments, function(b1, b2) {
         return b1 || b2;
@@ -282,7 +282,7 @@ grob.subtract = function (a, b) {
     var argLength = arguments.length;
     if (argLength === 2) { return a - b; }
     else if (argLength === 1) { return -a; }
-    else if (argLength === 0) { throw new Error("Wrong number of arguments"); }
+    else if (argLength === 0) { throw new Error('Wrong number of arguments'); }
     return _.reduce([].slice.call(arguments, 1), function(total, n) {
         return total - n;
     }, arguments[0]);
@@ -304,7 +304,7 @@ grob.xor = function (bool1, bool2) {
     if (argLength === 2) {
         return !!(bool1 ^ bool2);
     } else {
-        throw new Error("Wrong number of arguments");
+        throw new Error('Wrong number of arguments');
     }
 };
 
