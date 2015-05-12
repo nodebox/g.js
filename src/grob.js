@@ -32,7 +32,7 @@ for (var k in img) {
 }
 
 grob.importSVG = function (svgString) {
-    return g.svg.parseString(svgString);
+    return grob.svg.parseString(svgString);
 };
 
 grob.importImage = function (image) {
