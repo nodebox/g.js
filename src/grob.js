@@ -13,13 +13,6 @@ function importCommands(module) {
     }
 }
 
-importCommands(require('./libraries/math'));
-importCommands(require('./libraries/string'));
-importCommands(require('./libraries/list'));
-importCommands(require('./libraries/data'));
-importCommands(require('./libraries/image'));
-importCommands(require('./libraries/graphics'));
-
 for (var k in vg) {
     if (k !== 'sort') {
         grob[k] = vg[k];
@@ -30,6 +23,13 @@ grob.shapeSort = vg.sort;
 for (var k in img) {
     grob[k] = img[k];
 }
+
+importCommands(require('./libraries/math'));
+importCommands(require('./libraries/string'));
+importCommands(require('./libraries/list'));
+importCommands(require('./libraries/data'));
+importCommands(require('./libraries/image'));
+importCommands(require('./libraries/graphics'));
 
 grob.importSVG = function (svgString) {
     return grob.svg.parseString(svgString);
