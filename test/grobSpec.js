@@ -44,7 +44,6 @@ describe('Import function', function () {
 
         var tsv = 'name\tage\nAlice\t42\nBob\t33';
         var table2 = grob.importCSV(tsv, '\t');
-        console.log(table2);
         assertTable(table2);
     });
 
