@@ -54,13 +54,6 @@ grob.align = function (shape, position, hAlign, vAlign) {
     return transform(shape, t);
 };
 
-grob.bounds = function (shape) {
-    if (!shape) {
-        return null;
-    }
-    return shape.bounds();
-};
-
 grob.copy = function (shape, copies, order, translate, rotate, scale) {
     var i, t, j, op, fn,
         shapes = [],
