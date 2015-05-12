@@ -1,5 +1,6 @@
 'use strict';
 
+var _ = require('lodash');
 var vg = require('vg.js');
 var img = require('img.js');
 var math = require('./math');
