@@ -7,6 +7,10 @@ var math = require('./math');
 
 var grob = {};
 
+grob.HORIZONTAL = 'horizontal';
+grob.VERTICAL = 'vertical';
+grob.BOTH = 'both';
+
 function transformShape(shape, t) {
     return t.transformShape(shape);
 }
@@ -92,19 +96,19 @@ grob.copy = function (shape, copies, order, translate, rotate, scale) {
     return shapes;
 };
 
-grob.flip = function (shape, flip) {
-    if (flip === 'none') { return shape; }
+grob.flip = function (shape, axis) {
+    if (axis === 'none') { return shape; }
     if (shape instanceof vg.Path || shape instanceof vg.Group) {
-        var x = method === 'horizontal' || method === 'both' ? -1 : 1;
-        var y = method === 'vertical' || method === 'both' ? -1 : 1;
+        var x = method === grob.HORIZONTAL || axis === grob.BOTH ? -1 : 1;
+        var y = method === grob.VERTICAL || axis === grob.BOTH ? -1 : 1;
         return vg.scale(shape, new vg.Point(x, y), vg.centerPoint(shape));
     } else if (shape instanceof img.Img) {
         var image = shape;
         var layer = image.toLayer(false);
-        if (flip === 'horizontal' || flip === 'both') {
+        if (flip === grob.HORIZONTAL || axis === grob.BOTH) {
             image.flipHorizontal();
         }
-        if (flip === 'vertical' || flip === 'both') {
+        if (flip === grob.VERTICAL || axis === grob.BOTH) {
             image.flipVertical();
         }
         return image.withCanvas(layer.toCanvas());
