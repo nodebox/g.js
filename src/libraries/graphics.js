@@ -11,6 +11,13 @@ grob.HORIZONTAL = 'horizontal';
 grob.VERTICAL = 'vertical';
 grob.BOTH = 'both';
 
+grob.LEFT = 'left';
+grob.RIGHT = 'right';
+grob.CENTER = 'center';
+grob.TOP = 'top';
+grob.BOTTOM = 'bottom';
+grob.MIDDLE = 'middle';
+
 function transformShape(shape, t) {
     return t.transformShape(shape);
 }
@@ -35,20 +42,20 @@ grob.align = function (shape, position, hAlign, vAlign) {
         x = position.x,
         y = position.y,
         bounds = shape.bounds();
-    if (hAlign === 'left') {
+    if (hAlign === grob.LEFT) {
         dx = x - bounds.x;
-    } else if (hAlign === 'right') {
+    } else if (hAlign === grob.RIGHT) {
         dx = x - bounds.x - bounds.width;
-    } else if (hAlign === 'center') {
+    } else if (hAlign === grob.CENTER) {
         dx = x - bounds.x - bounds.width / 2;
     } else {
         dx = 0;
     }
-    if (vAlign === 'top') {
+    if (vAlign === grob.TOP) {
         dy = y - bounds.y;
-    } else if (vAlign === 'bottom') {
+    } else if (vAlign === grob.BOTTOM) {
         dy = y - bounds.y - bounds.height;
-    } else if (vAlign === 'middle') {
+    } else if (vAlign === grob.MIDDLE) {
         dy = y - bounds.y - bounds.height / 2;
     } else {
         dy = 0;
