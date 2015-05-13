@@ -86,8 +86,8 @@ grob.copy = function (shape, copies, order, translate, rotate, scale) {
         tx += translate.x;
         ty += translate.y;
         r += rotate;
-        sx += scale.x / 100;
-        sy += scale.y / 100;
+        sx += scale.x;
+        sy += scale.y;
     }
     return shapes;
 };
