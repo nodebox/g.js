@@ -86,18 +86,6 @@ grob.findEdges = function (image) {
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.flip = function (image, flip) {
-    var layer = image.toLayer(false);
-    if (flip === 'none') { return image; }
-    if (flip === 'horizontal' || flip === 'both') {
-        layer.flipHorizontal();
-    }
-    if (flip === 'vertical' || flip === 'both') {
-        layer.flipVertical();
-    }
-    return image.withCanvas(layer.toCanvas());
-};
-
 grob.glow = function (image, amount, kernelSize) {
     var layer = image.toLayer(false);
     layer.addFilter('glow', {amount: amount / 100, kernelSize: kernelSize});

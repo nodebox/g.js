@@ -92,6 +92,25 @@ grob.copy = function (shape, copies, order, translate, rotate, scale) {
     return shapes;
 };
 
+grob.flip = function (shape, flip) {
+    if (flip === 'none') { return shape; }
+    if (shape instanceof vg.Path || shape instanceof vg.Group) {
+        var x = method === 'horizontal' || method === 'both' ? -1 : 1;
+        var y = method === 'vertical' || method === 'both' ? -1 : 1;
+        return vg.scale(shape, new vg.Point(x, y), vg.centerPoint(shape));
+    } else if (shape instanceof img.Img) {
+        var image = shape;
+        var layer = image.toLayer(false);
+        if (flip === 'horizontal' || flip === 'both') {
+            image.flipHorizontal();
+        }
+        if (flip === 'vertical' || flip === 'both') {
+            image.flipVertical();
+        }
+        return image.withCanvas(layer.toCanvas());
+    }
+};
+
 grob.fit = function (shape, position, width, height, stretch) {
     if (!shape) {
         return;
