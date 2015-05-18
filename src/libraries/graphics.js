@@ -115,7 +115,7 @@ grob.copy = function (shape, copies, order, translate, rotate, scale) {
 
 grob.flip = function (shape, axis) {
     if (axis === 'none') { return shape; }
-    if (shape instanceof vg.Path || shape instanceof vg.Group) {
+    if (shape instanceof vg.Path || shape instanceof vg.Group || (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined)) {
         var x = axis === grob.HORIZONTAL || axis === grob.BOTH ? -1 : 1;
         var y = axis === grob.VERTICAL || axis === grob.BOTH ? -1 : 1;
         return vg.scale(shape, new vg.Point(x, y), vg.centerPoint(shape));
