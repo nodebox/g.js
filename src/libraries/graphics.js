@@ -29,6 +29,8 @@ function transformImage(image, t) {
 function transform(shape, t) {
     if (shape instanceof vg.Path || shape instanceof vg.Group) {
         return transformShape(shape, t);
+    } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+        return transformShape(shape, t);
     } else if (shape instanceof img.Img) {
         return transformImage(shape, t);
     }
