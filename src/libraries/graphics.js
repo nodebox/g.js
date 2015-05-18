@@ -72,9 +72,13 @@ grob.copy = function (shape, copies, order, translate, rotate, scale) {
         ty = 0,
         r = 0,
         sx = 1.0,
-        sy = 1.0;
+        sy = 1.0,
+        isListOfPoints = false;
 
     if (shape instanceof vg.Path || shape instanceof vg.Group) {
+        fn = transformShape;
+    } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+        isListOfPoints = true;
         fn = transformShape;
     } else if (shape instanceof img.Img) {
         fn = transformImage;
@@ -92,7 +96,11 @@ grob.copy = function (shape, copies, order, translate, rotate, scale) {
                 t = t.scale(sx, sy);
             }
         }
-        shapes.push(fn(shape, t));
+        if (isListOfPoints) {
+            shapes = shapes.concat(fn(shape, t));
+        } else {
+            shapes.push(fn(shape, t));
+        }
 
         tx += translate.x;
         ty += translate.y;
