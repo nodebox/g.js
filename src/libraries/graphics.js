@@ -41,7 +41,7 @@ grob.align = function (shape, position, hAlign, vAlign) {
     var dx, dy, t,
         x = position.x,
         y = position.y,
-        bounds = shape.bounds();
+        bounds = vg.bounds(shape);
     if (hAlign === grob.LEFT) {
         dx = x - bounds.x;
     } else if (hAlign === grob.RIGHT) {
