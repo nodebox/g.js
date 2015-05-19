@@ -7,6 +7,8 @@ var vg = require('vg.js');
 
 var grob = {};
 
+var TWO_PI = Math.PI * 2;
+
 grob.abs = Math.abs;
 
 grob.accumulate = function (values) {
@@ -286,7 +288,7 @@ grob.sineWave = function (v, min, max, period, offset) {
     if (period === undefined) period = 1;
     if (offset === undefined) offset = 0;
     var amplitude = (max - min) / 2;
-    return (min + amplitude) + Math.sin((offset + v) * Math.PI / period) * amplitude;
+    return (min + amplitude) + Math.sin((offset + v) * TWO_PI / period) * amplitude;
 };
 
 grob.sign = function (v) {

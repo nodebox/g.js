@@ -29,19 +29,22 @@ describe('The wave functions', function () {
 
     it('returns a valid sine wave', function () {
         assertAlmostEqual(grob.sineWave(0), 0);
-        assertAlmostEqual(grob.sineWave(0.5), 1);
+        assertAlmostEqual(grob.sineWave(0.25), 1);
+        assertAlmostEqual(grob.sineWave(0.5), 0);
+        assertAlmostEqual(grob.sineWave(0.75), -1);
         assertAlmostEqual(grob.sineWave(1), 0);
-        assertAlmostEqual(grob.sineWave(1.5), -1);
 
         assertAlmostEqual(grob.sineWave(0, 100, 200), 150);
-        assertAlmostEqual(grob.sineWave(0.5, 100, 200), 200);
+        assertAlmostEqual(grob.sineWave(0.25, 100, 200), 200);
+        assertAlmostEqual(grob.sineWave(0.5, 100, 200), 150);
+        assertAlmostEqual(grob.sineWave(0.75, 100, 200), 100);
         assertAlmostEqual(grob.sineWave(1, 100, 200), 150);
-        assertAlmostEqual(grob.sineWave(1.5, 100, 200), 100);
 
         assertAlmostEqual(grob.sineWave(0, -1, 1, 100), 0);
-        assertAlmostEqual(grob.sineWave(50, -1, 1, 100), 1);
+        assertAlmostEqual(grob.sineWave(25, -1, 1, 100), 1);
+        assertAlmostEqual(grob.sineWave(50, -1, 1, 100), 0);
+        assertAlmostEqual(grob.sineWave(75, -1, 1, 100), -1);
         assertAlmostEqual(grob.sineWave(100, -1, 1, 100), 0);
-        assertAlmostEqual(grob.sineWave(150, -1, 1, 100), -1);
 
         assertAlmostEqual(grob.sineWave(-0.2, -1, 1, 1, 0.2), 0);
     });
