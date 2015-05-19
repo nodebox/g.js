@@ -7,6 +7,17 @@ var math = require('./math');
 
 var grob = {};
 
+grob.HORIZONTAL = 'horizontal';
+grob.VERTICAL = 'vertical';
+grob.BOTH = 'both';
+
+grob.LEFT = 'left';
+grob.RIGHT = 'right';
+grob.CENTER = 'center';
+grob.TOP = 'top';
+grob.BOTTOM = 'bottom';
+grob.MIDDLE = 'middle';
+
 function transformShape(shape, t) {
     return t.transformShape(shape);
 }
@@ -17,6 +28,8 @@ function transformImage(image, t) {
 
 function transform(shape, t) {
     if (shape instanceof vg.Path || shape instanceof vg.Group) {
+        return transformShape(shape, t);
+    } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
         return transformShape(shape, t);
     } else if (shape instanceof img.Img) {
         return transformImage(shape, t);
@@ -30,21 +43,21 @@ grob.align = function (shape, position, hAlign, vAlign) {
     var dx, dy, t,
         x = position.x,
         y = position.y,
-        bounds = shape.bounds();
-    if (hAlign === 'left') {
+        bounds = vg.bounds(shape);
+    if (hAlign === grob.LEFT) {
         dx = x - bounds.x;
-    } else if (hAlign === 'right') {
+    } else if (hAlign === grob.RIGHT) {
         dx = x - bounds.x - bounds.width;
-    } else if (hAlign === 'center') {
+    } else if (hAlign === grob.CENTER) {
         dx = x - bounds.x - bounds.width / 2;
     } else {
         dx = 0;
     }
-    if (vAlign === 'top') {
+    if (vAlign === grob.TOP) {
         dy = y - bounds.y;
-    } else if (vAlign === 'bottom') {
+    } else if (vAlign === grob.BOTTOM) {
         dy = y - bounds.y - bounds.height;
-    } else if (vAlign === 'middle') {
+    } else if (vAlign === grob.MIDDLE) {
         dy = y - bounds.y - bounds.height / 2;
     } else {
         dy = 0;
@@ -61,9 +74,13 @@ grob.copy = function (shape, copies, order, translate, rotate, scale) {
         ty = 0,
         r = 0,
         sx = 1.0,
-        sy = 1.0;
+        sy = 1.0,
+        isListOfPoints = false;
 
     if (shape instanceof vg.Path || shape instanceof vg.Group) {
+        fn = transformShape;
+    } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+        isListOfPoints = true;
         fn = transformShape;
     } else if (shape instanceof img.Img) {
         fn = transformImage;
@@ -81,15 +98,38 @@ grob.copy = function (shape, copies, order, translate, rotate, scale) {
                 t = t.scale(sx, sy);
             }
         }
-        shapes.push(fn(shape, t));
+        if (isListOfPoints) {
+            shapes = shapes.concat(fn(shape, t));
+        } else {
+            shapes.push(fn(shape, t));
+        }
 
         tx += translate.x;
         ty += translate.y;
         r += rotate;
-        sx += scale.x / 100;
-        sy += scale.y / 100;
+        sx += scale.x;
+        sy += scale.y;
     }
     return shapes;
+};
+
+grob.flip = function (shape, axis) {
+    if (axis === 'none') { return shape; }
+    if (shape instanceof vg.Path || shape instanceof vg.Group || (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined)) {
+        var x = axis === grob.HORIZONTAL || axis === grob.BOTH ? -1 : 1;
+        var y = axis === grob.VERTICAL || axis === grob.BOTH ? -1 : 1;
+        return vg.scale(shape, new vg.Point(x, y), vg.centerPoint(shape));
+    } else if (shape instanceof img.Img) {
+        var image = shape;
+        var layer = image.toLayer(false);
+        if (axis === grob.HORIZONTAL || axis === grob.BOTH) {
+            image.flipHorizontal();
+        }
+        if (axis === grob.VERTICAL || axis === grob.BOTH) {
+            image.flipVertical();
+        }
+        return image.withCanvas(layer.toCanvas());
+    }
 };
 
 grob.fit = function (shape, position, width, height, stretch) {
@@ -98,7 +138,7 @@ grob.fit = function (shape, position, width, height, stretch) {
     }
     stretch = stretch !== undefined ? stretch : false;
     var t, sx, sy,
-        bounds = shape.bounds(),
+        bounds = vg.bounds(shape),
         bx = bounds.x,
         by = bounds.y,
         bw = bounds.width,
@@ -135,7 +175,7 @@ grob.fitTo = function (shape, bounding, stretch) {
         return;
     }
 
-    var bounds = bounding.bounds(),
+    var bounds = vg.bounds(bounding),
         bx = bounds.x,
         by = bounds.y,
         bw = bounds.width,
