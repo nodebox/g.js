@@ -264,6 +264,22 @@ grob.round = function (v, a) {
     return Math.round(v / a) * a;
 };
 
+grob.sample = function (amount, min, max, circular) {
+    var d,
+        values = [],
+        i;
+    values.length = amount;
+    if (circular) {
+        d = (max - min) / amount;
+    } else {
+        d = (max - min) / (amount - 1);
+    }
+    for (i = 0; i < amount; i += 1) {
+        values[i] = min + i * d;
+    }
+    return values;
+};
+
 grob.sign = function (v) {
     if (v > 0) {
         return 1;
