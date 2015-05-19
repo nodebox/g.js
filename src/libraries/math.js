@@ -280,6 +280,15 @@ grob.sample = function (amount, min, max, circular) {
     return values;
 };
 
+grob.sineWave = function (v, min, max, period, offset) {
+    if (min === undefined) min = -1;
+    if (max === undefined) max = 1;
+    if (period === undefined) period = 1;
+    if (offset === undefined) offset = 0;
+    var amplitude = (max - min) / 2;
+    return (min + amplitude) + Math.sin((offset + v) * Math.PI / period) * amplitude;
+};
+
 grob.sign = function (v) {
     if (v > 0) {
         return 1;
