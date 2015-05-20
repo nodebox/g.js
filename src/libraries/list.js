@@ -24,6 +24,10 @@ grob.contains = function (l, value) {
     return false;
 };
 
+grob.equals = function (o1, o2) {
+    return deepEqual.deepEqual(o1, o2);
+};
+
 grob.count = function (l) {
     if (l && l.length) {
         return l.length;

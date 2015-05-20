@@ -24,18 +24,6 @@ grob.endsWith = function (s, value) {
     return s.indexOf(value, s.length - value.length) !== -1;
 };
 
-grob.equal = function (s, value, caseSensitive) {
-    s = String(s);
-    if (!s || !value) {
-        return false;
-    }
-    if (caseSensitive) {
-        return s === value;
-    } else {
-        return s.toLowerCase() === value.toLowerCase();
-    }
-};
-
 grob.reverse = function (l) {
     return l.slice().reverse();
 };
@@ -52,6 +40,19 @@ grob.stringContains = function (s, sub) {
     if (!s || !sub) { return false; }
     s = String(s);
     return s.indexOf(sub) !== -1;
+};
+
+grob.stringEquals = function (string1, string2, ignoreCase) {
+    string1 = String(string1);
+    string2 = String(string2);
+    if (!string1 || !string2) {
+        return false;
+    }
+    if (ignoreCase) {
+        return string1.toLowerCase() === string2.toLowerCase();
+    } else {
+        return string1 === string2;
+    }
 };
 
 grob.stringLength = function (s) {
