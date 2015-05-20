@@ -303,4 +303,13 @@ grob.desaturate = function (shape) {
     return shape.desaturate();
 };
 
+grob.invert = function (shape) {
+    if (shape instanceof img.Img) {
+        var image = shape;
+        var layer = image.toLayer(false);
+        layer.addFilter('invert');
+        return image.withCanvas(layer.toCanvas());
+    }
+};
+
 module.exports = grob;

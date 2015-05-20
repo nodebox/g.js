@@ -129,12 +129,6 @@ grob.histogram = function (image, channel, relative) {
     return vals;
 };
 
-grob.invert = function (image) {
-    var layer = image.toLayer(false);
-    layer.addFilter('invert');
-    return image.withCanvas(layer.toCanvas());
-};
-
 grob.lightTunnel = function (image, position, radius) {
     var layer = image.toLayer(false);
     layer.addFilter('splash', {dx: position.x, dy: position.y, radius: radius});
