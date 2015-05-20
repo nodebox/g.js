@@ -270,8 +270,8 @@ grob.angle = function (point1, point2) {
     return math.degrees(Math.atan2(point2.y - point1.y, point2.x - point1.x));
 };
 
-grob.coordinates = function (point1, distance, angle) {
-    return vg.geo.coordinates(point1.x, point1.y, distance, angle);
+grob.coordinates = function (point, angle, distance) {
+    return vg.geo.coordinates(point.x, point.y, angle, distance);
 };
 
 grob.distance = function (point1, point2) {
