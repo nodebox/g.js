@@ -282,6 +282,14 @@ grob.grayColor = function (gray, alpha, range) {
     return vg.Color.gray(gray, alpha, range);
 };
 
+grob.hexColor = function (s) {
+    s = String(s);
+    if (s[0] !== '#') {
+        s = '#' + s;
+    }
+    return vg.Color.parse(s);
+};
+
 grob.hsbColor = function (hue, saturation, brightness, alpha, range) {
     return vg.Color.hsb(hue, saturation, brightness, alpha, range);
 };
