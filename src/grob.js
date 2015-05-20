@@ -14,11 +14,8 @@ function importCommands(module) {
 }
 
 for (var k in vg) {
-    if (k !== 'sort') {
-        grob[k] = vg[k];
-    }
+    grob[k] = vg[k];
 }
-grob.shapeSort = vg.sort;
 
 for (var k in img) {
     grob[k] = img[k];
