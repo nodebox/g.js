@@ -172,7 +172,7 @@ grob.fitTo = function (shape, bounding, stretch) {
         return;
     }
     if (!bounding) {
-        return;
+        return shape;
     }
 
     var bounds = vg.bounds(bounding),
