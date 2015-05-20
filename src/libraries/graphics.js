@@ -278,4 +278,16 @@ grob.distance = function (point1, point2) {
     return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
 };
 
+grob.grayColor = function (gray, alpha, range) {
+    return vg.Color.gray(gray, alpha, range);
+};
+
+grob.hsbColor = function (hue, saturation, brightness, alpha, range) {
+    return vg.Color.hsb(hue, saturation, brightness, alpha, range);
+};
+
+grob.rgbColor = function (red, green, blue, alpha, range) {
+    return vg.Color.rgb(red, green, blue, alpha, range);
+};
+
 module.exports = grob;
