@@ -123,10 +123,10 @@ grob.flip = function (shape, axis) {
         var image = shape;
         var layer = image.toLayer(false);
         if (axis === grob.HORIZONTAL || axis === grob.BOTH) {
-            image.flipHorizontal();
+            layer.flipHorizontal();
         }
         if (axis === grob.VERTICAL || axis === grob.BOTH) {
-            image.flipVertical();
+            layer.flipVertical();
         }
         return image.withCanvas(layer.toCanvas());
     }
