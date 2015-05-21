@@ -151,7 +151,7 @@ grob.mask = function (image, mask) {
     var b1 = image.bounds();
     var b2 = mask.bounds();
 
-    var b = b1.unite(b2);
+    var b = new vg.Rect(b1.x, b1.y, b1.width, b1.height).unite(b2);
     var width = Math.ceil(b.width);
     var height = Math.ceil(b.height);
     var dx = width / 2 + b.x;
