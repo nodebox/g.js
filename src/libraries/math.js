@@ -310,7 +310,6 @@ grob.triangleWave = function (v, min, max, period, offset) {
     if (max === undefined) max = 1;
     if (period === undefined) period = 1;
     if (offset === undefined) offset = 0;
-
     var amplitude = (max - min) / 2,
         frequency = TWO_PI / period,
         phase = 0,
@@ -319,7 +318,7 @@ grob.triangleWave = function (v, min, max, period, offset) {
         phase = (time * frequency) % TWO_PI;
     }
     if (phase < 0) { phase += TWO_PI; }
-    return amplitude - Math.abs((phase / TWO_PI) * 2 - 1) * amplitude * 2;
+    return 2 * amplitude * (1 + -Math.abs((phase / TWO_PI) * 2 - 1)) + min;
 };
 
 grob.sign = function (v) {
