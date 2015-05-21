@@ -305,6 +305,23 @@ grob.squareWave = function (v, min, max, period, offset) {
     }
 };
 
+grob.triangleWave = function (v, min, max, period, offset) {
+    if (min === undefined) min = -1;
+    if (max === undefined) max = 1;
+    if (period === undefined) period = 1;
+    if (offset === undefined) offset = 0;
+
+    var amplitude = (max - min) / 2,
+        frequency = TWO_PI / period,
+        phase = 0,
+        time = v + offset + period / 4;
+    if (time % period !== 0) {
+        phase = (time * frequency) % TWO_PI;
+    }
+    if (phase < 0) { phase += TWO_PI; }
+    return amplitude - Math.abs((phase / TWO_PI) * 2 - 1) * amplitude * 2;
+};
+
 grob.sign = function (v) {
     if (v > 0) {
         return 1;

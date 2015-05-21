@@ -56,4 +56,12 @@ describe('The wave functions', function () {
         assert.equal(grob.squareWave(0.501), -1);
         assert.equal(grob.squareWave(1), 1);
     });
+
+    it('returns a valid triangle wave', function () {
+        assert.equal(grob.triangleWave(0), 0);
+        assert.equal(grob.triangleWave(0.25), 1);
+        assert.equal(grob.triangleWave(0.5), 0);
+        assert.equal(grob.triangleWave(0.75), -1);
+        assert.equal(grob.triangleWave(1), 0);
+    });
 });
