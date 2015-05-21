@@ -291,6 +291,20 @@ grob.sineWave = function (v, min, max, period, offset) {
     return (min + amplitude) + Math.sin((offset + v) * TWO_PI / period) * amplitude;
 };
 
+grob.squareWave = function (v, min, max, period, offset) {
+    if (min === undefined) min = -1;
+    if (max === undefined) max = 1;
+    if (period === undefined) period = 1;
+    if (offset === undefined) offset = 0;
+    var halfPeriod = period / 2;
+    var d = (v + offset) % period;
+    if (d < halfPeriod) {
+        return max;
+    } else {
+        return min;
+    }
+};
+
 grob.sign = function (v) {
     if (v > 0) {
         return 1;

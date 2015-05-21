@@ -48,5 +48,12 @@ describe('The wave functions', function () {
 
         assertAlmostEqual(grob.sineWave(-0.2, -1, 1, 1, 0.2), 0);
     });
-
+    
+    it('returns a valid square wave', function () {
+        assert.equal(grob.squareWave(0), 1);
+        assert.equal(grob.squareWave(0.499), 1);
+        assert.equal(grob.squareWave(0.5), -1);
+        assert.equal(grob.squareWave(0.501), -1);
+        assert.equal(grob.squareWave(1), 1);
+    });
 });
