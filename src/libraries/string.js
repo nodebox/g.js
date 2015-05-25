@@ -9,12 +9,14 @@ grob.characterAt = function (s, index) {
     return s.charAt(index);
 };
 
-grob.concatenate = function (s1, s2, s3, s4) {
-    s1 = s1 !== undefined ? String(s1) : '';
-    s2 = s2 !== undefined ? String(s2) : '';
-    s3 = s3 !== undefined ? String(s3) : '';
-    s4 = s4 !== undefined ? String(s4) : '';
-    return s1 + s2 + s3 + s4;
+grob.concatenate = function () {
+    var result = '';
+    for (var i = 0; i < arguments.length; i++) {
+        var s = arguments[i];
+        s = s !== undefined ? String(s) : '';
+        result += s;
+    }
+    return result;
 };
 
 grob.endsWith = function (s, value) {
