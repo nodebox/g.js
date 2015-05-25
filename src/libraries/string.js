@@ -10,10 +10,10 @@ grob.characterAt = function (s, index) {
 };
 
 grob.concatenate = function (s1, s2, s3, s4) {
-    s1 = String(s1) || '';
-    s2 = String(s2) || '';
-    s3 = String(s3) || '';
-    s4 = String(s4) || '';
+    s1 = s1 !== undefined ? String(s1) : '';
+    s2 = s2 !== undefined ? String(s2) : '';
+    s3 = s3 !== undefined ? String(s3) : '';
+    s4 = s4 !== undefined ? String(s4) : '';
     return s1 + s2 + s3 + s4;
 };
 
