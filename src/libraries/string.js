@@ -5,7 +5,6 @@ var grob = {};
 grob.characterAt = function (s, index) {
     if (!s || s.length === 0) { return null; }
     s = String(s);
-    index -= 1;
     index = index % s.length;
     return s.charAt(index);
 };
