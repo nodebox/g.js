@@ -19,3 +19,14 @@ describe('The concatenate function', function () {
     });
 
 });
+
+describe('The substring function', function () {
+
+    it('can take part of the string', function () {
+        assert.equal(grob.substring('Hello', 0), 'Hello');
+        assert.equal(grob.substring('Hello', 1), 'ello');
+        assert.equal(grob.substring('Hello', 1, 3), 'el');
+        assert.equal(grob.substring('Hello', 1, 3, true), 'ell');
+    });
+
+});

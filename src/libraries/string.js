@@ -85,14 +85,14 @@ grob.stringTrim = function (s) {
 grob.substring = function (s, start, end, endOffset) {
     if (!s) { return null; }
     s = String(s);
-    start -= 1;
-    end -= 1;
     start = start % s.length;
 
-    if (endOffset) {
-        end = (end % s.length) + 1;
-    } else {
-        end = end % (s.length + 1);
+    if (end !== undefined) {
+        if (endOffset) {
+            end = (end % s.length) + 1;
+        } else {
+            end = end % (s.length + 1);
+        }
     }
     return s.substring(start, end);
 };
