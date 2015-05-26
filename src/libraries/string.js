@@ -97,75 +97,14 @@ grob.substring = function (s, start, end, endOffset) {
     return s.substring(start, end);
 };
 
-grob.toCharacterCodes = function(s, radix, padding) {
-    function format(f, val) {
-        return val;
+grob.toCharacterCodes = function(s) {
+    if (!s) return [];
+    var codes = [];
+    codes.length = s.length;
+    for (var i = 0; i < s.length; i += 1) {
+        codes[i] = s.charCodeAt(i);
     }
-    var i, j, cval, val, result,
-        numberList = [];
-    if (radix < 2 || !s) { return numberList; }
-    s = String(s);
-    if (padding) {
-        if (radix === 2) { // binary
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                result = '';
-                for (j = 0; j < 8; j += 1) {
-                    result += (cval & 128) === 0 ? '0' : '1';
-                    cval <<= 1;
-                }
-                numberList.push(result);
-            }
-        } else if (radix === 3) {
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                val = parseInt(cval, radix);
-                numberList.push(format('%06d', val));
-            }
-        } else if (radix > 3 && radix < 7) {
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                val = parseInt(cval, radix);
-                numberList.push(format('%04d', val));
-            }
-        } else if (radix < 15) {
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                result = parseInt(cval, radix);
-                for (j = result.length; j < 3; j += 1) {
-                    result = '0' + result;
-                }
-                numberList.push(result);
-            }
-        } else {
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                result = parseInt(cval, radix);
-                for (j = result.length; j < 2; j += 1) {
-                    result = '0' + result;
-                }
-                numberList.push(result);
-            }
-        }
-    } else {
-        if (radix === 2) { // binary
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                result = '';
-                for (j = 0; j < 8; j += 1) {
-                    result += (cval & 128) === 0 ? '0' : '1';
-                    cval <<= 1;
-                }
-                numberList.push(result);
-            }
-        } else {
-            for (i = 0; i < s.length; i += 1) {
-                cval = s.charCodeAt(i);
-                numberList.add(parseInt(cval, radix));
-            }
-        }
-    }
-    return numberList;
+    return codes;
 };
 
 grob.toCharacters = function (s) {
