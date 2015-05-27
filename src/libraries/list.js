@@ -75,6 +75,23 @@ grob.get = function (l, i) {
     return l[i];
 };
 
+grob.interleave = function () {
+    if (arguments.length === 0) return [];
+    var results = [];
+    var elIndex = 0;
+    while (true) {
+        for (var i = 0; i < arguments.length; i++) {
+            var arg = arguments[i];
+            if (arg.length > elIndex) {
+                results.push(arg[elIndex]);
+            } else {
+                return results;
+            }
+        }
+        elIndex += 1;
+    }
+};
+
 grob.last = function (l) {
     if (!l || l.length === 0) { return null; }
     return l[l.length - 1];
