@@ -29,9 +29,9 @@
   },
   "homepage": "https://github.com/nodebox/grob",
   "dependencies": {
-    "img.js": "^0.1.4",
+    "img.js": "^0.1.5",
     "lodash": "^3.7.0",
-    "vg.js": "^0.6.12"
+    "vg.js": "^0.6.13"
   },
   "devDependencies": {
     "browserify": "^9.0.8",
