@@ -283,7 +283,14 @@ grob.grayColor = function (gray, alpha, range) {
 };
 
 grob.hexColor = function (s) {
-    s = String(s);
+    function isNumeric(n) {
+      return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+    if (isNumber(s)) {
+        s = s.toString(16);
+    } else {
+        s = String(s);
+    }
     if (s[0] !== '#') {
         s = '#' + s;
     }
