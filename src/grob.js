@@ -16,6 +16,7 @@ function importCommands(module) {
 for (var k in vg) {
     grob[k] = vg[k];
 }
+delete grob['delete'];
 
 for (var k in img) {
     grob[k] = img[k];
