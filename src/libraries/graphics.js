@@ -286,7 +286,7 @@ grob.hexColor = function (s) {
     function isNumeric(n) {
       return !isNaN(parseFloat(n)) && isFinite(n);
     }
-    if (isNumber(s)) {
+    if (isNumeric(s)) {
         s = s.toString(16);
     } else {
         s = String(s);
