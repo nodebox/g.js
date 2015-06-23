@@ -27,10 +27,14 @@ function transformImage(image, t) {
 }
 
 function transform(shape, t) {
-    if (shape instanceof vg.Path || shape instanceof vg.Group || shape instanceof vg.Text) {
+    if (shape instanceof vg.Path || shape instanceof vg.Group || shape instanceof vg.Text || ((shape.x !== undefined && shape.y !== undefined))) {
         return transformShape(shape, t);
-    } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
-        return transformShape(shape, t);
+    } else if (Array.isArray(shape)) {
+        var l = [];
+        for (var i = 0; i < shape.length; i += 1) {
+            l.push(transform(shape[i], t));
+        }
+        return l;
     } else if (shape instanceof img.Img) {
         return transformImage(shape, t);
     }
