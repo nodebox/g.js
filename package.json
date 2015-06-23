@@ -31,7 +31,7 @@
   "dependencies": {
     "img.js": "^0.1.5",
     "lodash": "^3.7.0",
-    "vg.js": "^0.6.14"
+    "vg.js": "^0.6.16"
   },
   "devDependencies": {
     "browserify": "^9.0.8",
