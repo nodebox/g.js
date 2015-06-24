@@ -23,6 +23,22 @@ describe('The angle function', function () {
 
 });
 
+describe('The coordinates function', function () {
+
+    it('calculates the point based on angle and distance', function () {
+        var p = grob.coordinates(0, 0, 37, 27);
+        assertAlmostEqual(p.x, 21.56316);
+        assertAlmostEqual(p.y, 16.249);
+        p = grob.coordinates({x: 0, y: 0}, 90, 70);
+        assertAlmostEqual(p.x, 0);
+        assertAlmostEqual(p.y, 70);
+        p = grob.coordinates([0, 10], 180, 25);
+        assertAlmostEqual(p.x, -25);
+        assertAlmostEqual(p.y, 10);
+    });
+
+});
+
 describe('The stack function', function () {
 
     it('returns valid bounds', function () {
