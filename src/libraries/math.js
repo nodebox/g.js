@@ -49,7 +49,12 @@ grob.and = function (bool1, bool2) {
 };
 
 grob.average = function (values) {
-    if (values.length === 0) { return 0; }
+    if (arguments.length > 1) {
+        values = arguments;
+    } else if (arguments.length === 1 && !Array.isArray(values)) {
+        values = [values];
+    }
+    if (!values || values.length === 0) { return 0; }
     var i, sum = 0;
     for (i = 0; i < values.length; i += 1) {
         sum += values[i];

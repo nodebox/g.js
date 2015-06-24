@@ -35,6 +35,21 @@ describe('The add function', function () {
 
 });
 
+describe('The average function', function () {
+
+    it('returns the average', function () {
+        assert.equal(grob.average(), 0);
+        assert.equal(grob.average(0), 0);
+        assert.equal(grob.average(5), 5);
+        assert.equal(grob.average(2, 12), 7);
+        assert.equal(grob.average(1, 2, 3, 4), 2.5);
+        assert.equal(grob.average([]), 0);
+        assert.equal(grob.average([0]), 0);
+        assert.equal(grob.average([1, 2, 3, 4, 5]), 3);
+    });
+
+});
+
 describe('The sample function', function () {
 
     it('returns linear values', function () {
