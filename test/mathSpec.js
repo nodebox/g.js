@@ -24,6 +24,17 @@ describe('The accumulate function', function () {
 
 });
 
+describe('The add function', function () {
+
+    it('does addition', function () {
+        assert.equal(grob.add(), 0);
+        assert.equal(grob.add(4), 4);
+        assert.equal(grob.add(4, 20), 24);
+        assert.equal(grob.add(4, 20, 16, 9, 12), 61);
+    });
+
+});
+
 describe('The sample function', function () {
 
     it('returns linear values', function () {
