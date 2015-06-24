@@ -50,6 +50,17 @@ describe('The average function', function () {
 
 });
 
+describe('The divide function', function () {
+
+    it('does division', function () {
+        assert.equal(grob.divide(5), 0.2);
+        assert.equal(grob.divide(12, 3), 4);
+        assert.equal(grob.divide(21, 7, 6), 0.5);
+        assert.equal(grob.divide(100, 2, 2, 5, 5), 1);
+    });
+
+});
+
 describe('The sample function', function () {
 
     it('returns linear values', function () {
