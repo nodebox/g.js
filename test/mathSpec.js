@@ -11,6 +11,19 @@ function assertAlmostEqual(actual, expected) {
     assert(Math.abs(actual - expected) < 0.00001, 'Expected ' + expected + ', got ' + actual);
 }
 
+describe('The accumulate function', function () {
+
+    it('accumulates', function () {
+        assert.deepEqual(grob.accumulate([21, 14, 13, 3, 21]), [0, 21, 35, 48, 51]);
+        assert.deepEqual(grob.accumulate([]), [0]);
+        assert.deepEqual(grob.accumulate([42]), [0]);
+        assert.deepEqual(grob.accumulate(10, 12, 9, 4), [0, 10, 22, 31]);
+        assert.deepEqual(grob.accumulate(), [0]);
+        assert.deepEqual(grob.accumulate(42), [0]);
+    });
+
+});
+
 describe('The sample function', function () {
 
     it('returns linear values', function () {

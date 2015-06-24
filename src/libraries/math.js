@@ -12,7 +12,12 @@ var TWO_PI = Math.PI * 2;
 grob.abs = Math.abs;
 
 grob.accumulate = function (values) {
-    if (!values) { return [0.0]; }
+    if (arguments.length > 1) {
+        values = arguments;
+    } else if (arguments.length === 1 && !Array.isArray(values)) {
+        values = [values];
+    }
+    if (!values || values.length === 0) { return [0.0]; }
     var i, b = [],
         currentTotal = 0;
     for (i = 0; i < values.length; i++) {
