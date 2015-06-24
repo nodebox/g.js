@@ -271,6 +271,14 @@ grob.stack = function (shapes, direction, margin) {
 };
 
 grob.angle = function (point1, point2) {
+    var args = arguments;
+    if (args.length === 4) {
+        point1 = vg.Point.read(args[0], args[1]);
+        point2 = vg.Point.read(args[2], args[3]);
+    } else {
+        point1 = vg.Point.read(point1);
+        point2 = vg.Point.read(point2);
+    }
     return math.degrees(Math.atan2(point2.y - point1.y, point2.x - point1.x));
 };
 
