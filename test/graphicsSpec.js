@@ -39,6 +39,16 @@ describe('The coordinates function', function () {
 
 });
 
+describe('The distance function', function () {
+
+    it('returns the distance between two points', function () {
+        assertAlmostEqual(grob.distance(0, 0, 21.56316, 16.249), 27);
+        assert.equal(grob.distance({x: 0, y: 0}, {x: 0, y: 70}), 70);
+        assert.equal(grob.distance([0, 10], [-25, 10]), 25);
+    });
+
+});
+
 describe('The stack function', function () {
 
     it('returns valid bounds', function () {

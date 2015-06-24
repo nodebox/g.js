@@ -295,6 +295,14 @@ grob.coordinates = function (point, angle, distance) {
 };
 
 grob.distance = function (point1, point2) {
+    var args = arguments;
+    if (args.length === 4) {
+        point1 = vg.Point.read(args[0], args[1]);
+        point2 = vg.Point.read(args[2], args[3]);
+    } else {
+        point1 = vg.Point.read(point1);
+        point2 = vg.Point.read(point2);
+    }
     return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
 };
 
