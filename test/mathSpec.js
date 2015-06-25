@@ -164,4 +164,15 @@ describe('The wave functions', function () {
         assert.equal(grob.triangleWave(0.75), -1);
         assert.equal(grob.triangleWave(1), 0);
     });
+
+});
+
+describe('The sign function', function () {
+
+    it('returns the sign of a number', function () {
+        assert.equal(grob.sign(0), 0);
+        assert.equal(grob.sign(42), 1);
+        assert.equal(grob.sign(-42), -1);
+    });
+
 });
