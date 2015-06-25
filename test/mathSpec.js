@@ -72,6 +72,17 @@ describe('The even function', function () {
 
 });
 
+describe('The multiply function', function () {
+
+    it('does multiplication', function () {
+        assert.equal(grob.multiply(), 1);
+        assert.equal(grob.multiply(0), 0);
+        assert.equal(grob.multiply(7, 3), 21);
+        assert.equal(grob.multiply(2, 9, 3, 10), 540);
+    });
+
+});
+
 describe('The odd function', function () {
 
     it('returns true if a number is odd', function () {
