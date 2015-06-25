@@ -61,6 +61,28 @@ describe('The divide function', function () {
 
 });
 
+describe('The even function', function () {
+
+    it('returns true if a number is even', function () {
+        assert.equal(grob.even(0), true);
+        assert.equal(grob.even(1), false);
+        assert.equal(grob.even(99), false);
+        assert.equal(grob.even(100), true);
+    });
+
+});
+
+describe('The odd function', function () {
+
+    it('returns true if a number is odd', function () {
+        assert.equal(grob.odd(0), false);
+        assert.equal(grob.odd(1), true);
+        assert.equal(grob.odd(99), true);
+        assert.equal(grob.odd(100), false);
+    });
+
+});
+
 describe('The sample function', function () {
 
     it('returns linear values', function () {
