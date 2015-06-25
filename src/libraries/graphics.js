@@ -73,7 +73,7 @@ grob.align = function (shape, position, hAlign, vAlign) {
 
 grob.colorize = function (shape, options) {
     var args = arguments;
-    if (typeof options !== 'object') {
+    if (typeof options !== 'object' || options instanceof vg.Color) {
         options = {};
         if (args[1] !== undefined) { options.fill = args[1]; }
         if (args[2] !== undefined) { options.stroke = args[2]; }
