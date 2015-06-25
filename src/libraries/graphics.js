@@ -200,6 +200,7 @@ grob.rgbAdjust = function (v, red, green, blue, alpha) {
     green /= 255;
     blue /= 255;
     alpha /= 255;
+    if (!alpha) { alpha = 0; }
 
     function rgbAdjust(v) {
         if (v instanceof img.Img) {
