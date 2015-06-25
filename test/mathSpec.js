@@ -176,3 +176,13 @@ describe('The sign function', function () {
     });
 
 });
+
+describe('The subtract function', function () {
+
+    it('does subtraction', function () {
+        assert.equal(grob.subtract(4), -4);
+        assert.equal(grob.subtract(30, 6), 24);
+        assert.equal(grob.subtract(99, 40, 11, 10, 5), 33);
+    });
+
+});
