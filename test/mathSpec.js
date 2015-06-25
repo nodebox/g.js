@@ -83,6 +83,21 @@ describe('The odd function', function () {
 
 });
 
+describe('The range function', function () {
+
+    it('returns linear values', function () {
+        var s1 = grob.range(4, 14, 2);
+        assert.deepEqual(s1, [4, 6, 8, 10, 12]);
+        var s2 = grob.range(4, 14, 2, true);
+        assert.deepEqual(s2, [4, 6, 8, 10, 12, 14]);
+        var s3 = grob.range(3, 14, 2);
+        assert.deepEqual(s3, [3, 5, 7, 9, 11, 13]);
+        var s4 = grob.range(3, 14, 2, true);
+        assert.deepEqual(s4, [3, 5, 7, 9, 11, 13]);
+    });
+
+});
+
 describe('The sample function', function () {
 
     it('returns linear values', function () {
