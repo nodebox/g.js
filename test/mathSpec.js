@@ -122,6 +122,39 @@ describe('The range function', function () {
 
 });
 
+describe('The randomNumbers function', function () {
+
+    function numbersAllInRange(numbers, min, max) {
+        var v;
+        for (var i = 0; i < numbers.length; i += 1) {
+            v = numbers[i];
+            if (v < min || v > max) { return false; }
+        }
+        return true;
+    }
+
+    it('returns numbers within the given range', function () {
+        var s1 = grob.randomNumbers(10, 0, 1);
+        assert.equal(s1.length, 10);
+        assert.ok(numbersAllInRange(s1, 0, 1));
+        var s2 = grob.randomNumbers(7, 20);
+        assert.equal(s2.length, 7);
+        assert.ok(numbersAllInRange(s2, 0, 20));
+        var s3 = grob.randomNumbers(10, -20);
+        assert.ok(numbersAllInRange(s3, -20, 0));
+        var s4 = grob.randomNumbers(10, -15, 15);
+        assert.ok(numbersAllInRange(s4, -15, 15));
+        var s5 = grob.randomNumbers(10, 15, -15);
+        assert.ok(numbersAllInRange(s5, -15, 15));
+    });
+
+    it('returns the same numbers when given the same seed', function () {
+        assert.deepEqual(grob.randomNumbers(10, 0, 100, 5), grob.randomNumbers(10, 0, 100, 5));
+        assert.notDeepEqual(grob.randomNumbers(10, 0, 100, 5), grob.randomNumbers(10, 0, 100, 6));
+    });
+
+});
+
 describe('The sample function', function () {
 
     it('returns linear values', function () {

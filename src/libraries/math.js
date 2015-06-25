@@ -233,10 +233,18 @@ grob.randomNumbers = function (amount, min, max, seed) {
     }
     if (argLength === 3 || argLength === 4) {
         min = min || 0;
-        max = max || 1;
+        max = max || (max === 0 ? 0 : 1);
     } else if (argLength === 2) {
+        max = min || (min === 0 ? 0 : 1);
         min = 0;
-        max = min || 1;
+    } else if (argLength === 1) {
+        min = 0;
+        max = 1;
+    }
+    if (max < min) {
+        var tmp = max;
+        max = min;
+        min = tmp;
     }
     var v;
     var delta = max - min;
