@@ -250,19 +250,34 @@ grob.randomNumbers = function (amount, min, max, seed) {
 };
 
 grob.range = function (min, max, step, includeMax) {
-    step = step || 1;
+    if (min === max) { return []; }
+    if (step !== 0) {
+        step = step || (min < max ? 1 : -1);
+    }
     if (step > 0 && min > max) return [];
     if (step < 0 && min < max) return [];
     if (step === 0) return [];
     var values = [];
     var i;
-    if (!!includeMax) {
-        for (i = min; i <= max; i += step) {
-            values.push(i);
+    if (min < max) {
+        if (!!includeMax) {
+            for (i = min; i <= max; i += step) {
+                values.push(i);
+            }
+        } else {
+            for (i = min; i < max; i += step) {
+                values.push(i);
+            }
         }
     } else {
-        for (i = min; i < max; i += step) {
-            values.push(i);
+        if (!!includeMax) {
+            for (i = min; i >= max; i += step) {
+                values.push(i);
+            }
+        } else {
+            for (i = min; i > max; i += step) {
+                values.push(i);
+            }
         }
     }
     return values;

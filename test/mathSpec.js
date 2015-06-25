@@ -94,6 +94,19 @@ describe('The range function', function () {
         assert.deepEqual(s3, [3, 5, 7, 9, 11, 13]);
         var s4 = grob.range(3, 14, 2, true);
         assert.deepEqual(s4, [3, 5, 7, 9, 11, 13]);
+        var s5 = grob.range(10, 15);
+        assert.deepEqual(s5, [10, 11, 12, 13, 14]);
+        var s6 = grob.range(10, 15, -1);
+        assert.equal(s6.length, 0);
+        var s7 = grob.range(15, 10, 1);
+        assert.equal(s7.length, 0);
+        var s8 = grob.range(14, 4, -2);
+        assert.deepEqual(s8, [14, 12, 10, 8, 6]);
+        var s9 = grob.range(14, 4, -2, true);
+        assert.deepEqual(s9, [14, 12, 10, 8, 6, 4]);
+        var s10 = grob.range(15, 10);
+        assert.deepEqual(s10, [15, 14, 13, 12, 11]);
+
     });
 
 });
