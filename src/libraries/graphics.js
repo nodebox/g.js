@@ -195,12 +195,17 @@ grob.hslAdjust = function (image, h, s, l) {
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.rgbAdjust = function (v, red, green, blue) {
+grob.rgbAdjust = function (v, red, green, blue, alpha) {
+    red /= 255;
+    green /= 255;
+    blue /= 255;
+    alpha /= 255;
+
     function rgbAdjust(v) {
         if (v instanceof img.Img) {
             var image = v;
             var layer = image.toLayer(false);
-            layer.addFilter('coloradjust', {r: red / 100, g: green / 100, b: blue / 100});
+            layer.addFilter('rgbAdjust', {r: red, g: green, b: blue, a: alpha});
             return image.withCanvas(layer.toCanvas());
         } else if (v instanceof vg.Group) {
             var newShapes = [];
@@ -218,7 +223,7 @@ grob.rgbAdjust = function (v, red, green, blue) {
         if (!(c instanceof vg.Color)) {
             c = vg.Color.parse(c);
         }
-        return new vg.Color(c.r + red / 100, c.g + green / 100, c.b + blue / 100, c.a);
+        return new vg.Color(c.r + red, c.g + green, c.b + blue, c.a + alpha);
     }
     return rgbAdjust(v);
 };
