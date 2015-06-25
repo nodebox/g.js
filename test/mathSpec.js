@@ -197,3 +197,15 @@ describe('The subtract function', function () {
     });
 
 });
+
+describe('The total function', function () {
+
+    it('totals a list of numbers', function () {
+        assert.equal(grob.total([10, 12, 9, 9]), 40);
+        assert.equal(grob.total(10, 12, 9, 11), 42);
+        assert.equal(grob.total(), 0);
+        assert.equal(grob.total([]), 0);
+        assert.equal(grob.total(20), 20);
+    });
+
+});

@@ -389,6 +389,13 @@ grob.subtract = function (a, b) {
 grob.tan = Math.tan;
 
 grob.total = function (values) {
+    if (arguments.length > 1) {
+        values = arguments;
+    } else if (arguments.length === 1 && !Array.isArray(values)) {
+        values = [values];
+    } else if (arguments.length === 0) {
+        values = [];
+    }
     if (values.length === 0) { return 0; }
     var i, total = 0;
     for (i = 0; i < values.length; i += 1) {
