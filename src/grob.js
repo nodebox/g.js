@@ -28,6 +28,7 @@ importCommands(require('./libraries/list'));
 importCommands(require('./libraries/data'));
 importCommands(require('./libraries/image'));
 importCommands(require('./libraries/graphics'));
+importCommands(require('./libraries/easing'));
 
 grob.importSVG = function (svgString) {
     return grob.svg.parseString(svgString);
