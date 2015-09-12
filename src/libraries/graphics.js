@@ -215,11 +215,11 @@ grob.hslAdjust = function (image, h, s, l) {
 };
 
 grob.rgbAdjust = function (v, red, green, blue, alpha) {
-    red /= 255;
-    green /= 255;
-    blue /= 255;
-    alpha /= 255;
     if (!alpha) { alpha = 0; }
+    red = clamp(red, -1, 1);
+    green = clamp(green, -1, 1);
+    blue = clamp(blue, -1, 1);
+    alpha = clamp(alpha, -1, 1);
 
     function rgbAdjust(v) {
         if (v instanceof img.Img) {
