@@ -18,6 +18,10 @@ grob.TOP = 'top';
 grob.BOTTOM = 'bottom';
 grob.MIDDLE = 'middle';
 
+function clamp(val, min, max) {
+    return Math.min(max, Math.max(min, val));
+}
+
 function transformShape(shape, t) {
     return t.transformShape(shape);
 }
