@@ -358,9 +358,9 @@ grob.rgbColor = function (red, green, blue, alpha, range) {
     return vg.Color.rgb(red, green, blue, alpha, range);
 };
 
-grob.desaturate = function (shape) {
+grob.desaturate = function (shape, method) {
     if (!shape) { return null; }
-    return shape.desaturate();
+    return shape.desaturate({method: method});
 };
 
 grob.invert = function (shape) {
