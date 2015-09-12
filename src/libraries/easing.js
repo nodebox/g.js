@@ -193,7 +193,7 @@ grob.easeInOutBounce = function (t, b, c, d) {
     return grob.easeOutBounce(t * 2 - d, 0, c, d) * 0.5 + c * 0.5 + b;
 };
 
-grob.easing = function (f, t, b, c, d, s) {
+grob.easing = function (f) {
     var fn = grob[f];
     var args = Array.prototype.slice.call(arguments, 1);
     return fn.apply(null, args);
