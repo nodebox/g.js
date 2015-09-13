@@ -478,8 +478,9 @@ grob.distance = function (point1, point2) {
     return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
 };
 
-grob.grayColor = function (gray, alpha, range) {
-    return vg.Color.gray(gray, alpha, range);
+grob.grayColor = function (gray, alpha) {
+    if (!alpha && alpha !== 0) { alpha = 1; }
+    return vg.Color.gray(gray, alpha, 1.0);
 };
 
 grob.hexColor = function (s) {
@@ -497,12 +498,14 @@ grob.hexColor = function (s) {
     return vg.Color.parse(s);
 };
 
-grob.hsbColor = function (hue, saturation, brightness, alpha, range) {
-    return vg.Color.hsb(hue, saturation, brightness, alpha, range);
+grob.hslColor = function (hue, saturation, lightness, alpha) {
+    if (!alpha && alpha !== 0) { alpha = 1; }
+    return vg.Color.hsl(hue, saturation, lightness, alpha, 1.0);
 };
 
-grob.rgbColor = function (red, green, blue, alpha, range) {
-    return vg.Color.rgb(red, green, blue, alpha, range);
+grob.rgbColor = function (red, green, blue, alpha) {
+    if (!alpha && alpha !== 0) { alpha = 1; }
+    return vg.Color.rgb(red, green, blue, alpha, 1.0);
 };
 
 grob.desaturate = function (shape, method) {
