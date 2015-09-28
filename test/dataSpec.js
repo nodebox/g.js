@@ -7,6 +7,17 @@ var it = mocha.it;
 
 var grob = require('../src/grob');
 
+describe('The importCSV function', function () {
+
+    it('works with strings', function () {
+        var s = 'Name,Age,Group,Grade\nJohn,52,1A,7.5\nPete,66,3C,4.3';
+        var imported = grob.importCSV(s);
+        assert.equal(imported.length, 2);
+        assert.deepEqual(imported[0], {Name: 'John', Age: 52, Group: '1A', Grade: 7.5});
+    });
+
+});
+
 describe('The filterData function', function () {
 
     it('works with strings', function () {

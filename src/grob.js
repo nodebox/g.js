@@ -44,13 +44,6 @@ grob.importText = function (string) {
 };
 
 grob.importCSV = function (csvString, delimiter) {
-    // Try to parse the string as a number.
-    // Return a number or else the string, unchanged.
-    function parseNumber(s) {
-        var v = parseFloat(s);
-        return isNaN(v) ? s : v;
-    }
-
     // Split the row, taking quotes into account.
     function splitRow(s, delimiter) {
         var row = [], c, col = '', i, inString = false;
@@ -92,7 +85,7 @@ grob.importCSV = function (csvString, delimiter) {
     rows = _.map(rows, function (row) {
         var cols, m = {};
         cols = _.map(splitRow(row, delimiter), function (col) {
-            return parseNumber(col);
+            return isNaN(col) ? col : parseFloat(col);
         });
         _.each(cols, function (col, index) {
             m[header[index]] = col;
