@@ -97,12 +97,15 @@ grob.importCSV = function (csvString, delimiter) {
 
 grob.merge = function () {
     var objects = _.flatten(arguments, true);
-    if (Array.isArray(objects) && objects.length > 0) {
-        var o = objects[0];
-        if (o && (o.commands || o.shapes)) {
-            return vg.merge(objects);
-        } else if (o instanceof img.Img) {
-            return img.merge(objects);
+    if (Array.isArray(objects)) {
+        objects = _.reject(objects, _.isEmpty);
+        if (objects.length > 0) {
+            var o = objects[0];
+            if (o && (o.commands || o.shapes)) {
+                return vg.merge(objects);
+            } else if (o instanceof img.Img) {
+                return img.merge(objects);
+            }
         }
     }
     return null;
