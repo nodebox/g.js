@@ -3,7 +3,7 @@
 var _ = require('lodash');
 
 var util = require('./util');
-var vg = require('vg.js');
+var vg = require('./vg/vg');
 
 var grob = {};
 

@@ -1,13 +1,245 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GROB</title>
+    <title>grob.js notebook</title>
     <script src="build/grob.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+
+        .header {
+            position: relative;
+            height: 40px;
+            left: 0;
+            right: 0;
+            background: #e8dfd4;
+            color: #666;
+            border-bottom: 1px solid #d8d0c5;
+        }
+
+        .header h2 {
+            display: inline-block;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .help {
+            background: #f5f2e4;
+            color: #888;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.8em;
+        }
+
+        .key {
+            display: inline-block;
+            padding: 2px;
+            background: #f5ecd6;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            line-height: 1em;
+        }
+
+        .cell {
+            border-bottom: 1px solid #ddd;
+            border-left: 2px solid transparent;
+            padding: 5px 0;
+        }
+
+        .cell.selected {
+            border-left: 2px solid #ffc97f;
+        }
+
+        textarea {
+            padding: 5px 8px;
+            border: none;
+            width: 100%;
+            height: 1em;
+            margin: 0;
+            outline: none;
+            font-family: 'Menlo', 'Consolas', monospace;
+            font-weight: bold;
+            color: #666;
+            overflow-y: hidden;
+        }
+
+        .result {
+            padding: 0 8px;
+        }
+
+        .result pre {
+            padding: 0;
+            margin: 0;
+        }
+
+        .result pre.error {
+            color: red;
+        }
+
+        canvas {
+            padding: 3px;
+            border: 1px solid #ddd;
+        }
+
+    </style>
 </head>
 <body>
+<div class="header">
+    <h2>grob.js notebook</h2>
+</div>
+<div class="page">
+    <p class="help">
+        This is an interactive notebook.
+        Type a JavaScript expression and press <span class="key">Ctrl-Enter</span> to evaluate.
+        Go to the previous and next cell using <span class="key">Ctrl-Up</span> and <span class="key">Ctrl-Down</span>.
+    </p>
+    <div class="notebook" id="notebook">
+    </div>
+</div>
 
+<script>
+    /* global grob */
+    /*jshint evil: true */
+    'use strict';
+
+    var selectedCell = null;
+
+    function selectCell($cell) {
+        var cells, i, $textarea;
+
+        // Unselect all cells.
+        cells = document.querySelectorAll('.cell');
+        for (i = 0; i < cells.length; i += 1) {
+            cells[i].classList.remove('selected');
+        }
+
+        // Select the new cell.
+        selectedCell = $cell;
+        $textarea = $cell.querySelector('textarea');
+        $textarea.focus();
+        $cell.classList.add('selected');
+    }
+
+    function selectCellAtIndex(index) {
+        var cells = document.querySelectorAll('.cell');
+        selectCell(cells[index]);
+    }
+
+    function createCell(source) {
+        var $cell = document.createElement('div'),
+            $textarea;
+        $cell.className = 'cell';
+        $cell.innerHTML =  '<textarea></textarea><div class="result">';
+        document.querySelector('#notebook').appendChild($cell);
+        $textarea = $cell.querySelector('textarea');
+        $textarea.addEventListener('keyup', function () {
+            // Resize
+            $textarea.style.height = 0;
+            $textarea.style.height = $textarea.scrollHeight + 'px';
+        });
+        $textarea.addEventListener('focus', function () {
+            selectCell($cell);
+        });
+        $textarea.focus();
+        if (source) {
+            $textarea.value = source;
+            $textarea.selectionStart = source.length;
+            $textarea.selectionEnd = source.length;
+            $textarea.style.height = $textarea.scrollHeight + 'px';
+        }
+    }
+
+    function cellIndex($cell) {
+        var cells, i;
+        cells = document.querySelectorAll('.cell');
+        for (i = 0; i < cells.length; i += 1) {
+            if (cells[i] === $cell) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function selectPreviousCell() {
+        var index = cellIndex(selectedCell);
+        if ((index - 1) >= 0) {
+            selectCellAtIndex(index - 1);
+        }
+    }
+
+    function selectNextCell() {
+        var cells = document.querySelectorAll('.cell'),
+            index = cellIndex(selectedCell);
+        if ((index + 1) < cells.length) {
+            selectCellAtIndex(index + 1);
+        }
+    }
+
+    function executeSelectedCell() {
+        var $textarea = selectedCell.querySelector('textarea'),
+            source = $textarea.value,
+            $result = selectedCell.querySelector('.result'),
+            isError = false,
+            result,
+            bounds,
+            $canvas,
+            ctx,
+            $pre,
+            cells;
+
+        $result.innerHTML = '';
+
+        try {
+            result = eval(source);
+        } catch (e) {
+            result = '' + e.stack;
+            isError = true;
+        }
+        if (grob.isDrawable(result)) {
+            $canvas = document.createElement('canvas');
+            bounds = grob.bounds(result);
+            $canvas.width = bounds.width + 10;
+            $canvas.height = bounds.height + 10;
+            $result.appendChild($canvas);
+            ctx = $canvas.getContext('2d');
+            ctx.translate(-bounds.x + 5, -bounds.y + 5);
+            grob.draw(ctx, result);
+        } else {
+            $pre = document.createElement('pre');
+            $pre.textContent = result;
+            $pre.className = isError ? 'error' : '';
+            $result.appendChild($pre);
+        }
+
+        // If I'm editing in the last cell, create a new cell.
+        cells = document.querySelectorAll('.cell');
+        if (cells[cells.length - 1] === selectedCell) {
+            createCell();
+        }
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.which === 13 && e.ctrlKey) { // Ctrl-Enter
+            e.preventDefault();
+            executeSelectedCell();
+        } else if (e.which === 38 && e.ctrlKey) { // Ctrl-Up
+            e.preventDefault();
+            selectPreviousCell();
+        } else if (e.which === 40 && e.ctrlKey) { // Ctrl-Down
+            e.preventDefault();
+            selectNextCell();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        createCell('// Press Ctrl-Enter to execute this expression.\n\ngrob.ellipse(0, 0, 100, 100)');
+    });
+</script>
 
 </body>
 </html>
-

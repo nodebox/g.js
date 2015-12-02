@@ -1,6 +1,6 @@
 'use strict';
 
-var vg = require('vg.js');
+var vg = require('./vg/vg');
 var img = require('img.js');
 
 var Img = img.Img;

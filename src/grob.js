@@ -1,7 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
-var vg = require('vg.js');
+var vg = require('./libraries/vg/vg');
 var img = require('img.js');
 
 var grob = {};

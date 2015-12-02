@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>grob.js SVG notebook</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+
+        .header {
+            position: relative;
+            height: 40px;
+            left: 0;
+            right: 0;
+            background: #81be97;
+            color: #d9ebe0;
+            border-bottom: 1px solid #4d9567;
+        }
+
+        .header h2 {
+            display: inline-block;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .btn {
+            background: #c2dfcd;
+            color: #888;
+            margin: 0;
+            padding: 6px;
+            line-height: 1.8em;
+        }
+
+        .btn div {
+            position: relative;
+            display: inline-block;
+            padding: 5px;
+            line-height: 1em;
+            color: #519c6c;
+        }
+
+        .btn button {
+            position: relative;
+            margin-left: 48%;
+            display: inline-block;
+            padding: 5px;
+            background: #81be97;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            line-height: 1em;
+            color: #d9ebe0;
+        }
+
+        #ta {
+            position: absolute;
+            width: 48%;
+            height: 85%;
+            border: none;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            color: purple;
+        }
+
+        #canvasarea {
+            width: 50%;
+            height: 87%;
+            position: absolute;
+            left: 50%;
+            border-left: 1px solid lightgray;
+        }
+
+        #canvasarea canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+    </style>
+    <script src="build/grob.js"></script>
+    <script type="text/javascript">
+    function render() {
+    	var s = document.getElementById('ta').value;
+    	var result = grob.svg.parseString(s);
+    	var bounds = grob.bounds(result);
+    	var canvas = document.getElementById('c');
+        var width = canvas.width = document.getElementById('canvasarea').clientWidth;
+        var height = canvas.height = document.getElementById('canvasarea').clientHeight;
+        ctx = canvas.getContext('2d');
+        ctx.translate((width - bounds.width) / 2, (height - bounds.height) / 2);
+        grob.draw(ctx, result);
+    }
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h2>grob.js SVG notebook</h2>
+    </div>
+    <div class="btn">
+        <div>SVG</div>
+        <button onClick="render()">Render</button>
+    </div>
+    <textarea id="ta"></textarea>
+    <div id="canvasarea">
+        <canvas id="c" />
+    </div>
+</body>
+</html>
