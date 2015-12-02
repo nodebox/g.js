@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>grob.js imaging examples</title>
+    <script src="../build/grob.js"></script>
+    <script>
+        window.onload = function () {
+            var iCanvas = new grob.ImageCanvas(600, 450);
+            var layer = iCanvas.addLayer('images/img1.jpg');
+            layer.addFilter('rgbAdjust', {r: 0.25, g: 0.25});
+            layer = iCanvas.addLayer('images/img2.jpg');
+            layer.addFilter('rgbAdjust', {r: 0.30, g: -0.10, b: -0.15});
+            layer.addFilter('invert');
+            layer.opacity = 0.3;
+
+            iCanvas.render(function (canvas) {
+                document.body.appendChild(canvas);
+            });
+        };
+    </script>
+</head>
+<body id="root">
+</body>
+</html>

@@ -29,10 +29,11 @@
   },
   "homepage": "https://github.com/nodebox/grob",
   "dependencies": {
-    "img.js": "^0.1.7",
+    "async": "~0.2.10",
     "lodash": "^3.7.0",
     "xmldom": "^0.1.19",
-    "js-clipper": "^1.0.1"
+    "js-clipper": "^1.0.1",
+    "stackblur": "^1.0.0"
   },
   "devDependencies": {
     "browserify": "^9.0.8",

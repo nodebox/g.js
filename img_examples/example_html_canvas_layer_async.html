@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>grob.js - Example canvas as mask layer</title>
+    <script src="../build/grob.js"></script>
+    <script>
+        function drawEllipseByCenter(ctx, cx, cy, w, h) {
+            drawEllipse(ctx, cx - w / 2.0, cy - h / 2.0, w, h);
+        }
+
+        function drawEllipse(ctx, x, y, w, h) {
+            var kappa = .5522848;
+            var ox = (w / 2) * kappa; // control point offset horizontal
+            var oy = (h / 2) * kappa; // control point offset vertical
+            var xe = x + w;           // x-end
+            var ye = y + h;           // y-end
+            var xm = x + w / 2;       // x-middle
+            var ym = y + h / 2;       // y-middle
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x, ym);
+            ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+            ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+            ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+            ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        window.onload = function () {
+            var w = 360;
+            var h = 360;
+            var iCanvas = new grob.ImageCanvas(600, 450);
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            var iCanvas2 = new grob.ImageCanvas(650, 500);
+
+            var layer = iCanvas.addLayer('images/img1.jpg');
+            layer.addFilter('rgbAdjust', {r: 0.25, g: 0.25});
+            layer = iCanvas.addLayer('images/img2.jpg');
+            layer.addFilter('rgbAdjust', {r: 0.30, g: 0.20, b: 0.35});
+
+            canvas.width = w;
+            canvas.height = h;
+            ctx.fillStyle = 'grey';
+            drawEllipseByCenter(ctx, w / 2, h / 2, w, h);
+            layer.mask.addLayer(canvas);
+
+            iCanvas2.addLayer('black', 'cornflowerblue', 90, 0.65);
+            layer = iCanvas2.addLayer('black', 'gold', 270, 0.65);
+            layer.blendmode = 'screen';
+            layer = iCanvas2.addLayer('black', 'crimson', 0, 0.65);
+            layer.blendmode = 'screen';
+            layer = iCanvas2.addLayer('black', 'honeydew', 180, 0.65);
+            layer.blendmode = 'screen';
+            layer = iCanvas2.addLayer(iCanvas);
+            layer.blendmode = 'lighten';
+            iCanvas2.render(function (canvas) {
+                document.body.appendChild(canvas);
+            });
+        };
+    </script>
+</head>
+<body id="root">
+</body>
+</html>

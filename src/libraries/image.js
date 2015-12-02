@@ -1,7 +1,7 @@
 'use strict';
 
 var vg = require('./vg/vg');
-var img = require('img.js');
+var img = require('./img/img');
 
 var Img = img.Img;
 var Layer = img.Layer;

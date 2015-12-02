@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var vg = require('./vg/vg');
-var img = require('img.js');
+var img = require('./img/img');
 var math = require('./math');
 
 var grob = {};
