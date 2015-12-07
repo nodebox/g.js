@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>grob.js notebook</title>
-    <script src="build/grob.js"></script>
+    <title>g.js notebook</title>
+    <script src="build/g.js"></script>
     <style>
         body {
             margin: 0;
@@ -90,7 +90,7 @@
 </head>
 <body>
 <div class="header">
-    <h2>grob.js notebook</h2>
+    <h2>g.js notebook</h2>
 </div>
 <div class="page">
     <p class="help">
@@ -103,7 +103,7 @@
 </div>
 
 <script>
-    /* global grob */
+    /* global g */
     /*jshint evil: true */
     'use strict';
 
@@ -200,15 +200,15 @@
             result = '' + e.stack;
             isError = true;
         }
-        if (grob.isDrawable(result)) {
+        if (g.isDrawable(result)) {
             $canvas = document.createElement('canvas');
-            bounds = grob.bounds(result);
+            bounds = g.bounds(result);
             $canvas.width = bounds.width + 10;
             $canvas.height = bounds.height + 10;
             $result.appendChild($canvas);
             ctx = $canvas.getContext('2d');
             ctx.translate(-bounds.x + 5, -bounds.y + 5);
-            grob.draw(ctx, result);
+            g.draw(ctx, result);
         } else {
             $pre = document.createElement('pre');
             $pre.textContent = result;
@@ -237,7 +237,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-        createCell('// Press Ctrl-Enter to execute this expression.\n\ngrob.ellipse(0, 0, 100, 100)');
+        createCell('// Press Ctrl-Enter to execute this expression.\n\ng.ellipse(0, 0, 100, 100)');
     });
 </script>
 

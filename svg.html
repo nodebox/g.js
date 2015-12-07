@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>grob.js SVG notebook</title>
+    <title>g.js SVG notebook</title>
     <style>
         body {
             margin: 0;
@@ -80,24 +80,24 @@
         }
 
     </style>
-    <script src="build/grob.js"></script>
+    <script src="build/g.js"></script>
     <script type="text/javascript">
     function render() {
     	var s = document.getElementById('ta').value;
-    	var result = grob.svg.parseString(s);
-    	var bounds = grob.bounds(result);
+    	var result = g.svg.parseString(s);
+    	var bounds = g.bounds(result);
     	var canvas = document.getElementById('c');
         var width = canvas.width = document.getElementById('canvasarea').clientWidth;
         var height = canvas.height = document.getElementById('canvasarea').clientHeight;
         ctx = canvas.getContext('2d');
         ctx.translate((width - bounds.width) / 2, (height - bounds.height) / 2);
-        grob.draw(ctx, result);
+        g.draw(ctx, result);
     }
     </script>
 </head>
 <body>
     <div class="header">
-        <h2>grob.js SVG notebook</h2>
+        <h2>g.js SVG notebook</h2>
     </div>
     <div class="btn">
         <div>SVG</div>

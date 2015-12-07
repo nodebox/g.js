@@ -5,30 +5,30 @@ var mocha = require('mocha');
 var describe = mocha.describe;
 var it = mocha.it;
 
-var grob = require('../src/grob');
+var g = require('../src/g');
 
 describe('The string module', function () {
 
     it('has concatenate', function () {
         var s1 = 'foo';
         var s2 = 'bar';
-        assert.equal(grob.concatenate(), '');
-        assert.equal(grob.concatenate(s1), 'foo');
-        assert.equal(grob.concatenate(s1, s2), 'foobar');
-        assert.equal(grob.concatenate(s1, s2, s1, s2, s1, s2), 'foobarfoobarfoobar');
+        assert.equal(g.concatenate(), '');
+        assert.equal(g.concatenate(s1), 'foo');
+        assert.equal(g.concatenate(s1, s2), 'foobar');
+        assert.equal(g.concatenate(s1, s2, s1, s2, s1, s2), 'foobarfoobarfoobar');
     });
 
     it('has substring', function () {
-        assert.equal(grob.substring('Hello', 0), 'Hello');
-        assert.equal(grob.substring('Hello', 1), 'ello');
-        assert.equal(grob.substring('Hello', 1, 3), 'el');
-        assert.equal(grob.substring('Hello', 1, 3, true), 'ell');
+        assert.equal(g.substring('Hello', 0), 'Hello');
+        assert.equal(g.substring('Hello', 1), 'ello');
+        assert.equal(g.substring('Hello', 1, 3), 'el');
+        assert.equal(g.substring('Hello', 1, 3, true), 'ell');
     });
 
     it('has toCharacterCodes', function () {
-        assert.deepEqual(grob.toCharacterCodes(), []);
-        assert.deepEqual(grob.toCharacterCodes(''), []);
-        assert.deepEqual(grob.toCharacterCodes('ABC'), [65, 66, 67]);
+        assert.deepEqual(g.toCharacterCodes(), []);
+        assert.deepEqual(g.toCharacterCodes(''), []);
+        assert.deepEqual(g.toCharacterCodes('ABC'), [65, 66, 67]);
     });
 
 });

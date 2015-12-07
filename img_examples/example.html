@@ -2,14 +2,14 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>grob.js imaging examples</title>
-    <script src="../build/grob.js"></script>
+    <title>g.js imaging examples</title>
+    <script src="../build/g.js"></script>
     <script>
         window.onload = function () {
             var img1 = 'images/img1.jpg';
             var img2 = 'images/img2.jpg';
-            grob.loadImages([img1, img2], function (images) {
-                var iCanvas = new grob.ImageCanvas(600, 450);
+            g.loadImages([img1, img2], function (images) {
+                var iCanvas = new g.ImageCanvas(600, 450);
                 var layer = iCanvas.addLayer(images[img1]);
                 layer.addFilter('rgbAdjust', {r: 0.25, g: 0.25});
                 layer = iCanvas.addLayer(images[img2]);

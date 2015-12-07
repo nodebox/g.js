@@ -2,8 +2,8 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>grob.js - Example canvas as mask layer</title>
-    <script src="../build/grob.js"></script>
+    <title>g.js - Example canvas as mask layer</title>
+    <script src="../build/g.js"></script>
     <script>
         function drawEllipseByCenter(ctx, cx, cy, w, h) {
             drawEllipse(ctx, cx - w / 2.0, cy - h / 2.0, w, h);
@@ -33,7 +33,7 @@
         window.onload = function () {
             var w = 360;
             var h = 360;
-            var iCanvas = new grob.ImageCanvas(600, 450);
+            var iCanvas = new g.ImageCanvas(600, 450);
             var canvas = document.createElement('canvas');
             var ctx = canvas.getContext('2d');
 

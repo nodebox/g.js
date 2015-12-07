@@ -5,13 +5,13 @@ var mocha = require('mocha');
 var describe = mocha.describe;
 var it = mocha.it;
 
-var grob = require('../src/grob');
+var g = require('../src/g');
 
 describe('The library', function () {
 
     it('can be imported', function () {
-        assert(grob.Rect !== undefined);
-        assert(grob.translate !== undefined);
+        assert(g.Rect !== undefined);
+        assert(g.translate !== undefined);
     });
 
 });
@@ -19,12 +19,12 @@ describe('The library', function () {
 describe('The import function', function () {
 
     it('can import an empty SVG', function () {
-        var group = grob.importSVG('<svg></svg>');
+        var group = g.importSVG('<svg></svg>');
         assert.equal(group.shapes.length, 0);
     });
 
     it('can import a simple path', function () {
-        var group = grob.importSVG('<svg><path d="M0,0L10,20L30,40Z"/></svg>');
+        var group = g.importSVG('<svg><path d="M0,0L10,20L30,40Z"/></svg>');
         assert.equal(group.shapes.length, 1);
         var path = group.shapes[0];
         assert.equal(path.commands.length, 4);
@@ -39,11 +39,11 @@ describe('The import function', function () {
         }
 
         var csv = 'name,age\nAlice,42\nBob,33';
-        var table1 = grob.importCSV(csv);
+        var table1 = g.importCSV(csv);
         assertTable(table1);
 
         var tsv = 'name\tage\nAlice\t42\nBob\t33';
-        var table2 = grob.importCSV(tsv, '\t');
+        var table2 = g.importCSV(tsv, '\t');
         assertTable(table2);
     });
 
