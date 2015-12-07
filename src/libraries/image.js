@@ -6,9 +6,9 @@ var img = require('./img/img');
 var Img = img.Img;
 var Layer = img.Layer;
 var ImageCanvas = img.ImageCanvas;
-var grob = {};
+var g = {};
 
-grob.blend = function (image1, image2, mode) {
+g.blend = function (image1, image2, mode) {
     var b1 = image1.bounds();
     var b2 = image2.bounds();
 
@@ -27,79 +27,79 @@ grob.blend = function (image1, image2, mode) {
     return new Img(canvas.render(), dx, dy);
 };
 
-grob.blur = function (image, radius) {
+g.blur = function (image, radius) {
     var layer = image.toLayer(false);
     layer.addFilter('blur', {radius: radius});
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.brighten = function (image, brightness, contrast) {
+g.brighten = function (image, brightness, contrast) {
     var layer = image.toLayer(false);
     layer.addFilter('brightness', {brightness: brightness / 100, contrast: contrast / 100});
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.bump = function (image, position, radius, zoom) {
+g.bump = function (image, position, radius, zoom) {
     var layer = image.toLayer(false);
     layer.addFilter('bump', {dx: position.x, dy: position.y, radius: radius, zoom: zoom / 100});
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.colorImage = function (width, height, color) {
+g.colorImage = function (width, height, color) {
     var layer = Layer.fromColor(color);
     layer.width = width;
     layer.height = height;
     return new Img(layer.toCanvas());
 };
 
-grob.crop = function (image, bounding) {
+g.crop = function (image, bounding) {
     return image.crop(bounding);
 };
 
-grob.crossEdges = function (image, strength) {
+g.crossEdges = function (image, strength) {
     var layer = image.toLayer(false);
     layer.addFilter('crossedges', {strength: strength / 100});
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.dent = function (image, position, radius, zoom) {
+g.dent = function (image, position, radius, zoom) {
     var layer = image.toLayer(false);
     layer.addFilter('dent', {dx: position.x, dy: position.y, radius: radius, zoom: zoom / 100});
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.emboss = function (image, amount, angle) {
+g.emboss = function (image, amount, angle) {
     var layer = image.toLayer(false);
     layer.addFilter('emboss', {amount: amount / 100, angle: angle});
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.equalize = function (image) {
+g.equalize = function (image) {
     var layer = image.toLayer(false);
     layer.addFilter('equalize');
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.findEdges = function (image) {
+g.findEdges = function (image) {
     var layer = image.toLayer(false);
     layer.addFilter('findedges');
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.glow = function (image, amount, kernelSize) {
+g.glow = function (image, amount, kernelSize) {
     var layer = image.toLayer(false);
     layer.addFilter('glow', {amount: amount / 100, kernelSize: kernelSize});
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.gradientImage = function (width, height, startColor, endColor, type, angle, spread) {
+g.gradientImage = function (width, height, startColor, endColor, type, angle, spread) {
     var layer = Layer.fromGradient(startColor, endColor, type, angle, spread / 100);
     layer.width = width;
     layer.height = height;
     return new Img(layer.toCanvas());
 };
 
-grob.histogram = function (image, channel, relative) {
+g.histogram = function (image, channel, relative) {
     var pixels = image.getPixels();
     var vals = new Array(256);
     var i, c, pixel, comp;
@@ -129,19 +129,19 @@ grob.histogram = function (image, channel, relative) {
     return vals;
 };
 
-grob.lightTunnel = function (image, position, radius) {
+g.lightTunnel = function (image, position, radius) {
     var layer = image.toLayer(false);
     layer.addFilter('splash', {dx: position.x, dy: position.y, radius: radius});
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.luminanceBW = function (image) {
+g.luminanceBW = function (image) {
     var layer = image.toLayer(false);
     layer.addFilter('luminancebw');
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.mask = function (image, mask) {
+g.mask = function (image, mask) {
     image = image.transformed();
     mask = mask.transformed();
 
@@ -165,37 +165,37 @@ grob.mask = function (image, mask) {
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.mosaic = function (image, blockSize) {
+g.mosaic = function (image, blockSize) {
     var layer = image.toLayer(false);
     layer.addFilter('mosaic', {blockSize: blockSize});
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.pinch = function (image, position, zoom) {
+g.pinch = function (image, position, zoom) {
     var layer = image.toLayer(false);
     layer.addFilter('pinch', {dx: position.x, dy: position.y, zoom: zoom / 100});
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.posterize = function (image, levels) {
+g.posterize = function (image, levels) {
     var layer = image.toLayer(false);
     layer.addFilter('posterize', {levels: levels});
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.removeNoise = function (image) {
+g.removeNoise = function (image) {
     var layer = image.toLayer(false);
     layer.addFilter('removenoise');
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.solarize = function (image) {
+g.solarize = function (image) {
     var layer = image.toLayer(false);
     layer.addFilter('solarize');
     return image.withCanvas(layer.toCanvas());
 };
 
-grob.toBitmap = function (shape, bounding) {
+g.toBitmap = function (shape, bounding) {
     var canvas = document.createElement('canvas');
     var bounds;
     if (bounding) {
@@ -213,7 +213,7 @@ grob.toBitmap = function (shape, bounding) {
     return new Img(canvas, width / 2 + x, height / 2 + y);
 };
 
-grob.toPixels = function (image, step) {
+g.toPixels = function (image, step) {
     step = step > 1 ? step : 1;
     var canvas = image.canvas;
     var imgWidth = canvas.width;
@@ -245,10 +245,10 @@ grob.toPixels = function (image, step) {
     return outPixels;
 };
 
-grob.twirl = function (image, position, radius, angle) {
+g.twirl = function (image, position, radius, angle) {
     var layer = image.toLayer(false);
     layer.addFilter('twirl', {dx: position.x, dy: position.y, radius: radius, angle: angle});
     return image.withCanvas(layer.toCanvas());
 };
 
-module.exports = grob;
+module.exports = g;

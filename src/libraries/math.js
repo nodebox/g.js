@@ -5,13 +5,13 @@ var _ = require('lodash');
 var util = require('./util');
 var vg = require('./vg/vg');
 
-var grob = {};
+var g = {};
 
 var TWO_PI = Math.PI * 2;
 
-grob.abs = Math.abs;
+g.abs = Math.abs;
 
-grob.accumulate = function (values) {
+g.accumulate = function (values) {
     if (arguments.length > 1) {
         values = arguments;
     } else if (arguments.length === 1 && !Array.isArray(values)) {
@@ -27,14 +27,14 @@ grob.accumulate = function (values) {
     return b;
 };
 
-grob.add = function (a, b) {
+g.add = function (a, b) {
     if (arguments.length === 2) { return a + b; }
     return _.reduce(arguments, function(total, n) {
         return total + n;
     }, 0);
 };
 
-grob.and = function (bool1, bool2) {
+g.and = function (bool1, bool2) {
     var argLength = arguments.length;
     if (argLength === 2) {
         return bool1 && bool2;
@@ -48,7 +48,7 @@ grob.and = function (bool1, bool2) {
     }, true);
 };
 
-grob.average = function (values) {
+g.average = function (values) {
     if (arguments.length > 1) {
         values = arguments;
     } else if (arguments.length === 1 && !Array.isArray(values)) {
@@ -62,13 +62,13 @@ grob.average = function (values) {
     return sum / values.length;
 };
 
-grob.boolean = function (v) {
+g.boolean = function (v) {
     return !!v;
 };
 
-grob.ceil = Math.ceil;
+g.ceil = Math.ceil;
 
-grob.compare = function (v1, v2, comparator) {
+g.compare = function (v1, v2, comparator) {
     if (comparator === '<') {
         return v1 < v2;
     } else if (comparator === '>') {
@@ -85,13 +85,13 @@ grob.compare = function (v1, v2, comparator) {
     throw new Error('Unknown comparison operation ' + comparator);
 };
 
-grob.cos = Math.cos;
+g.cos = Math.cos;
 
-grob.degrees = function (radians) {
+g.degrees = function (radians) {
     return radians * 180 / Math.PI;
 };
 
-grob.divide = function (a, b) {
+g.divide = function (a, b) {
     var argLength = arguments.length;
     function checkIfZero(arg) {
         if (arg === 0) {
@@ -113,25 +113,25 @@ grob.divide = function (a, b) {
     }, arguments[0]);
 };
 
-grob.e = function () {
+g.e = function () {
     return Math.E;
 };
 
-grob.even = function (v) {
+g.even = function (v) {
     return v % 2 === 0;
 };
 
-grob.floor = Math.floor;
+g.floor = Math.floor;
 
-grob.integer = function (v) {
+g.integer = function (v) {
     return v | 0;
 };
 
-grob.log = function (v) {
+g.log = function (v) {
     return v > 0 ? Math.log(v) : -Math.log(-v);
 };
 
-grob.makeNumbers = function (s, separator) {
+g.makeNumbers = function (s, separator) {
     if (!s) { return []; }
     if (!separator) { separator = ''; }
     var i, num, numbers = [],
@@ -145,7 +145,7 @@ grob.makeNumbers = function (s, separator) {
     return numbers;
 };
 
-grob.max = function () {
+g.max = function () {
     var values = arguments;
     if (arguments.length === 1 && Array.isArray(arguments[0])) {
         values = arguments[0];
@@ -156,7 +156,7 @@ grob.max = function () {
     return Math.max.apply(null, values);
 };
 
-grob.min = function () {
+g.min = function () {
     var values = arguments;
     if (arguments.length === 1 && Array.isArray(arguments[0])) {
         values = arguments[0];
@@ -167,11 +167,11 @@ grob.min = function () {
     return Math.min.apply(null, values);
 };
 
-grob.mod = function (a, b) {
+g.mod = function (a, b) {
     return a % b;
 };
 
-grob.multiply = function (a, b) {
+g.multiply = function (a, b) {
     var argLength = arguments.length;
     if (argLength === 2) { return a * b; }
     else if (argLength === 1) { return a; }
@@ -180,23 +180,23 @@ grob.multiply = function (a, b) {
     }, 1);
 };
 
-grob.negate = function (v) {
+g.negate = function (v) {
     return -v;
 };
 
-grob.not = function (bool) {
+g.not = function (bool) {
     return !bool;
 };
 
-grob.number = function (v) {
+g.number = function (v) {
     return v;
 };
 
-grob.odd = function (v) {
+g.odd = function (v) {
     return v % 2 !== 0;
 };
 
-grob.or = function (bool1, bool2) {
+g.or = function (bool1, bool2) {
     var argLength = arguments.length;
     if (argLength === 2) {
         return bool1 || bool2;
@@ -211,22 +211,22 @@ grob.or = function (bool1, bool2) {
 };
 
 // Compute Perlin noise
-grob.perlinNoise = function (x, y, z) {
+g.perlinNoise = function (x, y, z) {
     // Call optimized internal noise function.
     return vg.math.noise(x, y, z);
 };
 
-grob.pi = function () {
+g.pi = function () {
     return Math.PI;
 };
 
-grob.pow = Math.pow;
+g.pow = Math.pow;
 
-grob.radians = function (degrees) {
+g.radians = function (degrees) {
     return degrees * Math.PI / 180;
 };
 
-grob.randomNumbers = function (amount, min, max, seed) {
+g.randomNumbers = function (amount, min, max, seed) {
     var argLength = arguments.length;
     if (argLength < 4 || (!seed && seed !== 0)) {
         seed = Math.random();
@@ -257,7 +257,7 @@ grob.randomNumbers = function (amount, min, max, seed) {
     return numbers;
 };
 
-grob.range = function (min, max, step, includeMax) {
+g.range = function (min, max, step, includeMax) {
     if (min === max) { return []; }
     if (step !== 0) {
         step = step || (min < max ? 1 : -1);
@@ -291,7 +291,7 @@ grob.range = function (min, max, step, includeMax) {
     return values;
 };
 
-grob.round = function (v, a) {
+g.round = function (v, a) {
     a = a | 0;
     if (!a) {
         return Math.round(v);
@@ -299,7 +299,7 @@ grob.round = function (v, a) {
     return Math.round(v / a) * a;
 };
 
-grob.sample = function (amount, min, max, circular) {
+g.sample = function (amount, min, max, circular) {
     var d,
         values = [],
         i;
@@ -315,7 +315,7 @@ grob.sample = function (amount, min, max, circular) {
     return values;
 };
 
-grob.sineWave = function (v, min, max, period, offset) {
+g.sineWave = function (v, min, max, period, offset) {
     if (min === undefined) min = -1;
     if (max === undefined) max = 1;
     if (period === undefined) period = 1;
@@ -324,7 +324,7 @@ grob.sineWave = function (v, min, max, period, offset) {
     return (min + amplitude) + Math.sin((offset + v) * TWO_PI / period) * amplitude;
 };
 
-grob.squareWave = function (v, min, max, period, offset) {
+g.squareWave = function (v, min, max, period, offset) {
     if (min === undefined) min = -1;
     if (max === undefined) max = 1;
     if (period === undefined) period = 1;
@@ -338,7 +338,7 @@ grob.squareWave = function (v, min, max, period, offset) {
     }
 };
 
-grob.triangleWave = function (v, min, max, period, offset) {
+g.triangleWave = function (v, min, max, period, offset) {
     if (min === undefined) min = -1;
     if (max === undefined) max = 1;
     if (period === undefined) period = 1;
@@ -354,7 +354,7 @@ grob.triangleWave = function (v, min, max, period, offset) {
     return 2 * amplitude * (1 + -Math.abs((phase / TWO_PI) * 2 - 1)) + min;
 };
 
-grob.sawtoothWave = function (v, min, max, period, offset) {
+g.sawtoothWave = function (v, min, max, period, offset) {
     if (min === undefined) min = -1;
     if (max === undefined) max = 1;
     if (period === undefined) period = 1;
@@ -370,7 +370,7 @@ grob.sawtoothWave = function (v, min, max, period, offset) {
     return 2 * (phase / TWO_PI) * amplitude + min;
 };
 
-grob.sign = function (v) {
+g.sign = function (v) {
     if (v > 0) {
         return 1;
     } else if (v === 0) {
@@ -380,11 +380,11 @@ grob.sign = function (v) {
     }
 };
 
-grob.sin = Math.sin;
+g.sin = Math.sin;
 
-grob.sqrt = Math.sqrt;
+g.sqrt = Math.sqrt;
 
-grob.subtract = function (a, b) {
+g.subtract = function (a, b) {
     var argLength = arguments.length;
     if (argLength === 2) { return a - b; }
     else if (argLength === 1) { return -a; }
@@ -394,9 +394,9 @@ grob.subtract = function (a, b) {
     }, arguments[0]);
 };
 
-grob.tan = Math.tan;
+g.tan = Math.tan;
 
-grob.total = function (values) {
+g.total = function (values) {
     if (arguments.length > 1) {
         values = arguments;
     } else if (arguments.length === 1 && !Array.isArray(values)) {
@@ -412,7 +412,7 @@ grob.total = function (values) {
     return total;
 };
 
-grob.xor = function (bool1, bool2) {
+g.xor = function (bool1, bool2) {
     var argLength = arguments.length;
     if (argLength === 2) {
         return !!(bool1 ^ bool2);
@@ -421,4 +421,4 @@ grob.xor = function (bool1, bool2) {
     }
 };
 
-module.exports = grob;
+module.exports = g;

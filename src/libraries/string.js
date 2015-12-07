@@ -1,15 +1,15 @@
 'use strict';
 
-var grob = {};
+var g = {};
 
-grob.characterAt = function (s, index) {
+g.characterAt = function (s, index) {
     if (!s || s.length === 0) { return null; }
     s = String(s);
     index = index % s.length;
     return s.charAt(index);
 };
 
-grob.concatenate = function () {
+g.concatenate = function () {
     var result = '';
     for (var i = 0; i < arguments.length; i++) {
         var s = arguments[i];
@@ -19,31 +19,31 @@ grob.concatenate = function () {
     return result;
 };
 
-grob.endsWith = function (s, value) {
+g.endsWith = function (s, value) {
     if (!s || !value) { return false; }
     s = String(s);
     return s.indexOf(value, s.length - value.length) !== -1;
 };
 
-grob.reverse = function (l) {
+g.reverse = function (l) {
     return l.slice().reverse();
 };
 
-grob.startsWith = function (s, value) {
+g.startsWith = function (s, value) {
     if (!s || !value) { return false; }
     s = String(s);
     return s.indexOf(value) === 0;
 };
 
-grob.string = String;
+g.string = String;
 
-grob.stringContains = function (s, sub) {
+g.stringContains = function (s, sub) {
     if (!s || !sub) { return false; }
     s = String(s);
     return s.indexOf(sub) !== -1;
 };
 
-grob.stringEquals = function (string1, string2, ignoreCase) {
+g.stringEquals = function (string1, string2, ignoreCase) {
     string1 = String(string1);
     string2 = String(string2);
     if (!string1 || !string2) {
@@ -56,18 +56,18 @@ grob.stringEquals = function (string1, string2, ignoreCase) {
     }
 };
 
-grob.stringLength = function (s) {
+g.stringLength = function (s) {
     if (!s) { return 0; }
     s = String(s);
     return s.length;
 };
 
-grob.stringReplace = function (s, old, new_) {
+g.stringReplace = function (s, old, new_) {
     s = String(s);
     return s.replace(new RegExp(old, 'g'), new_);
 };
 
-grob.stringSplit = function (s, separator) {
+g.stringSplit = function (s, separator) {
     if (!s) { return []; }
     if (!separator || separator.length === 0) {
         separator = '';
@@ -76,13 +76,13 @@ grob.stringSplit = function (s, separator) {
     return s.split(separator);
 };
 
-grob.stringTrim = function (s) {
+g.stringTrim = function (s) {
     if (!s) { return null; }
     s = String(s);
     return s.trim();
 };
 
-grob.substring = function (s, start, end, endOffset) {
+g.substring = function (s, start, end, endOffset) {
     if (!s) { return null; }
     s = String(s);
     start = start % s.length;
@@ -97,7 +97,7 @@ grob.substring = function (s, start, end, endOffset) {
     return s.substring(start, end);
 };
 
-grob.toCharacterCodes = function(s) {
+g.toCharacterCodes = function(s) {
     if (!s) return [];
     var codes = [];
     codes.length = s.length;
@@ -107,18 +107,18 @@ grob.toCharacterCodes = function(s) {
     return codes;
 };
 
-grob.toCharacters = function (s) {
+g.toCharacters = function (s) {
     if (!s) { return []; }
     s = String(s);
     return s.split('');
 };
 
-grob.toLowerCase = function (s) {
+g.toLowerCase = function (s) {
     s = String(s);
     return s.toLowerCase();
 };
 
-grob.toTitleCase = function (s) {
+g.toTitleCase = function (s) {
     var c, result = '';
     s = String(s);
     for (var i = 0; i < s.length; i += 1) {
@@ -132,19 +132,19 @@ grob.toTitleCase = function (s) {
     return result;
 };
 
-grob.toUpperCase = function (s) {
+g.toUpperCase = function (s) {
     s = String(s);
     return s.toUpperCase();
 };
 
-grob.wordCount = function (s) {
+g.wordCount = function (s) {
     if (!s) { return 0; }
     s = String(s);
     var split = s.split(new RegExp('\\w+'));
     return split.length - 1;
 };
 
-grob.toWords = function (s) {
+g.toWords = function (s) {
     var l = s.split(/\W+/);
     if (l[l.length - 1] === '') {
         l.pop();
@@ -153,4 +153,4 @@ grob.toWords = function (s) {
 };
 
 
-module.exports = grob;
+module.exports = g;

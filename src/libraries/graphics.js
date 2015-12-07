@@ -5,18 +5,18 @@ var vg = require('./vg/vg');
 var img = require('./img/img');
 var math = require('./math');
 
-var grob = {};
+var g = {};
 
-grob.HORIZONTAL = 'horizontal';
-grob.VERTICAL = 'vertical';
-grob.BOTH = 'both';
+g.HORIZONTAL = 'horizontal';
+g.VERTICAL = 'vertical';
+g.BOTH = 'both';
 
-grob.LEFT = 'left';
-grob.RIGHT = 'right';
-grob.CENTER = 'center';
-grob.TOP = 'top';
-grob.BOTTOM = 'bottom';
-grob.MIDDLE = 'middle';
+g.LEFT = 'left';
+g.RIGHT = 'right';
+g.CENTER = 'center';
+g.TOP = 'top';
+g.BOTTOM = 'bottom';
+g.MIDDLE = 'middle';
 
 function clamp(val, min, max) {
     return Math.min(max, Math.max(min, val));
@@ -44,7 +44,7 @@ function transform(shape, t) {
     }
 }
 
-grob.align = function (shape, position, hAlign, vAlign) {
+g.align = function (shape, position, hAlign, vAlign) {
     if (!shape) {
         return;
     }
@@ -52,20 +52,20 @@ grob.align = function (shape, position, hAlign, vAlign) {
         x = position.x,
         y = position.y,
         bounds = vg.bounds(shape);
-    if (hAlign === grob.LEFT) {
+    if (hAlign === g.LEFT) {
         dx = x - bounds.x;
-    } else if (hAlign === grob.RIGHT) {
+    } else if (hAlign === g.RIGHT) {
         dx = x - bounds.x - bounds.width;
-    } else if (hAlign === grob.CENTER) {
+    } else if (hAlign === g.CENTER) {
         dx = x - bounds.x - bounds.width / 2;
     } else {
         dx = 0;
     }
-    if (vAlign === grob.TOP) {
+    if (vAlign === g.TOP) {
         dy = y - bounds.y;
-    } else if (vAlign === grob.BOTTOM) {
+    } else if (vAlign === g.BOTTOM) {
         dy = y - bounds.y - bounds.height;
-    } else if (vAlign === grob.MIDDLE) {
+    } else if (vAlign === g.MIDDLE) {
         dy = y - bounds.y - bounds.height / 2;
     } else {
         dy = 0;
@@ -75,7 +75,7 @@ grob.align = function (shape, position, hAlign, vAlign) {
     return transform(shape, t);
 };
 
-grob.colorize = function (shape, options) {
+g.colorize = function (shape, options) {
     var args = arguments;
     if (typeof options !== 'object' || options instanceof vg.Color) {
         options = {};
@@ -94,7 +94,7 @@ grob.colorize = function (shape, options) {
     }
 };
 
-grob.copy = function (shape, copies, order, translate, rotate, scale) {
+g.copy = function (shape, copies, order, translate, rotate, scale) {
     var i, t, j, op, fn,
         shapes = [],
         tx = 0,
@@ -140,26 +140,26 @@ grob.copy = function (shape, copies, order, translate, rotate, scale) {
     return shapes;
 };
 
-grob.flip = function (shape, axis) {
+g.flip = function (shape, axis) {
     if (axis === 'none') { return shape; }
     if (shape instanceof vg.Path || shape instanceof vg.Group || shape instanceof vg.Text || (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined)) {
-        var x = axis === grob.HORIZONTAL || axis === grob.BOTH ? -1 : 1;
-        var y = axis === grob.VERTICAL || axis === grob.BOTH ? -1 : 1;
+        var x = axis === g.HORIZONTAL || axis === g.BOTH ? -1 : 1;
+        var y = axis === g.VERTICAL || axis === g.BOTH ? -1 : 1;
         return vg.scale(shape, new vg.Point(x, y), vg.centerPoint(shape));
     } else if (shape instanceof img.Img) {
         var image = shape;
         var layer = image.toLayer(false);
-        if (axis === grob.HORIZONTAL || axis === grob.BOTH) {
+        if (axis === g.HORIZONTAL || axis === g.BOTH) {
             layer.flipHorizontal();
         }
-        if (axis === grob.VERTICAL || axis === grob.BOTH) {
+        if (axis === g.VERTICAL || axis === g.BOTH) {
             layer.flipVertical();
         }
         return image.withCanvas(layer.toCanvas());
     }
 };
 
-grob.fit = function (shape, position, width, height, stretch) {
+g.fit = function (shape, position, width, height, stretch) {
     if (!shape) {
         return;
     }
@@ -194,7 +194,7 @@ grob.fit = function (shape, position, width, height, stretch) {
     return transform(shape, t);
 };
 
-grob.fitTo = function (shape, bounding, stretch) {
+g.fitTo = function (shape, bounding, stretch) {
     if (!shape) {
         return;
     }
@@ -208,10 +208,10 @@ grob.fitTo = function (shape, bounding, stretch) {
         bw = bounds.width,
         bh = bounds.height;
 
-    return grob.fit(shape, {x: bx + bw / 2, y: by + bh / 2}, bw, bh, stretch);
+    return g.fit(shape, {x: bx + bw / 2, y: by + bh / 2}, bw, bh, stretch);
 };
 
-grob.hslAdjust = function (v, hue, saturation, lightness, alpha) {
+g.hslAdjust = function (v, hue, saturation, lightness, alpha) {
     if (!alpha) { alpha = 0; }
 
     // First, handle the image case.
@@ -361,7 +361,7 @@ grob.hslAdjust = function (v, hue, saturation, lightness, alpha) {
     return hslAdjust(v);
 };
 
-grob.rgbAdjust = function (v, red, green, blue, alpha) {
+g.rgbAdjust = function (v, red, green, blue, alpha) {
     if (!alpha) { alpha = 0; }
     red = clamp(red, -1, 1);
     green = clamp(green, -1, 1);
@@ -395,7 +395,7 @@ grob.rgbAdjust = function (v, red, green, blue, alpha) {
     return rgbAdjust(v);
 };
 
-grob.stack = function (shapes, direction, margin) {
+g.stack = function (shapes, direction, margin) {
     if (!shapes) {
         return [];
     }
@@ -442,7 +442,7 @@ grob.stack = function (shapes, direction, margin) {
     return newShapes;
 };
 
-grob.angle = function (point1, point2) {
+g.angle = function (point1, point2) {
     var args = arguments;
     if (args.length === 4) {
         point1 = vg.Point.read(args[0], args[1]);
@@ -454,7 +454,7 @@ grob.angle = function (point1, point2) {
     return math.degrees(Math.atan2(point2.y - point1.y, point2.x - point1.x));
 };
 
-grob.coordinates = function (point, angle, distance) {
+g.coordinates = function (point, angle, distance) {
     var args = arguments;
     if (args.length === 4) {
         point = vg.Point.read(args[0], args[1]);
@@ -466,7 +466,7 @@ grob.coordinates = function (point, angle, distance) {
     return vg.geo.coordinates(point.x, point.y, angle, distance);
 };
 
-grob.distance = function (point1, point2) {
+g.distance = function (point1, point2) {
     var args = arguments;
     if (args.length === 4) {
         point1 = vg.Point.read(args[0], args[1]);
@@ -478,12 +478,12 @@ grob.distance = function (point1, point2) {
     return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
 };
 
-grob.grayColor = function (gray, alpha) {
+g.grayColor = function (gray, alpha) {
     if (!alpha && alpha !== 0) { alpha = 1; }
     return vg.Color.gray(gray, alpha, 1.0);
 };
 
-grob.hexColor = function (s) {
+g.hexColor = function (s) {
     function isNumeric(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
@@ -498,22 +498,22 @@ grob.hexColor = function (s) {
     return vg.Color.parse(s);
 };
 
-grob.hslColor = function (hue, saturation, lightness, alpha) {
+g.hslColor = function (hue, saturation, lightness, alpha) {
     if (!alpha && alpha !== 0) { alpha = 1; }
     return vg.Color.hsl(hue, saturation, lightness, alpha, 1.0);
 };
 
-grob.rgbColor = function (red, green, blue, alpha) {
+g.rgbColor = function (red, green, blue, alpha) {
     if (!alpha && alpha !== 0) { alpha = 1; }
     return vg.Color.rgb(red, green, blue, alpha, 1.0);
 };
 
-grob.desaturate = function (shape, method) {
+g.desaturate = function (shape, method) {
     if (!shape) { return null; }
     return shape.desaturate({method: method});
 };
 
-grob.invert = function (shape) {
+g.invert = function (shape) {
     if (!shape) { return null; }
     if (shape instanceof img.Img) {
         var image = shape;
@@ -524,4 +524,4 @@ grob.invert = function (shape) {
     return shape.invert();
 };
 
-module.exports = grob;
+module.exports = g;

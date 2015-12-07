@@ -4,22 +4,22 @@ var _ = require('lodash');
 var vg = require('./libraries/vg/vg');
 var img = require('./libraries/img/img');
 
-var grob = {};
+var g = {};
 
 // Commands
 function importCommands(module) {
     for (var k in module) {
-        grob[k] = module[k];
+        g[k] = module[k];
     }
 }
 
 for (var k in vg) {
-    grob[k] = vg[k];
+    g[k] = vg[k];
 }
-delete grob['delete'];
+delete g['delete'];
 
 for (var k in img) {
-    grob[k] = img[k];
+    g[k] = img[k];
 }
 
 importCommands(require('./libraries/math'));
@@ -30,20 +30,20 @@ importCommands(require('./libraries/image'));
 importCommands(require('./libraries/graphics'));
 importCommands(require('./libraries/easing'));
 
-grob.importSVG = function (svgString) {
-    return grob.svg.parseString(svgString);
+g.importSVG = function (svgString) {
+    return g.svg.parseString(svgString);
 };
 
-grob.importImage = function (image) {
-    var layer = grob.Layer.fromImage(image);
-    return new grob.Img(layer.toCanvas());
+g.importImage = function (image) {
+    var layer = g.Layer.fromImage(image);
+    return new g.Img(layer.toCanvas());
 };
 
-grob.importText = function (string) {
+g.importText = function (string) {
     return string ? String(string) : '';
 };
 
-grob.importCSV = function (csvString, delimiter) {
+g.importCSV = function (csvString, delimiter) {
     // Split the row, taking quotes into account.
     function splitRow(s, delimiter) {
         var row = [], c, col = '', i, inString = false;
@@ -95,7 +95,7 @@ grob.importCSV = function (csvString, delimiter) {
     return rows;
 };
 
-grob.merge = function () {
+g.merge = function () {
     var objects = _.flatten(arguments, true);
     if (Array.isArray(objects)) {
         objects = _.reject(objects, _.isEmpty);
@@ -111,7 +111,7 @@ grob.merge = function () {
     return null;
 };
 
-grob.mix = function (a, b, t) {
+g.mix = function (a, b, t) {
     t = t !== undefined ? t : 0.5;
     if (typeof a === 'number') {
         return (a * (1 - t)) + (b * t);
@@ -123,7 +123,7 @@ grob.mix = function (a, b, t) {
             var va = a[k];
             var vb = b[k];
             if (va !== undefined && vb !== undefined) {
-                result[k] = grob.mix(va, vb, t);
+                result[k] = g.mix(va, vb, t);
             }
         }
         return result;
@@ -132,4 +132,4 @@ grob.mix = function (a, b, t) {
     }
 };
 
-module.exports = grob;
+module.exports = g;

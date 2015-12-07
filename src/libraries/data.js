@@ -3,10 +3,10 @@
 var _ = require('lodash');
 var list = require('./list');
 
-var grob = {};
+var g = {};
 
 // Convert values from one range to another
-grob.convert = function (v, inMin, inMax, outMin, outMax) {
+g.convert = function (v, inMin, inMax, outMin, outMax) {
     var argLength = arguments.length;
     if (argLength === 2) {
         var d = arguments[1];
@@ -29,7 +29,7 @@ grob.convert = function (v, inMin, inMax, outMin, outMax) {
     return outMin + v * (outMax - outMin);
 };
 
-grob.filterData = function (data, key, op, value) {
+g.filterData = function (data, key, op, value) {
     if (value === null || value === undefined) {
         return data;
     }
@@ -54,13 +54,13 @@ grob.filterData = function (data, key, op, value) {
     return results;
 };
 
-grob.groupBy = function (data, key) {
+g.groupBy = function (data, key) {
     return _.values(_.groupBy(data, key));
 };
 
 /* // Draw a legend. ==> rename to axis?
-grob.legend = function (scale, position, direction, nTicks) {
-    var ticks = grob.ticks(scale, nTicks),
+g.legend = function (scale, position, direction, nTicks) {
+    var ticks = g.ticks(scale, nTicks),
         group = new vg.Group(),
         p = new vg.Path(),
         textOptions = {fontSize: 9, align: 'center'},
@@ -72,7 +72,7 @@ grob.legend = function (scale, position, direction, nTicks) {
     p.stroke = 'black';
     group.add(p);
     for (i = 0; i < ticks.length; i += 1) {
-        v = grob.convert(scale, ticks[i]);
+        v = g.convert(scale, ticks[i]);
         p.moveTo(v, position.y);
         p.lineTo(v, position.y + 5);
         t = new g.Text('' + ticks[i], v, position.y + 15, textOptions);
@@ -81,7 +81,7 @@ grob.legend = function (scale, position, direction, nTicks) {
     return group;
 }; */
 
-grob.keys = function (data) {
+g.keys = function (data) {
     var allKeys = [];
     for (var i = 0; i < data.length; i++) {
         allKeys = allKeys.concat(_.keys(data[i]));
@@ -89,7 +89,7 @@ grob.keys = function (data) {
     return list.distinct(allKeys);
 };
 
-grob.lookup = function (table, key) {
+g.lookup = function (table, key) {
     var obj, v;
     obj = table;
     // First try to lookup the key as-is.
@@ -113,13 +113,13 @@ grob.lookup = function (table, key) {
 };
 
 // Create a scale that maps values from the input domain to the output range.
-grob.dataScale = function (domain, outMin, outMax) {
+g.dataScale = function (domain, outMin, outMax) {
     return {domain: domain, outMin: outMin, outMax: outMax};
 };
 
 
 // Generate about n values for the given scale.
-grob.ticks = function (min, max, n) {
+g.ticks = function (min, max, n) {
     n = n !== undefined ? n : 10;
 
     var span = max - min,
@@ -146,4 +146,4 @@ grob.ticks = function (min, max, n) {
     return ticks;
 };
 
-module.exports = grob;
+module.exports = g;

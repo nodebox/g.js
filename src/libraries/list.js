@@ -2,9 +2,9 @@
 
 var deepEqual = require('./deepequal');
 var util = require('./util');
-var grob = {};
+var g = {};
 
-grob.combine = function () {
+g.combine = function () {
     var i, l, result = [];
     for (i = 0; i < arguments.length; i++) {
         l = arguments[i];
@@ -15,7 +15,7 @@ grob.combine = function () {
     return result;
 };
 
-grob.contains = function (l, value) {
+g.contains = function (l, value) {
     for (var i = 0; i < l.length; i += 1) {
         if (deepEqual.deepEqual(l[i], value)) {
             return true;
@@ -24,11 +24,11 @@ grob.contains = function (l, value) {
     return false;
 };
 
-grob.equals = function (o1, o2) {
+g.equals = function (o1, o2) {
     return deepEqual.deepEqual(o1, o2);
 };
 
-grob.count = function (l) {
+g.count = function (l) {
     if (l && l.length) {
         return l.length;
     } else {
@@ -36,7 +36,7 @@ grob.count = function (l) {
     }
 };
 
-grob.cull = function (l, booleans) {
+g.cull = function (l, booleans) {
     if (!l) { return []; }
     if (!booleans) { return l; }
     var i, keep, results = [];
@@ -50,14 +50,14 @@ grob.cull = function (l, booleans) {
     return results;
 };
 
-grob.distinct = function(l) {
+g.distinct = function(l) {
     if (!l) { return []; }
     var i, length, value,
         result = [],
         seen = [];
     for (i = 0, length = l.length; i < length; i += 1) {
         value = l[i];
-        if (!grob.contains(seen, value)) {
+        if (!g.contains(seen, value)) {
             seen.push(value);
             result.push(l[i]);
         }
@@ -65,17 +65,17 @@ grob.distinct = function(l) {
     return result;
 };
 
-grob.first = function (l) {
+g.first = function (l) {
     if (!l || l.length === 0) { return null; }
     return l[0];
 };
 
-grob.get = function (l, i) {
+g.get = function (l, i) {
     if (!l || l.length === 0) { return null; }
     return l[i];
 };
 
-grob.interleave = function () {
+g.interleave = function () {
     if (arguments.length === 0) return [];
     var results = [];
     var elIndex = 0;
@@ -92,12 +92,12 @@ grob.interleave = function () {
     }
 };
 
-grob.last = function (l) {
+g.last = function (l) {
     if (!l || l.length === 0) { return null; }
     return l[l.length - 1];
 };
 
-grob.pick = function (l, amount, seed) {
+g.pick = function (l, amount, seed) {
     if (!l || l.length === 0 || amount <= 0) {
         return [];
     }
@@ -112,19 +112,19 @@ grob.pick = function (l, amount, seed) {
     return results;
 };
 
-grob.randomSample = function (l, amount, seed) {
+g.randomSample = function (l, amount, seed) {
     if (!l || l.length === 0 || amount <= 0) {
         return [];
     }
     if (!seed && seed !== 0) {
         seed = Math.random();
     }
-    var shuffledlist = grob.shuffle(l, seed);
+    var shuffledlist = g.shuffle(l, seed);
     if (!amount) { return shuffledlist; }
-    return grob.slice(shuffledlist, 0, amount);
+    return g.slice(shuffledlist, 0, amount);
 };
 
-grob.repeat = function (l, amount, perItem) {
+g.repeat = function (l, amount, perItem) {
     if (!l) { return []; }
     if (amount <= 0) { return []; }
     var i, j, v,
@@ -144,22 +144,22 @@ grob.repeat = function (l, amount, perItem) {
     return newList;
 };
 
-grob.rest = function (l) {
+g.rest = function (l) {
     if (!l) { return []; }
     return l.slice(1);
 };
 
-grob.reverse = function (l) {
+g.reverse = function (l) {
     return l.slice().reverse();
 
 };
 
-grob.second = function (l) {
+g.second = function (l) {
     if (!l || l.length < 2) { return null; }
     return l[1];
 };
 
-grob.shift = function (l, amount) {
+g.shift = function (l, amount) {
     // If the amount is bigger than the number of items, wrap around.
     if (!l) { return []; }
     amount = amount % l.length;
@@ -169,7 +169,7 @@ grob.shift = function (l, amount) {
     return result;
 };
 
-grob.shuffle = function (l, seed) {
+g.shuffle = function (l, seed) {
     var i, j, tmp, r;
     if (!seed && seed !== 0) {
         seed = Math.random();
@@ -184,7 +184,7 @@ grob.shuffle = function (l, seed) {
     return l;
 };
 
-grob.slice = function (l, start, size, invert) {
+g.slice = function (l, start, size, invert) {
     if (!l) { return []; }
     var firstList, secondList;
     if (!invert) {
@@ -197,7 +197,7 @@ grob.slice = function (l, start, size, invert) {
     }
 };
 
-grob.sort = function (l, key) {
+g.sort = function (l, key) {
     if (key) {
         if (typeof key === 'string') {
             return l.slice().sort(function (a, b) {
@@ -215,7 +215,7 @@ grob.sort = function (l, key) {
     return l.slice().sort();
 };
 
-grob.switch = function (index) {
+g.switch = function (index) {
     var nLists = (arguments.length - 1);
     index = index % nLists;
     if (index < 0) {
@@ -224,7 +224,7 @@ grob.switch = function (index) {
     return arguments[index + 1];
 };
 
-grob.takeEvery = function (l, n, offset) {
+g.takeEvery = function (l, n, offset) {
     var i, results = [];
     offset = offset || 0;
     for (i = 0; i < l.length; i += 1) {
@@ -235,7 +235,7 @@ grob.takeEvery = function (l, n, offset) {
     return results;
 };
 
-grob.zipMap = function (keys, vals) {
+g.zipMap = function (keys, vals) {
     var i, k, v,
         m = {},
         minLength = Math.min(keys.length, vals.length);
@@ -247,4 +247,4 @@ grob.zipMap = function (keys, vals) {
     return m;
 };
 
-module.exports = grob;
+module.exports = g;
