@@ -1,32 +1,32 @@
-GROB
+g.js
 ====
-Grob is a JavaScript library for working with GRaphical OBjects. It provides a unified API for working with vector graphics (rectangles, paths, and text) and images.
+g.js is a JavaScript library for working with graphical objects. It provides a unified API for working with vector graphics (rectangles, paths, and text) and images.
 
-Build status: [![Build Status](https://travis-ci.org/nodebox/grob.svg?branch=master)](https://travis-ci.org/nodebox/grob)
+Build status: [![Build Status](https://travis-ci.org/nodebox/g.js.svg?branch=master)](https://travis-ci.org/nodebox/g.js)
 
 Installation
 ------------
 
 ### Directly
 
-[Download the latest ZIP](https://github.com/nodebox/grob/archive/master.zip) and grab the files in the `dist` folder.
+[Download the latest ZIP](https://github.com/nodebox/g.js/archive/master.zip) and grab the files in the `dist` folder.
 These are compiled.
 
 ### Using Bower
 
 To install using [Bower](http://bower.io/), enter the following command in your project directory:
 
-    bower install grob
+    bower install g.js
 
 You can then include them in your scripts using:
 
-    <script src="/bower_components/grob/dist/grob.js"></script>
+    <script src="/bower_components/g.js/dist/g.js"></script>
 
 ### Using Browserify
 
 To install using [Browserify](http://browserify.org/), enter the following command in your project directory:
 
-    npm install --save grob
+    npm install --save g.js
 
 Development
 -----------
@@ -50,7 +50,6 @@ Running `npm run dist` will build a complete and minified version of g.js in the
 
 Credits
 -------
-Grob uses [img.js](https://github.com/nodebox/img.js) and [vg.js](https://github.com/nodebox/vg.js). Vg.js is based on [canvas.js](https://github.com/clips/pattern/blob/master/pattern/canvas.js) (BSD). De Smedt T. & Daelemans W. (2012). Pattern for Python. Journal of Machine Learning Research.)
 
 * Stefan Gabriëls <stefan@emrg.be>
 * Frederik De Bleser <frederik@emrg.be>
