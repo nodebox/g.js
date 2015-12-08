@@ -1,18 +1,18 @@
 {
   "name": "g.js",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Graphic Objects Library",
   "main": "src/g.js",
   "scripts": {
     "test": "mocha --recursive && jshint .",
     "watchify": "mkdir -p build && watchify src/g.js --standalone g --debug -o build/g.js -v",
-    "browserify": "browserify src/g.js --standalone g > dist/grob.js",
+    "browserify": "browserify src/g.js --standalone g > dist/g.js",
     "uglify": "browserify src/g.js --standalone g -g uglifyify > dist/g.min.js",
     "dist": "npm run test && npm run browserify && npm run uglify"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nodebox/grob.git"
+    "url": "https://github.com/nodebox/g.js.git"
   },
   "keywords": [
     "vector",
@@ -25,9 +25,9 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nodebox/grob/issues"
+    "url": "https://github.com/nodebox/g.js/issues"
   },
-  "homepage": "https://github.com/nodebox/grob",
+  "homepage": "https://github.com/nodebox/g.js",
   "dependencies": {
     "async": "~0.2.10",
     "lodash": "^3.7.0",

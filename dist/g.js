@@ -1,64 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.grob = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-var queue = [];
-var draining = false;
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    draining = true;
-    var currentQueue;
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        var i = -1;
-        while (++i < len) {
-            currentQueue[i]();
-        }
-        len = queue.length;
-    }
-    draining = false;
-}
-process.nextTick = function (fun) {
-    queue.push(fun);
-    if (!draining) {
-        setTimeout(drainQueue, 0);
-    }
-};
-
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],2:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.g = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (process){
 /*global setImmediate: false, setTimeout: false, console: false */
 (function () {
@@ -1020,4380 +960,67 @@ process.umask = function() { return 0; };
 }());
 
 }).call(this,require('_process'))
-},{"_process":1}],3:[function(require,module,exports){
-/*
+},{"_process":2}],2:[function(require,module,exports){
+// shim for using process in browser
 
-StackBlur - a fast almost Gaussian Blur For Canvas
+var process = module.exports = {};
+var queue = [];
+var draining = false;
 
-Version: 	0.5
-Author:		Mario Klingemann
-Contact: 	mario@quasimondo.com
-Website:	http://www.quasimondo.com/StackBlurForCanvas
-Twitter:	@quasimondo
-
-In case you find this class useful - especially in commercial projects -
-I am not totally unhappy for a small donation to my PayPal account
-mario@quasimondo.de
-
-Or support me on flattr: 
-https://flattr.com/thing/72791/StackBlur-a-fast-almost-Gaussian-Blur-Effect-for-CanvasJavascript
-
-Copyright (c) 2010 Mario Klingemann
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-var mul_table = [
-        512,512,456,512,328,456,335,512,405,328,271,456,388,335,292,512,
-        454,405,364,328,298,271,496,456,420,388,360,335,312,292,273,512,
-        482,454,428,405,383,364,345,328,312,298,284,271,259,496,475,456,
-        437,420,404,388,374,360,347,335,323,312,302,292,282,273,265,512,
-        497,482,468,454,441,428,417,405,394,383,373,364,354,345,337,328,
-        320,312,305,298,291,284,278,271,265,259,507,496,485,475,465,456,
-        446,437,428,420,412,404,396,388,381,374,367,360,354,347,341,335,
-        329,323,318,312,307,302,297,292,287,282,278,273,269,265,261,512,
-        505,497,489,482,475,468,461,454,447,441,435,428,422,417,411,405,
-        399,394,389,383,378,373,368,364,359,354,350,345,341,337,332,328,
-        324,320,316,312,309,305,301,298,294,291,287,284,281,278,274,271,
-        268,265,262,259,257,507,501,496,491,485,480,475,470,465,460,456,
-        451,446,442,437,433,428,424,420,416,412,408,404,400,396,392,388,
-        385,381,377,374,370,367,363,360,357,354,350,347,344,341,338,335,
-        332,329,326,323,320,318,315,312,310,307,304,302,299,297,294,292,
-        289,287,285,282,280,278,275,273,271,269,267,265,263,261,259];
-        
-   
-var shg_table = [
-	     9, 11, 12, 13, 13, 14, 14, 15, 15, 15, 15, 16, 16, 16, 16, 17, 
-		17, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 
-		19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 20, 20, 20,
-		20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 21,
-		21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
-		21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 22, 22, 22, 22, 22, 22, 
-		22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-		22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 23, 
-		23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
-		23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
-		23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 
-		23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 
-		24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
-		24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
-		24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
-		24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24 ];
-
-function blur( pixels, width, height, radius )
-{
-	if ( isNaN(radius) || radius < 1 ) return;
-	radius |= 0;
-
-	var x, y, i, p, yp, yi, yw, r_sum, g_sum, b_sum, a_sum, 
-	r_out_sum, g_out_sum, b_out_sum, a_out_sum,
-	r_in_sum, g_in_sum, b_in_sum, a_in_sum, 
-	pr, pg, pb, pa, rbs;
-			
-	var div = radius + radius + 1;
-	var w4 = width << 2;
-	var widthMinus1  = width - 1;
-	var heightMinus1 = height - 1;
-	var radiusPlus1  = radius + 1;
-	var sumFactor = radiusPlus1 * ( radiusPlus1 + 1 ) / 2;
-	
-	var stackStart = new BlurStack();
-	var stack = stackStart;
-	for ( i = 1; i < div; i++ )
-	{
-		stack = stack.next = new BlurStack();
-		if ( i == radiusPlus1 ) var stackEnd = stack;
-	}
-	stack.next = stackStart;
-	var stackIn = null;
-	var stackOut = null;
-	
-	yw = yi = 0;
-	
-	var mul_sum = mul_table[radius];
-	var shg_sum = shg_table[radius];
-	
-	for ( y = 0; y < height; y++ )
-	{
-		r_in_sum = g_in_sum = b_in_sum = a_in_sum = r_sum = g_sum = b_sum = a_sum = 0;
-		
-		r_out_sum = radiusPlus1 * ( pr = pixels[yi] );
-		g_out_sum = radiusPlus1 * ( pg = pixels[yi+1] );
-		b_out_sum = radiusPlus1 * ( pb = pixels[yi+2] );
-		a_out_sum = radiusPlus1 * ( pa = pixels[yi+3] );
-		
-		r_sum += sumFactor * pr;
-		g_sum += sumFactor * pg;
-		b_sum += sumFactor * pb;
-		a_sum += sumFactor * pa;
-		
-		stack = stackStart;
-		
-		for( i = 0; i < radiusPlus1; i++ )
-		{
-			stack.r = pr;
-			stack.g = pg;
-			stack.b = pb;
-			stack.a = pa;
-			stack = stack.next;
-		}
-		
-		for( i = 1; i < radiusPlus1; i++ )
-		{
-			p = yi + (( widthMinus1 < i ? widthMinus1 : i ) << 2 );
-			r_sum += ( stack.r = ( pr = pixels[p])) * ( rbs = radiusPlus1 - i );
-			g_sum += ( stack.g = ( pg = pixels[p+1])) * rbs;
-			b_sum += ( stack.b = ( pb = pixels[p+2])) * rbs;
-			a_sum += ( stack.a = ( pa = pixels[p+3])) * rbs;
-			
-			r_in_sum += pr;
-			g_in_sum += pg;
-			b_in_sum += pb;
-			a_in_sum += pa;
-			
-			stack = stack.next;
-		}
-		
-		
-		stackIn = stackStart;
-		stackOut = stackEnd;
-		for ( x = 0; x < width; x++ )
-		{
-			pixels[yi+3] = pa = (a_sum * mul_sum) >> shg_sum;
-			if ( pa != 0 )
-			{
-				pa = 255 / pa;
-				pixels[yi]   = ((r_sum * mul_sum) >> shg_sum) * pa;
-				pixels[yi+1] = ((g_sum * mul_sum) >> shg_sum) * pa;
-				pixels[yi+2] = ((b_sum * mul_sum) >> shg_sum) * pa;
-			} else {
-				pixels[yi] = pixels[yi+1] = pixels[yi+2] = 0;
-			}
-			
-			r_sum -= r_out_sum;
-			g_sum -= g_out_sum;
-			b_sum -= b_out_sum;
-			a_sum -= a_out_sum;
-			
-			r_out_sum -= stackIn.r;
-			g_out_sum -= stackIn.g;
-			b_out_sum -= stackIn.b;
-			a_out_sum -= stackIn.a;
-			
-			p =  ( yw + ( ( p = x + radius + 1 ) < widthMinus1 ? p : widthMinus1 ) ) << 2;
-			
-			r_in_sum += ( stackIn.r = pixels[p]);
-			g_in_sum += ( stackIn.g = pixels[p+1]);
-			b_in_sum += ( stackIn.b = pixels[p+2]);
-			a_in_sum += ( stackIn.a = pixels[p+3]);
-			
-			r_sum += r_in_sum;
-			g_sum += g_in_sum;
-			b_sum += b_in_sum;
-			a_sum += a_in_sum;
-			
-			stackIn = stackIn.next;
-			
-			r_out_sum += ( pr = stackOut.r );
-			g_out_sum += ( pg = stackOut.g );
-			b_out_sum += ( pb = stackOut.b );
-			a_out_sum += ( pa = stackOut.a );
-			
-			r_in_sum -= pr;
-			g_in_sum -= pg;
-			b_in_sum -= pb;
-			a_in_sum -= pa;
-			
-			stackOut = stackOut.next;
-
-			yi += 4;
-		}
-		yw += width;
-	}
-
-	
-	for ( x = 0; x < width; x++ )
-	{
-		g_in_sum = b_in_sum = a_in_sum = r_in_sum = g_sum = b_sum = a_sum = r_sum = 0;
-		
-		yi = x << 2;
-		r_out_sum = radiusPlus1 * ( pr = pixels[yi]);
-		g_out_sum = radiusPlus1 * ( pg = pixels[yi+1]);
-		b_out_sum = radiusPlus1 * ( pb = pixels[yi+2]);
-		a_out_sum = radiusPlus1 * ( pa = pixels[yi+3]);
-		
-		r_sum += sumFactor * pr;
-		g_sum += sumFactor * pg;
-		b_sum += sumFactor * pb;
-		a_sum += sumFactor * pa;
-		
-		stack = stackStart;
-		
-		for( i = 0; i < radiusPlus1; i++ )
-		{
-			stack.r = pr;
-			stack.g = pg;
-			stack.b = pb;
-			stack.a = pa;
-			stack = stack.next;
-		}
-		
-		yp = width;
-		
-		for( i = 1; i <= radius; i++ )
-		{
-			yi = ( yp + x ) << 2;
-			
-			r_sum += ( stack.r = ( pr = pixels[yi])) * ( rbs = radiusPlus1 - i );
-			g_sum += ( stack.g = ( pg = pixels[yi+1])) * rbs;
-			b_sum += ( stack.b = ( pb = pixels[yi+2])) * rbs;
-			a_sum += ( stack.a = ( pa = pixels[yi+3])) * rbs;
-		   
-			r_in_sum += pr;
-			g_in_sum += pg;
-			b_in_sum += pb;
-			a_in_sum += pa;
-			
-			stack = stack.next;
-		
-			if( i < heightMinus1 )
-			{
-				yp += width;
-			}
-		}
-		
-		yi = x;
-		stackIn = stackStart;
-		stackOut = stackEnd;
-		for ( y = 0; y < height; y++ )
-		{
-			p = yi << 2;
-			pixels[p+3] = pa = (a_sum * mul_sum) >> shg_sum;
-			if ( pa > 0 )
-			{
-				pa = 255 / pa;
-				pixels[p]   = ((r_sum * mul_sum) >> shg_sum ) * pa;
-				pixels[p+1] = ((g_sum * mul_sum) >> shg_sum ) * pa;
-				pixels[p+2] = ((b_sum * mul_sum) >> shg_sum ) * pa;
-			} else {
-				pixels[p] = pixels[p+1] = pixels[p+2] = 0;
-			}
-			
-			r_sum -= r_out_sum;
-			g_sum -= g_out_sum;
-			b_sum -= b_out_sum;
-			a_sum -= a_out_sum;
-		   
-			r_out_sum -= stackIn.r;
-			g_out_sum -= stackIn.g;
-			b_out_sum -= stackIn.b;
-			a_out_sum -= stackIn.a;
-			
-			p = ( x + (( ( p = y + radiusPlus1) < heightMinus1 ? p : heightMinus1 ) * width )) << 2;
-			
-			r_sum += ( r_in_sum += ( stackIn.r = pixels[p]));
-			g_sum += ( g_in_sum += ( stackIn.g = pixels[p+1]));
-			b_sum += ( b_in_sum += ( stackIn.b = pixels[p+2]));
-			a_sum += ( a_in_sum += ( stackIn.a = pixels[p+3]));
-		   
-			stackIn = stackIn.next;
-			
-			r_out_sum += ( pr = stackOut.r );
-			g_out_sum += ( pg = stackOut.g );
-			b_out_sum += ( pb = stackOut.b );
-			a_out_sum += ( pa = stackOut.a );
-			
-			r_in_sum -= pr;
-			g_in_sum -= pg;
-			b_in_sum -= pb;
-			a_in_sum -= pa;
-			
-			stackOut = stackOut.next;
-			
-			yi += width;
-		}
-	}
-}
-
-function BlurStack()
-{
-	this.r = 0;
-	this.g = 0;
-	this.b = 0;
-	this.a = 0;
-	this.next = null;
-}
-
-module.exports = blur;
-},{}],4:[function(require,module,exports){
-'use strict';
-
-var async = require('async');
-var process = require('./process');
-var CanvasRenderer = require('./canvasrenderer');
-
-// Utility function that passes its input (normally a html canvas) to the next function.
-function passThrough(canvas, callback) {
-    callback(null, canvas);
-}
-
-// RENDERING.
-
-// The Layer and ImageCanvas objects don't do any actual pixel operations themselves,
-// they only contain information about the operations. The actual rendering is done
-// by a Renderer object. Currently there is only one kind available, the CanvasRenderer,
-// which uses the HTML Canvas object (containing the pixel data) and a 2D context that
-// acts on this canvas object. In the future, a webgl renderer might be added as well.
-
-var AsyncRenderer = {};
-
-// Renders a html canvas as an html Image. Currently unused.
-AsyncRenderer.toImage = function () {
-    return function (canvas, callback) {
-        callback(null, CanvasRenderer.toImage(canvas));
-    };
-};
-
-
-// 'LOADING' OF LAYERS.
-
-// Returns a html canvas dependent on the type of the layer provided.
-AsyncRenderer.load = function (iCanvas, layer) {
-    if (layer.isPath()) {
-        return AsyncRenderer.loadFile(layer.data);
-    } else if (layer.isFill()) {
-        return AsyncRenderer.generateColor(iCanvas, layer);
-    } else if (layer.isGradient()) {
-        return AsyncRenderer.generateGradient(iCanvas, layer);
-    } else if (layer.isHtmlCanvas()) {
-        return AsyncRenderer.loadHtmlCanvas(layer.data);
-    } else if (layer.isImage()) {
-        return AsyncRenderer.loadImage(layer.data);
-    } else if (layer.isImageCanvas()) {
-        return AsyncRenderer.loadImageCanvas(layer.data);
-    }
-};
-
-// Returns a html canvas from an image file location.
-AsyncRenderer.loadFile = function (src) {
-    return function (_, callback) {
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-
-        var source = new Image();
-        source.onload = function () {
-            canvas.width = source.width;
-            canvas.height = source.height;
-            ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
-            callback(null, canvas);
-        };
-        source.src = src;
-    };
-};
-
-// Passes a html canvas.
-AsyncRenderer.loadHtmlCanvas = function (canvas) {
-    return function (_, callback) {
-        callback(null, canvas);
-    };
-};
-
-// Returns a html canvas from rendering an ImageCanvas.
-AsyncRenderer.loadImageCanvas = function (iCanvas) {
-    return function (_, callback) {
-        iCanvas.render(function (canvas) {
-            callback(null, canvas);
-        });
-    };
-};
-
-// Returns a html canvas from rendering a stored Image file.
-AsyncRenderer.loadImage = function (img) {
-    return function (_, callback) {
-        var canvas = CanvasRenderer.loadImage(img);
-        callback(null, canvas);
-    };
-};
-
-// Returns a html canvas with a solid fill color.
-AsyncRenderer.generateColor = function (iCanvas, layer) {
-    return function (_, callback) {
-        var canvas = CanvasRenderer.generateColor(iCanvas, layer);
-        callback(null, canvas);
-    };
-};
-
-// Returns a html canvas with a gradient.
-AsyncRenderer.generateGradient = function (iCanvas, layer) {
-    return function (_, callback) {
-        var canvas = CanvasRenderer.generateGradient(iCanvas, layer);
-        callback(null, canvas);
-    };
-};
-
-
-// PROCESSING OF LAYERS.
-
-// Performs a number of filtering operations on an html image.
-// This method executes on the main thread if web workers aren't available on the current system.
-AsyncRenderer.processImage = function (filters) {
-    if (filters.length === 0) {
-        return passThrough;
-    }
-
-    return function (canvas, callback) {
-        CanvasRenderer.processImage(canvas, filters);
-        callback(null, canvas);
-    };
-};
-
-// Renders the layer mask and applies it to the layer that it is supposed to mask.
-AsyncRenderer.processMask = function (mask) {
-    if (mask.layers.length === 0) {
-        return passThrough;
-    }
-    return function (canvas, callback) {
-        mask.width = canvas.width;
-        mask.height = canvas.height;
-
-        // First, make a black and white version of the masking canvas and pass
-        // the result to the masking operation.
-        AsyncRenderer.renderBW(mask, function (c) {
-            var data = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
-            var maskFilter = {name: 'mask', options: {data: data, x: 0, y: 0, width: c.width, height: c.height} };
-            var fn = AsyncRenderer.processImage([maskFilter]);
-            fn(canvas, callback);
-        });
-    };
-};
-
-// Processes a single layer. First the layer image is loaded, then a mask (if applicable) is applied to it,
-// and finally the filters (if any) are applied to it.
-function processLayers(iCanvas) {
-    return function (layer, callback) {
-        async.compose(
-            AsyncRenderer.processImage(layer.filters),
-            AsyncRenderer.processMask(layer.mask),
-            AsyncRenderer.load(iCanvas, layer)
-        )(null, callback);
-    };
-}
-
-
-// LAYER BLENDING.
-
-// Blends the subsequent layer images with the base layer and returns a single image.
-// This method is used when web workers aren't available for use on this system.
-AsyncRenderer.mergeManualBlend = function (iCanvas, layerData) {
-    return function (canvas, callback) {
-        CanvasRenderer.mergeManualBlend(iCanvas, layerData)(canvas);
-        callback(null, canvas);
-    };
-};
-
-// Blends the subsequent layer images with the base layer and returns the resulting image.
-// This method is used when the system supports the requested blending mode(s).
-AsyncRenderer.mergeNativeBlend = function (iCanvas, layerData) {
-    return function (canvas, callback) {
-        CanvasRenderer.mergeNativeBlend(iCanvas, layerData)(canvas);
-        callback(null, canvas);
-    };
-};
-
-// Merges the different canvas layers together in a single image and returns this as a html canvas.
-AsyncRenderer.merge = function (iCanvas, layerData, callback) {
-    var renderPipe = CanvasRenderer.createRenderPipe(AsyncRenderer, iCanvas, layerData);
-    renderPipe.reverse();
-
-    var canvas = CanvasRenderer.singleLayerWithOpacity(iCanvas, layerData[0]);
-    renderPipe.push(function (_, cb) {
-        cb(null, canvas);
-    });
-
-    async.compose.apply(null, renderPipe)(null, function () {
-        callback(canvas);
-    });
-};
-
-AsyncRenderer.composite = function (iCanvas, layerData, callback) {
-    if (!layerData || layerData.length === 0) {
-        callback(null);
+function drainQueue() {
+    if (draining) {
         return;
     }
-    if (layerData.length === 1) {
-        callback(CanvasRenderer.singleLayerWithOpacity(iCanvas, layerData[0]));
-        return;
+    draining = true;
+    var currentQueue;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        var i = -1;
+        while (++i < len) {
+            currentQueue[i]();
+        }
+        len = queue.length;
     }
-
-    AsyncRenderer.merge(iCanvas, layerData, callback);
-};
-
-// Renders the image canvas. Top level.
-AsyncRenderer.render = function (iCanvas, callback) {
-    async.map(iCanvas.layers,
-        processLayers(iCanvas), function (err, layerImages) {
-            if (callback) {
-                AsyncRenderer.composite(iCanvas, CanvasRenderer.getLayerData(iCanvas, layerImages), callback);
-            }
-        });
-};
-
-// Renders the image canvas and turns it into a black and white image. Useful for rendering a layer mask.
-AsyncRenderer.renderBW = function (iCanvas, callback) {
-    AsyncRenderer.render(iCanvas, function (canvas) {
-        var data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
-        var bwFilter = {name: 'luminancebw'};
-        var fn = AsyncRenderer.processImage([bwFilter]);
-        fn(canvas, function (err, c) {
-            callback(c);
-        });
-    });
-};
-
-module.exports = AsyncRenderer;
-
-},{"./canvasrenderer":6,"./process":8,"async":2}],5:[function(require,module,exports){
-'use strict';
-
-var blend, process;
-
-var aliases = {
-    normal: 'source-over',
-    'linear-dodge': 'add'
-};
-
-function addAliases(d) {
-    var i, mode, alias;
-    var modes = Object.keys(aliases);
-    for (i = 0; i < modes.length; i += 1) {
-        mode = modes[i];
-        alias = aliases[mode];
-        d[mode] = d[alias];
-    }
+    draining = false;
 }
-
-function realBlendMode(mode) {
-    if (aliases[mode] !== undefined) { return aliases[mode]; }
-    return mode;
-}
-
-// Tests which blending modes are supported on the current system and returns a dictionary with the results.
-// For example d['source-over'] always results in true.
-function getNativeModes() {
-    var i, mode, darken, ok;
-    var nativeModes = {};
-    var dCanvas = document.createElement('canvas');
-    var ctx = dCanvas.getContext('2d');
-
-    var native = ['source-over', 'source-in', 'source-out', 'source-atop',
-            'destination-over', 'destination-in', 'destination-out',
-            'destination-atop', 'lighter', 'darker', 'copy', 'xor'];
-
-    var maybeNative = ['multiply', 'screen', 'overlay', 'soft-light', 'hard-light',
-            'color-dodge', 'color-burn', 'darken', 'lighten', 'difference',
-            'exclusion', 'hue', 'saturation', 'luminosity', 'color',
-            'add', 'subtract', 'average', 'negation'];
-
-    var nonNative = ['divide', 'darker-color', 'lighter-color', 'linear-burn', 'linear-light',
-            'vivid-light', 'pin-light', 'hard-mix'];
-
-    for (i = 0; i < native.length; i += 1) {
-        nativeModes[native[i]] = true;
-    }
-    for (i = 0; i < nonNative.length; i += 1) {
-        nativeModes[nonNative[i]] = false;
-    }
-    dCanvas.width = 1;
-    dCanvas.height = 1;
-    for (i = 0; i < maybeNative.length; i += 1) {
-        mode = maybeNative[i];
-        darken = mode === 'darken';
-        ok = false;
-        ctx.save();
-        try {
-            ctx.fillStyle = darken ? '#300' : '#a00';
-            ctx.fillRect(0, 0, 1, 1);
-            ctx.globalCompositeOperation = mode;
-            if (ctx.globalCompositeOperation === mode) {
-                ctx.fillStyle = darken ? '#a00' : '#300';
-                ctx.fillRect(0, 0, 1, 1);
-                ok = ctx.getImageData(0, 0, 1, 1).data[0] !== (darken ? 170 : 51);
-            }
-        } catch (e) {
-        }
-        ctx.restore();
-        nativeModes[mode] = ok;
-    }
-
-    addAliases(nativeModes);
-
-    return nativeModes;
-}
-
-process = function (inData, outData, width, height, options) {
-
-    var blend_fn,
-        sr, sg, sb, sa,
-        dr, dg, db, da,
-        or, og, ob, oa;
-    var max = Math.max;
-    var min = Math.min;
-    var div_2_255 = 2 / 255;
-
-    /*R = 0.299;
-     G = 0.587;
-     B = 0.114;*/
-
-    var R = 0.2126;
-    var G = 0.7152;
-    var B = 0.0722;
-
-    /** This is the formula used by Photoshop to convert a color from
-     * RGB (Red, Green, Blue) to HSY (Hue, Saturation, Luminosity).
-     * The hue is calculated using the exacone approximation of the saturation
-     * cone.
-     * @param rgb The input color RGB normalized components.
-     * @param hsy The output color HSY normalized components.
-     */
-    function rgbToHsy(r, g, b) {
-        r /= 255;
-        g /= 255;
-        b /= 255;
-        var h, s, y;
-
-        // For saturation equals to 0 any value of hue are valid.
-        // In this case we choose 0 as a default value.
-
-        if (r === g && g === b) {            // Limit case.
-            s = 0;
-            h = 0;
-        } else if ((r >= g) && (g >= b)) { // Sector 0: 0° - 60°
-            s = r - b;
-            h = 60 * (g - b) / s;
-        } else if ((g > r) && (r >= b)) {  // Sector 1: 60° - 120°
-            s = g - b;
-            h = 60 * (g - r) / s + 60;
-        } else if ((g >= b) && (b > r)) {  // Sector 2: 120° - 180°
-            s = g - r;
-            h = 60 * (b - r) / s + 120;
-        } else if ((b > g) && (g > r)) {   // Sector 3: 180° - 240°
-            s = b - r;
-            h = 60 * (b - g) / s + 180;
-        } else if ((b > r) && (r >= g)) {  // Sector 4: 240° - 300°
-            s = b - g;
-            h = 60 * (r - g) / s + 240;
-        } else {                           // Sector 5: 300° - 360°
-            s = r - g;
-            h = 60 * (r - b) / s + 300;
-        }
-
-        y = R * r + G * g + B * b;
-
-        // Approximations erros can cause values to exceed bounds.
-
-        return [h % 360,
-            min(max(s, 0), 1),
-            min(max(y, 0), 1)];
-    }
-
-    /**
-     * This is the formula used by Photoshop to convert a color from
-     * HSY (Hue, Saturation, Luminosity) to RGB (Red, Green, Blue).
-     * The hue is calculated using the exacone approximation of the saturation
-     * cone.
-     * @param hsy The input color HSY normalized components.
-     * @param rgb The output color RGB normalized components.
-     */
-    function hsyToRgb(h, s, y) {
-
-        h = h % 360;
-        var r, g, b, k; // Intermediate variable.
-
-        if (h >= 0 && h < 60) {           // Sector 0: 0° - 60°
-            k = s * h / 60;
-            b = y - R * s - G * k;
-            r = b + s;
-            g = b + k;
-        } else if (h >= 60 && h < 120) {  // Sector 1: 60° - 120°
-            k = s * (h - 60) / 60;
-            g = y + B * s + R * k;
-            b = g - s;
-            r = g - k;
-        } else if (h >= 120 && h < 180) { // Sector 2: 120° - 180°
-            k = s * (h - 120) / 60;
-            r = y - G * s - B * k;
-            g = r + s;
-            b = r + k;
-        } else if (h >= 180 && h < 240) { // Sector 3: 180° - 240°
-            k = s * (h - 180) / 60;
-            b = y + R * s + G * k;
-            r = b - s;
-            g = b - k;
-        } else if (h >= 240 && h < 300) { // Sector 4: 240° - 300°
-            k = s * (h - 240) / 60;
-            g = y - B * s - R * k;
-            b = g + s;
-            r = g + k;
-        } else {                          // Sector 5: 300° - 360°
-            k = s * (h - 300) / 60;
-            r = y + G * s + B * k;
-            g = r - s;
-            b = r - k;
-        }
-
-        // Approximations erros can cause values to exceed bounds.
-
-        r = min(max(r, 0), 1) * 255;
-        g = min(max(g, 0), 1) * 255;
-        b = min(max(b, 0), 1) * 255;
-        return [r, g, b];
-    }
-
-    function _sourceover() {
-        or = sr;
-        og = sg;
-        ob = sb;
-    }
-
-    function _svg_sourceover() {
-        or = sr + dr - dr * sa;
-        og = sg + dg - dg * sa;
-        ob = sb + db - db * sa;
-    }
-
-    function _multiply() {
-        or = dr * sr / 255;
-        og = dg * sg / 255;
-        ob = db * sb / 255;
-    }
-
-    function _svg_multiply() {
-        or = sr * dr + sr * (1 - da) + dr * (1 - sa);
-        og = sg * dg + sg * (1 - da) + dg * (1 - sa);
-        ob = sb * db + sb * (1 - da) + db * (1 - sa);
-    }
-
-    function _subtract() {
-        or = max(dr - sr, 0);
-        og = max(dg - sg, 0);
-        ob = max(db - sb, 0);
-    }
-
-    function _svg_subtract() {
-        or = max(dr * sa - sr * da, 0) + sr * (1 - da) + dr * (1 - sa);
-        og = max(dg * sa - sg * da, 0) + sg * (1 - da) + dg * (1 - sa);
-        ob = max(db * sa - sb * da, 0) + sb * (1 - da) + db * (1 - sa);
-    }
-
-    function _divide() {
-        or = sr === 0 ? 0 : dr / sr * 255;
-        og = sg === 0 ? 0 : dg / sg * 255;
-        ob = sb === 0 ? 0 : db / sb * 255;
-    }
-
-    function _screen() {
-        or = (255 - (((255 - dr) * (255 - sr)) >> 8));
-        og = (255 - (((255 - dg) * (255 - sg)) >> 8));
-        ob = (255 - (((255 - db) * (255 - sb)) >> 8));
-    }
-
-    function _svg_screen() {
-        or = sr + dr - sr * dr;
-        og = sg + dg - sg * dg;
-        ob = sb + db - sb * db;
-    }
-
-    function _lighten() {
-        or = dr > sr ? dr : sr;
-        og = dg > sg ? dg : sg;
-        ob = db > sb ? db : sb;
-    }
-
-    function _svg_lighten() {
-        or = max(sr * da, dr * sa) + sr * (1 - da) + dr * (1 - sa);
-        og = max(sg * da, dg * sa) + sg * (1 - da) + dg * (1 - sa);
-        ob = max(sb * da, db * sa) + sb * (1 - da) + db * (1 - sa);
-    }
-
-    function _darken() {
-        or = dr < sr ? dr : sr;
-        og = dg < sg ? dg : sg;
-        ob = db < sb ? db : sb;
-    }
-
-    function _svg_darken() {
-        or = min(sr * da, dr * sa) + sr * (1 - da) + dr * (1 - sa);
-        og = min(sg * da, dg * sa) + sg * (1 - da) + dg * (1 - sa);
-        ob = min(sb * da, db * sa) + sb * (1 - da) + db * (1 - sa);
-    }
-
-    function _darkercolor() {
-        if (dr * 0.3 + dg * 0.59 + db * 0.11 <= sr * 0.3 + sg * 0.59 + sb * 0.11) {
-            or = dr;
-            og = dg;
-            ob = db;
-        } else {
-            or = sr;
-            og = sg;
-            ob = sb;
-        }
-    }
-
-    function _svg_darkercolor() {
-        if (dr * sa * 0.3 + dg * sa * 0.59 + db * sa * 0.11 <= sr * da * 0.3 + sg * da * 0.59 + sb * da * 0.11) {
-            or = dr * sa;
-            og = dg * sa;
-            ob = db * sa;
-        } else {
-            or = sr * da;
-            og = sg * da;
-            ob = sb * da;
-        }
-        or += sr * (1 - da) + dr * (1 - sa);
-        og += sg * (1 - da) + dg * (1 - sa);
-        ob += sb * (1 - da) + db * (1 - sa);
-    }
-
-    function _lightercolor() {
-        if (dr * 0.3 + dg * 0.59 + db * 0.11 > sr * 0.3 + sg * 0.59 + sb * 0.11) {
-            or = dr;
-            og = dg;
-            ob = db;
-        } else {
-            or = sr;
-            og = sg;
-            ob = sb;
-        }
-    }
-
-    function _svg_lightercolor() {
-        if (dr * sa * 0.3 + dg * sa * 0.59 + db * sa * 0.11 > sr * da * 0.3 + sg * da * 0.59 + sb * da * 0.11) {
-            or = dr * sa;
-            og = dg * sa;
-            ob = db * sa;
-        } else {
-            or = sr * da;
-            og = sg * da;
-            ob = sb * da;
-        }
-        or += sr * (1 - da) + dr * (1 - sa);
-        og += sg * (1 - da) + dg * (1 - sa);
-        ob += sb * (1 - da) + db * (1 - sa);
-    }
-
-    function _add() { // also known as linear dodge
-        or = min(dr + sr, 255);
-        og = min(dg + sg, 255);
-        ob = min(db + sb, 255);
-    }
-
-    function _linearburn() {
-        or = dr + sr;
-        og = dg + sg;
-        ob = db + sb;
-
-        or = or < 255 ? 0 : (or - 255);
-        og = og < 255 ? 0 : (og - 255);
-        ob = ob < 255 ? 0 : (ob - 255);
-    }
-
-    function _difference() {
-        or = dr - sr;
-        og = dg - sg;
-        ob = db - sb;
-
-        or = or < 0 ? -or : or;
-        og = og < 0 ? -og : og;
-        ob = ob < 0 ? -ob : ob;
-    }
-
-    function _svg_difference() {
-        or = sr + dr - 2 * min(sr * da, dr * sa);
-        og = sg + dg - 2 * min(sg * da, dg * sa);
-        ob = sb + db - 2 * min(sb * da, db * sa);
-    }
-
-    function _exclusion() {
-        or = dr - (dr * div_2_255 - 1) * sr;
-        og = dg - (dg * div_2_255 - 1) * sg;
-        ob = db - (db * div_2_255 - 1) * sb;
-    }
-
-    function _svg_exclusion() {
-        or = sr * da + dr * sa - 2 * sr * dr + sr * (1 - da) + dr * (1 - sa);
-        og = sg * da + dg * sa - 2 * sg * dg + sg * (1 - da) + dg * (1 - sa);
-        ob = sb * da + db * sa - 2 * sb * db + sb * (1 - da) + db * (1 - sa);
-    }
-
-    function _overlay() {
-        if (dr < 128) {
-            or = sr * dr * div_2_255;
-        } else {
-            or = 255 - (255 - sr) * (255 - dr) * div_2_255;
-        }
-
-        if (dg < 128) {
-            og = sg * dg * div_2_255;
-        } else {
-            og = 255 - (255 - sg) * (255 - dg) * div_2_255;
-        }
-
-        if (db < 128) {
-            ob = sb * db * div_2_255;
-        } else {
-            ob = 255 - (255 - sb) * (255 - db) * div_2_255;
-        }
-    }
-
-    function _svg_overlay() {
-        if (2 * dr <= da) {
-            or = 2 * sr * dr + sr * (1 - da) + dr * (1 - sa);
-        } else {
-            or = sr * (1 + da) + dr * (1 + sa) - 2 * dr * sr - da * sa;
-        }
-        if (2 * dg <= da) {
-            og = 2 * sg * dg + sg * (1 - da) + dg * (1 - sa);
-        } else {
-            og = sg * (1 + da) + dg * (1 + sa) - 2 * dg * sg - da * sa;
-        }
-        if (2 * db <= da) {
-            ob = 2 * sb * db + sb * (1 - da) + db * (1 - sa);
-        } else {
-            ob = sb * (1 + da) + db * (1 + sa) - 2 * db * sb - da * sa;
-        }
-    }
-
-    function _softlight() {
-        if (dr < 128) {
-            or = ((sr >> 1) + 64) * dr * div_2_255;
-        } else {
-            or = 255 - (191 - (sr >> 1)) * (255 - dr) * div_2_255;
-        }
-
-        if (dg < 128) {
-            og = ((sg >> 1) + 64) * dg * div_2_255;
-        } else {
-            og = 255 - (191 - (sg >> 1)) * (255 - dg) * div_2_255;
-        }
-
-        if (db < 128) {
-            ob = ((sb >> 1) + 64) * db * div_2_255;
-        } else {
-            ob = 255 - (191 - (sb >> 1)) * (255 - db) * div_2_255;
-        }
-    }
-
-    function _svg_softlight() {
-        var m;
-        var pow = Math.pow;
-
-        if (0.0 === da) {
-            or = sr;
-            og = sg;
-            ob = sb;
-            return;
-        }
-
-        m = dr / da;
-        if (2 * sr <= sa) {
-            or = dr * (sa + (2 * sr - sa) * (1 - m)) + sr * (1 - da) + dr * (1 - sa);
-        } else if (2 * sr > sa && 4 * dr <= da) {
-            or = da * (2 * sr - sa) * (16 * pow(m, 3) - 12 * pow(m, 2) - 3 * m) + sr - sr * da + dr;
-        } else if (2 * sr > sa && 4 * dr > da) {
-            or = da * (2 * sr - sa) * (pow(m, 0.5) - m) + sr - sr * da + dr;
-        }
-
-        m = dg / da;
-        if (2 * sg <= sa) {
-            og = dg * (sa + (2 * sg - sa) * (1 - m)) + sg * (1 - da) + dg * (1 - sa);
-        } else if (2 * sg > sa && 4 * dg <= da) {
-            og = da * (2 * sg - sa) * (16 * pow(m, 3) - 12 * pow(m, 2) - 3 * m) + sg - sg * da + dg;
-        } else if (2 * sg > sa && 4 * dg > da) {
-            og = da * (2 * sg - sa) * (pow(m, 0.5) - m) + sg - sg * da + dg;
-        }
-
-        m = db / da;
-        if (2 * sb <= sa) {
-            ob = db * (sa + (2 * sb - sa) * (1 - m)) + sb * (1 - da) + db * (1 - sa);
-        } else if (2 * sb > sa && 4 * db <= da) {
-            ob = da * (2 * sb - sa) * (16 * pow(m, 3) - 12 * pow(m, 2) - 3 * m) + sb - sb * da + db;
-        } else if (2 * sb > sa && 4 * db > da) {
-            ob = da * (2 * sb - sa) * (pow(m, 0.5) - m) + sb - sb * da + db;
-        }
-    }
-
-    function _hardlight() {
-        if (sr < 128) {
-            or = dr * sr * div_2_255;
-        } else {
-            or = 255 - (255 - dr) * (255 - sr) * div_2_255;
-        }
-
-        if (sg < 128) {
-            og = dg * sg * div_2_255;
-        } else {
-            og = 255 - (255 - dg) * (255 - sg) * div_2_255;
-        }
-
-        if (sb < 128) {
-            ob = db * sb * div_2_255;
-        } else {
-            ob = 255 - (255 - db) * (255 - sb) * div_2_255;
-        }
-    }
-
-    function _svg_hardlight() {
-        if (2 * sr <= sa) {
-            or = 2 * sr * dr + sr * (1 - da) + dr * (1 - sa);
-        } else {
-            or = sr * (1 + da) + dr * (1 + sa) - sa * da - 2 * sr * dr;
-        }
-
-        if (2 * sg <= sa) {
-            og = 2 * sg * dg + sg * (1 - da) + dg * (1 - sa);
-        } else {
-            og = sg * (1 + da) + dg * (1 + sa) - sa * da - 2 * sg * dg;
-        }
-
-        if (2 * sb <= sa) {
-            ob = 2 * sb * db + sb * (1 - da) + db * (1 - sa);
-        } else {
-            ob = sb * (1 + da) + db * (1 + sa) - sa * da - 2 * sb * db;
-        }
-    }
-
-    function _colordodge() {
-        var dr1 = (dr << 8) / (255 - sr);
-        var dg1 = (dg << 8) / (255 - sg);
-        var db1 = (db << 8) / (255 - sb);
-
-        or = (dr1 > 255 || sr === 255) ? 255 : dr1;
-        og = (dg1 > 255 || sg === 255) ? 255 : dg1;
-        ob = (db1 > 255 || sb === 255) ? 255 : db1;
-    }
-
-    function _svg_colordodge() {
-        if (da === 0) {
-            or = sr;
-            og = sg;
-            ob = sb;
-            return;
-        }
-
-        if (sr === sa && dr === 0) {
-            or = sr * (1 - da);
-        } else if (sr === sa) {
-            or = sa * da + sr * (1 - da) + dr * (1 - sa);
-        } else if (sr < sa) {
-            or = sa * da * min(1, dr / da * sa / (sa - sr)) + sr * (1 - da) + dr * (1 - sa);
-        }
-
-        if (sg === sa && dg === 0) {
-            og = sg * (1 - da);
-        } else if (sr === sa) {
-            og = sa * da + sg * (1 - da) + dg * (1 - sa);
-        } else if (sr < sa) {
-            og = sa * da * min(1, dg / da * sa / (sa - sg)) + sg * (1 - da) + dg * (1 - sa);
-        }
-
-        if (sb === sa && db === 0) {
-            ob = sb * (1 - da);
-        } else if (sr === sa) {
-            ob = sa * da + sb * (1 - da) + db * (1 - sa);
-        } else if (sr < sa) {
-            ob = sa * da * min(1, db / da * sa / (sa - sb)) + sb * (1 - da) + db * (1 - sa);
-        }
-    }
-
-    function _colorburn() {
-        var dr1 = 255 - ((255 - dr) << 8) / sr;
-        var dg1 = 255 - ((255 - dg) << 8) / sg;
-        var db1 = 255 - ((255 - db) << 8) / sb;
-
-        or = (dr1 < 0 || sr === 0) ? 0 : dr1;
-        og = (dg1 < 0 || sg === 0) ? 0 : dg1;
-        ob = (db1 < 0 || sb === 0) ? 0 : db1;
-    }
-
-    function _svg_colorburn() {
-        if (da === 0) {
-            or = sr;
-            og = sg;
-            ob = sb;
-            return;
-        }
-
-        if (sr === 0 && dr === da) {
-            or = sa * da + dr * (1 - sa);
-        } else if (sr === 0) {
-            or = dr * (1 - sa);
-        } else if (sr > 0) {
-            or = sa * da * (1 - min(1, (1 - dr / da) * sa / sr)) + sr * (1 - da) + dr * (1 - sa);
-        }
-
-        if (sg === 0 && dg === da) {
-            og = sa * da + dg * (1 - sa);
-        } else if (sg === 0) {
-            og = dg * (1 - sa);
-        } else if (sg > 0) {
-            og = sa * da * (1 - min(1, (1 - dg / da) * sa / sg)) + sg * (1 - da) + dg * (1 - sa);
-        }
-
-        if (sb === 0 && db === da) {
-            ob = sa * da + db * (1 - sa);
-        } else if (sb === 0) {
-            ob = db * (1 - sa);
-        } else if (sb > 0) {
-            ob = sa * da * (1 - min(1, (1 - db / da) * sa / sb)) + sb * (1 - da) + db * (1 - sa);
-        }
-    }
-
-    function _linearlight() {
-        var dr1 = 2 * sr + dr - 256;
-        var dg1 = 2 * sg + dg - 256;
-        var db1 = 2 * sb + db - 256;
-
-        or = (dr1 < 0 || (sr < 128 && dr1 < 0)) ? 0 : (dr1 > 255 ? 255 : dr1);
-        og = (dg1 < 0 || (sg < 128 && dg1 < 0)) ? 0 : (dg1 > 255 ? 255 : dg1);
-        ob = (db1 < 0 || (sb < 128 && db1 < 0)) ? 0 : (db1 > 255 ? 255 : db1);
-    }
-
-    function _vividlight() {
-        var a;
-
-        if (sr < 128) {
-            if (sr) {
-                a = 255 - ((255 - dr) << 8) / (2 * sr);
-                or = a < 0 ? 0 : a;
-            } else {
-                or = 0;
-            }
-        } else {
-            a = 2 * sr - 256;
-            if (a < 255) {
-                a = (dr << 8) / (255 - a);
-                or = a > 255 ? 255 : a;
-            } else {
-                or = a < 0 ? 0 : a;
-            }
-        }
-
-        if (sg < 128) {
-            if (sg) {
-                a = 255 - ((255 - dg) << 8) / (2 * sg);
-                og = a < 0 ? 0 : a;
-            } else {
-                og = 0;
-            }
-        } else {
-            a = 2 * sg - 256;
-            if (a < 255) {
-                a = (dg << 8) / (255 - a);
-                og = a > 255 ? 255 : a;
-            } else {
-                og = a < 0 ? 0 : a;
-            }
-        }
-
-        if (sb < 128) {
-            if (sb) {
-                a = 255 - ((255 - db) << 8) / (2 * sb);
-                ob = a < 0 ? 0 : a;
-            } else {
-                ob = 0;
-            }
-        } else {
-            a = 2 * sb - 256;
-            if (a < 255) {
-                a = (db << 8) / (255 - a);
-                ob = a > 255 ? 255 : a;
-            } else {
-                ob = a < 0 ? 0 : a;
-            }
-        }
-    }
-
-    function _pinlight() {
-        var a;
-
-        if (sr < 128) {
-            a = 2 * sr;
-            or = dr < a ? dr : a;
-        } else {
-            a = 2 * sr - 256;
-            or = dr > a ? dr : a;
-        }
-
-        if (sg < 128) {
-            a = 2 * sg;
-            og = dg < a ? dg : a;
-        } else {
-            a = 2 * sg - 256;
-            og = dg > a ? dg : a;
-        }
-
-        if (sb < 128) {
-            a = 2 * sb;
-            ob = db < a ? db : a;
-        } else {
-            a = 2 * sb - 256;
-            ob = db > a ? db : a;
-        }
-    }
-
-    function _hardmix() {
-        var a;
-
-        if (sr < 128) {
-            or = (255 - ((255 - dr) << 8) / (2 * sr) < 128 || sr === 0) ? 0 : 255;
-        } else {
-            a = 2 * sr - 256;
-            or = (a < 255 && (dr << 8) / (255 - a) < 128) ? 0 : 255;
-        }
-
-        if (sg < 128) {
-            og = (255 - ((255 - dg) << 8) / (2 * sg) < 128 || sg === 0) ? 0 : 255;
-        } else {
-            a = 2 * sg - 256;
-            og = (a < 255 && (dg << 8) / (255 - a) < 128) ? 0 : 255;
-        }
-
-        if (sb < 128) {
-            ob = (255 - ((255 - db) << 8) / (2 * sb) < 128 || sb === 0) ? 0 : 255;
-        } else {
-            a = 2 * sb - 256;
-            ob = (a < 255 && (db << 8) / (255 - a) < 128) ? 0 : 255;
-        }
-    }
-
-    function _hue() {
-        var hcl1 = rgbToHsy(dr, dg, db);
-        var hcl2 = rgbToHsy(sr, sg, sb);
-        var rgb = hsyToRgb(hcl2[0], hcl1[1], hcl1[2]);
-        or = rgb[0];
-        og = rgb[1];
-        ob = rgb[2];
-    }
-
-    function _saturation() {
-        var hcl1 = rgbToHsy(dr, dg, db);
-        var hcl2 = rgbToHsy(sr, sg, sb);
-        var rgb = hsyToRgb(hcl1[0], hcl2[1], hcl1[2]);
-        or = rgb[0];
-        og = rgb[1];
-        ob = rgb[2];
-    }
-
-    function _luminosity() {
-        var hcl1 = rgbToHsy(dr, dg, db);
-        var hcl2 = rgbToHsy(sr, sg, sb);
-        var rgb = hsyToRgb(hcl1[0], hcl1[1], hcl2[2]);
-        or = rgb[0];
-        og = rgb[1];
-        ob = rgb[2];
-    }
-
-    function _color() {
-        var hcl1 = rgbToHsy(dr, dg, db);
-        var hcl2 = rgbToHsy(sr, sg, sb);
-        var rgb = hsyToRgb(hcl2[0], hcl2[1], hcl1[2]);
-        or = rgb[0];
-        og = rgb[1];
-        ob = rgb[2];
-    }
-
-    blend_fn = {
-        'source-over': _svg_sourceover,
-        'multiply': _svg_multiply,
-        'subtract': _svg_subtract,
-        'divide': _divide,
-        'screen': _svg_screen,
-        'lighten': _svg_lighten,
-        'darken': _svg_darken,
-        'darker-color': _svg_darkercolor,
-        'lighter-color': _svg_lightercolor,
-        'add': _add,
-        'linear-burn': _linearburn,
-        'difference': _svg_difference,
-        'exclusion': _svg_exclusion,
-        'overlay': _svg_overlay,
-        'soft-light': _svg_softlight,
-        'hard-light': _svg_hardlight,
-        'color-dodge': _svg_colordodge,
-        'color-burn': _svg_colorburn,
-        'linear-light': _linearlight,
-        'vivid-light': _vividlight,
-        'pin-light': _pinlight,
-        'hard-mix': _hardmix,
-        'hue': _hue,
-        'saturation': _saturation,
-        'luminosity': _luminosity,
-        'color': _color
-    };
-
-    function rectIntersect(r1, r2) {
-        var right1 = r1.x + r1.width;
-        var bottom1 = r1.y + r1.height;
-        var right2 = r2.x + r2.width;
-        var bottom2 = r2.y + r2.height;
-
-        var x = max(r1.x, r2.x);
-        var y = max(r1.y, r2.y);
-        var w = max(min(right1, right2) - x, 0);
-        var h = max(min(bottom1, bottom2) - y, 0);
-        return [x, y, w, h];
-    }
-
-    (function () {
-        var pix, pixIn, x, y, a, a2, da2, demultiply, fBlend;
-        var data2 = options.data;
-        var opacity = options.opacity === 0 ? 0 : options.opacity || 1;
-        var fn = blend_fn[options.type || '_svg_normal'];
-        var dx = options.dx || 0;
-        var dy = options.dy || 0;
-        var ri = rectIntersect({x: 0, y: 0, width: width, height: height},
-             {x: dx, y: dy, width: options.width, height: options.height});
-        var xi = ri[0];
-        var yi = ri[1];
-        var wi = ri[2];
-        var hi = ri[3];
-
-        function pBlend() {
-            sa = data2[pixIn + 3] / 255 * opacity;
-            da = inData[pix + 3] / 255;
-            da2 = (sa + da - sa * da);
-            demultiply = 255 / da2;
-
-            sr = data2[pixIn] / 255 * sa;
-            sg = data2[pixIn + 1] / 255 * sa;
-            sb = data2[pixIn + 2] / 255 * sa;
-
-            dr = inData[pix] / 255 * da;
-            dg = inData[pix + 1] / 255 * da;
-            db = inData[pix + 2] / 255 * da;
-
-            fn();
-
-            outData[pix] = or * demultiply;
-            outData[pix + 1] = og * demultiply;
-            outData[pix + 2] = ob * demultiply;
-            outData[pix + 3] = da2 * 255;
-        }
-
-        function sBlend() {
-            dr = inData[pix];
-            dg = inData[pix + 1];
-            db = inData[pix + 2];
-
-            sr = data2[pixIn];
-            sg = data2[pixIn + 1];
-            sb = data2[pixIn + 2];
-
-            fn();
-
-            outData[pix] = or;
-            outData[pix + 1] = og;
-            outData[pix + 2] = ob;
-            outData[pix + 3] = inData[pix + 3];
-
-            a = opacity * data2[pixIn + 3] / 255;
-            if (a < 1) {
-                a2 = 1 - a;
-                outData[pix] = (inData[pix] * a2 + outData[pix] * a);
-                outData[pix + 1] = (inData[pix + 1] * a2 + outData[pix + 1] * a);
-                outData[pix + 2] = (inData[pix + 2] * a2 + outData[pix + 2] * a);
-            }
-        }
-
-        fBlend = fn.name.indexOf('_svg_') === 0 ? pBlend : sBlend;
-
-        for (y = 0; y < height; y += 1) {
-            for (x = 0; x < width; x += 1) {
-                pix = (y * width + x) * 4;
-                if (y >= yi && x >= xi && x < xi + wi && y < yi + hi) {
-                    pixIn = ((y - dy) * options.width + x - dx) * 4;
-                    fBlend();
-                } else {
-                    outData[pix] = inData[pix];
-                    outData[pix + 1] = inData[pix + 1];
-                    outData[pix + 2] = inData[pix + 2];
-                    outData[pix + 3] = inData[pix + 3];
-                }
-            }
-        }
-    }());
-};
-
-function _blend(inData, outData, width, height, options) {
-    process(inData, outData, width, height, options);
-}
-
-function _wrap(type) {
-    return function (inData, outData, width, height, options) {
-        options.type = type;
-        _blend(inData, outData, width, height, options);
-    };
-}
-
-blend = (function () {
-    var mode;
-    var d = { blend: _blend };
-    var modes = ['source-over', 'add', 'multiply', 'subtract', 'divide', 'screen',
-            'lighten', 'darken', 'darker-color', 'lighter-color', 'linear-burn',
-            'difference', 'exclusion', 'overlay', 'soft-light', 'hard-light',
-            'color-dodge', 'color-burn', 'linear-light', 'vivid-light', 'pin-light',
-            'hard-mix', 'hue', 'saturation', 'luminosity', 'color'];
-    for (var i = 0; i < modes.length; i += 1) {
-        mode = modes[i];
-        d[mode] = _wrap(mode);
-    }
-    modes = Object.keys(modes);
-    for (i = 0; i < modes.length; i += 1) {
-
-    }
-    // Aliases for the blending modes
-    addAliases(d);
-
-    d.getNativeModes = getNativeModes;
-    d.realBlendMode = realBlendMode;
-
-    return d;
-}());
-
-// MODULE SUPPORT ///////////////////////////////////////////////////////
-
-module.exports = blend;
-
-},{}],6:[function(require,module,exports){
-'use strict';
-
-var blend = require('./blend');
-var process = require('./process');
-var util = require('./util');
-
-// Dictionary of blend modes that the client browser does or does not support.
-var nativeBlendModes = blend.getNativeModes();
-
-function createImageData(ctx, width, height) {
-    if (ctx.createImageData) {
-        return ctx.createImageData(width, height);
-    } else {
-        return ctx.getImageData(0, 0, width, height);
-    }
-}
-
-// RENDERING.
-
-// The Layer and ImageCanvas objects don't do any actual pixel operations themselves,
-// they only contain information about the operations. The actual rendering is done
-// by a Renderer object. Currently there is only one kind available, the CanvasRenderer,
-// which uses the HTML Canvas object (containing the pixel data) and a 2D context that
-// acts on this canvas object. In the future, a webgl renderer might be added as well.
-
-var CanvasRenderer = {};
-
-// Renders a html canvas as an html Image. Currently unused.
-CanvasRenderer.toImage = function (canvas) {
-    var img = new Image();
-    img.width = canvas.width;
-    img.height = canvas.height;
-    img.src = canvas.toDataURL();
-    return img;
-};
-
-// 'LOADING' OF LAYERS.
-
-// Returns a html canvas dependent on the type of the layer provided.
-CanvasRenderer.load = function (iCanvas, layer) {
-    if (layer.isFill()) {
-        return CanvasRenderer.generateColor(iCanvas, layer);
-    } else if (layer.isGradient()) {
-        return CanvasRenderer.generateGradient(iCanvas, layer);
-    } else if (layer.isHtmlCanvas()) {
-        return CanvasRenderer.loadHtmlCanvas(layer.data);
-    } else if (layer.isImage()) {
-        return CanvasRenderer.loadImage(layer.data);
-    } else if (layer.isImageCanvas()) {
-        return CanvasRenderer.loadImageCanvas(layer.data);
-    }
-};
-
-// Passes a html canvas.
-CanvasRenderer.loadHtmlCanvas = function (canvas) {
-    return canvas;
-};
-
-// Returns a html canvas from rendering an ImageCanvas.
-CanvasRenderer.loadImageCanvas = function (iCanvas) {
-    return iCanvas.render();
-};
-
-// Returns a html canvas from rendering a stored Image file.
-CanvasRenderer.loadImage = function (img) {
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return canvas;
-};
-
-// Returns a html canvas with a solid fill color.
-CanvasRenderer.generateColor = function (iCanvas, layer) {
-    var width = layer.width !== undefined ? layer.width : iCanvas.width;
-    var height = layer.height !== undefined ? layer.height : iCanvas.height;
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-
-    canvas.width = width;
-    canvas.height = height;
-    ctx.fillStyle = layer.data;
-    ctx.fillRect(0, 0, width, height);
-    return canvas;
-};
-
-// Returns a html canvas with a gradient.
-CanvasRenderer.generateGradient = function (iCanvas, layer) {
-    var grd, x1, y1, x2, y2;
-    var width = layer.width !== undefined ? layer.width : iCanvas.width;
-    var height = layer.height !== undefined ? layer.height : iCanvas.height;
-    var cx = width / 2;
-    var cy = height / 2;
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    var data = layer.data;
-    var type = data.type || 'linear';
-    var rotateDegrees = data.rotation || 0;
-
-    if (type === 'radial') {
-        grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(width, height) / 2);
-    } else {
-        // Rotation code taken from html5-canvas-gradient-creator:
-        // Website: http://victorblog.com/html5-canvas-gradient-creator/
-        // Code: https://github.com/evictor/html5-canvas-gradient-creator/blob/master/js/src/directive/previewCanvas.coffee
-        if (rotateDegrees < 0) {
-            rotateDegrees += 360;
-        }
-        if ((0 <= rotateDegrees && rotateDegrees < 45)) {
-            x1 = 0;
-            y1 = height / 2 * (45 - rotateDegrees) / 45;
-            x2 = width;
-            y2 = height - y1;
-        } else if ((45 <= rotateDegrees && rotateDegrees < 135)) {
-            x1 = width * (rotateDegrees - 45) / (135 - 45);
-            y1 = 0;
-            x2 = width - x1;
-            y2 = height;
-        } else if ((135 <= rotateDegrees && rotateDegrees < 225)) {
-            x1 = width;
-            y1 = height * (rotateDegrees - 135) / (225 - 135);
-            x2 = 0;
-            y2 = height - y1;
-        } else if ((225 <= rotateDegrees && rotateDegrees < 315)) {
-            x1 = width * (1 - (rotateDegrees - 225) / (315 - 225));
-            y1 = height;
-            x2 = width - x1;
-            y2 = 0;
-        } else if (315 <= rotateDegrees) {
-            x1 = 0;
-            y1 = height - height / 2 * (rotateDegrees - 315) / (360 - 315);
-            x2 = width;
-            y2 = height - y1;
-        }
-        grd = ctx.createLinearGradient(x1, y1, x2, y2);
-    }
-    grd.addColorStop(data.spread || 0, data.startColor);
-    grd.addColorStop(1, data.endColor);
-
-    canvas.width = width;
-    canvas.height = height;
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, width, height);
-    return canvas;
-};
-
-// PROCESSING OF LAYERS.
-
-// Performs a number of filtering operations on an html image.
-CanvasRenderer.processImage = function (canvas, filters) {
-    if (filters.length === 0) {
-        return canvas;
-    }
-    var filter, tmpData;
-    var ctx = canvas.getContext('2d');
-    var width = canvas.width;
-    var height = canvas.height;
-    var inData = ctx.getImageData(0, 0, width, height);
-    var outData = createImageData(ctx, width, height);
-
-    for (var i = 0; i < filters.length; i += 1) {
-        if (i > 0) {
-            tmpData = inData;
-            inData = outData;
-            outData = tmpData;
-        }
-        filter = filters[i];
-        process[filter.name](inData.data, outData.data, width, height, filter.options);
-    }
-
-    ctx.putImageData(outData, 0, 0);
-    return canvas;
-};
-
-// Renders the layer mask and applies it to the layer that it is supposed to mask.
-CanvasRenderer.processMask = function (canvas, mask) {
-    if (mask.layers.length === 0) {
-        return canvas;
-    }
-    mask.width = canvas.width;
-    mask.height = canvas.height;
-    // First, make a black and white version of the masking canvas and pass
-    // the result to the masking operation.
-    var c = CanvasRenderer.renderBW(mask);
-    var data = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
-    var maskFilter = {name: 'mask', options: {data: data, x: 0, y: 0, width: c.width, height: c.height} };
-    return CanvasRenderer.processImage(canvas, [maskFilter]);
-};
-
-// Processes a single layer. First the layer image is loaded, then a mask (if applicable) is applied to it,
-// and finally the filters (if any) are applied to it.
-CanvasRenderer.processLayer = function (iCanvas, layer) {
-    var layerImage = CanvasRenderer.load(iCanvas, layer);
-    var maskedImage = CanvasRenderer.processMask(layerImage, layer.mask);
-    return CanvasRenderer.processImage(maskedImage, layer.filters);
-};
-
-
-// LAYER TRANFORMATIONS.
-
-
-// Transforms the 2d context that acts upon this layer's image. Utility function. -> Rename this?
-function transformLayer(ctx, iCanvas, layer) {
-    var m = layer.transform.matrix();
-
-    ctx.translate(iCanvas.width / 2, iCanvas.height / 2);
-    ctx.transform(m[0], m[1], m[3], m[4], m[6], m[7]);
-    if (layer.flip_h || layer.flip_v) {
-        ctx.scale(layer.flip_h ? -1 : 1, layer.flip_v ? -1 : 1);
-    }
-    ctx.translate(-layer.img.width / 2, -layer.img.height / 2);
-}
-
-// Transforms the bounds of a layer (the bounding rectangle) and returns the bounding rectangle
-// that encloses this transformed rectangle.
-function transformRect(iCanvas, layer) {
-    var pt, minx, miny, maxx, maxy;
-    var width = layer.img.width;
-    var height = layer.img.height;
-    var p1 = {x: 0, y: 0};
-    var p2 = {x: width, y: 0};
-    var p3 = {x: 0, y: height};
-    var p4 = {x: width, y: height};
-    var points = [p1, p2, p3, p4];
-
-    var t = util.transform();
-    t = t.translate(iCanvas.width / 2, iCanvas.height / 2);
-    t = t.append(layer.transform);
-    t = t.translate(-layer.img.width / 2, -layer.img.height / 2);
-
-    for (var i = 0; i < 4; i += 1) {
-        pt = t.transformPoint(points[i]);
-        if (i === 0) {
-            minx = maxx = pt.x;
-            miny = maxy = pt.y;
-        } else {
-            if (pt.x < minx) {
-                minx = pt.x;
-            }
-            if (pt.x > maxx) {
-                maxx = pt.x;
-            }
-            if (pt.y < miny) {
-                miny = pt.y;
-            }
-            if (pt.y > maxy) {
-                maxy = pt.y;
-            }
-        }
-    }
-    return {x: minx, y: miny, width: maxx - minx, height: maxy - miny};
-}
-
-// Calculates the intersecting rectangle of two input rectangles.
-function rectIntersect(r1, r2) {
-    var right1 = r1.x + r1.width;
-    var bottom1 = r1.y + r1.height;
-    var right2 = r2.x + r2.width;
-    var bottom2 = r2.y + r2.height;
-
-    var x = Math.max(r1.x, r2.x);
-    var y = Math.max(r1.y, r2.y);
-    var w = Math.max(Math.min(right1, right2) - x, 0);
-    var h = Math.max(Math.min(bottom1, bottom2) - y, 0);
-    return {x: x, y: y, width: w, height: h};
-}
-
-// Calculates the mimimal area that a transformed layer needs so that it
-// can still be drawn on the canvas. Returns a rectangle.
-function calcLayerRect(iCanvas, layer) {
-    var rect = transformRect(iCanvas, layer);
-    rect = rectIntersect(rect, {x: 0, y: 0, width: iCanvas.width, height: iCanvas.height});
-    return { x: Math.round(rect.x),
-        y: Math.round(rect.y),
-        width: Math.ceil(rect.width),
-        height: Math.ceil(rect.height)};
-}
-
-// Transforms a layer and returns the resulting pixel data.
-function getTransformedLayerData(iCanvas, layer, rect) {
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    ctx.translate(-rect.x, -rect.y);
-    transformLayer(ctx, iCanvas, layer);
-    ctx.drawImage(layer.img, 0, 0);
-    return ctx.getImageData(0, 0, rect.width, rect.height);
-}
-
-
-// LAYER BLENDING.
-
-// Blends the subsequent layer images with the base layer and returns a single image.
-// This method is used when web workers aren't available for use on this system.
-CanvasRenderer.mergeManualBlend = function (iCanvas, layerData) {
-    return function (canvas) {
-        var layer, blendMode, blendData, tmpData, layerOptions, rect;
-        var ctx = canvas.getContext('2d');
-        var width = iCanvas.width;
-        var height = iCanvas.height;
-        var baseData = ctx.getImageData(0, 0, width, height);
-        var outData = createImageData(ctx, width, height);
-        for (var i = 0; i < layerData.length; i += 1) {
-            layer = layerData[i];
-            rect = calcLayerRect(iCanvas, layer);
-            if (rect.width > 0 && rect.height > 0) {
-                if (i > 0) {
-                    tmpData = baseData;
-                    baseData = outData;
-                    outData = tmpData;
-                }
-                blendData = getTransformedLayerData(iCanvas, layer, rect);
-                layerOptions = {data: blendData.data, width: rect.width, height: rect.height, opacity: layer.opacity, dx: rect.x, dy: rect.y};
-                if (blend[layer.blendmode] === undefined) {
-                    throw new Error('No blend mode named \'' + layer.blendmode + '\'');
-                }
-                blendMode = blend.realBlendMode(layer.blendmode);
-                blend[blendMode](baseData.data, outData.data, width, height, layerOptions);
-            }
-        }
-        ctx.putImageData(outData, 0, 0);
-        return canvas;
-    };
-};
-
-// Renders a single layer. This is useful when there's only one layer available (and no blending is needed)
-// or to render the base layer on which subsequent layers are blended.
-CanvasRenderer.singleLayerWithOpacity = function (iCanvas, layer) {
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-
-    canvas.width = iCanvas.width;
-    canvas.height = iCanvas.height;
-
-    ctx.save();
-    transformLayer(ctx, iCanvas, layer);
-    if (layer.opacity !== 1) {
-        ctx.globalAlpha = layer.opacity;
-    }
-    ctx.drawImage(layer.img, 0, 0);
-    ctx.restore();
-    return canvas;
-};
-
-// Blends the subsequent layer images with the base layer and returns the resulting image.
-// This method is used when the system supports the requested blending mode(s).
-CanvasRenderer.mergeNativeBlend = function (iCanvas, layerData) {
-    return function (canvas) {
-        var ctx = canvas.getContext('2d');
-        var layer;
-        for (var i = 0; i < layerData.length; i += 1) {
-            layer = layerData[i];
-            ctx.save();
-            transformLayer(ctx, iCanvas, layer);
-            if (layer.opacity !== 1) {
-                ctx.globalAlpha = layer.opacity;
-            }
-            if (layer.blendmode !== 'source-over') {
-                ctx.globalCompositeOperation = blend.realBlendMode(layer.blendmode);
-            }
-            ctx.drawImage(layer.img, 0, 0);
-            ctx.restore();
-        }
-        return canvas;
-    };
-};
-
-CanvasRenderer.createRenderPipe = function (Renderer, iCanvas, layerData) {
-    var mode, useNative, currentList, layer;
-    var renderPipe = [];
-
-    function pushList() {
-        if (useNative !== undefined) {
-            var fn = useNative ? Renderer.mergeNativeBlend : Renderer.mergeManualBlend;
-            renderPipe.push(fn(iCanvas, currentList));
-        }
-    }
-
-    for (var i = 1; i < layerData.length; i += 1) {
-        layer = layerData[i];
-        mode = layer.blendmode;
-        // todo: handle blendmode aliases.
-        if (useNative === undefined || useNative !== nativeBlendModes[mode]) {
-            pushList();
-            currentList = [];
-        }
-        currentList.push(layer);
-        useNative = nativeBlendModes[mode];
-        if (i === layerData.length - 1) {
-            pushList();
-        }
-    }
-    return renderPipe;
-};
-
-// Merges the different canvas layers together in a single image and returns this as a html canvas.
-CanvasRenderer.merge = function (iCanvas, layerData) {
-    var renderPipe = CanvasRenderer.createRenderPipe(CanvasRenderer, iCanvas, layerData);
-    var canvas = CanvasRenderer.singleLayerWithOpacity(iCanvas, layerData[0]);
-    for (var i = 0; i < renderPipe.length; i += 1) {
-        canvas = renderPipe[i](canvas);
-    }
-    return canvas;
-};
-
-CanvasRenderer.composite = function (iCanvas, layerData) {
-    if (!layerData || layerData.length === 0) {
-        return null;
-    }
-    if (layerData.length === 1) {
-        return CanvasRenderer.singleLayerWithOpacity(iCanvas, layerData[0]);
-    }
-
-    return CanvasRenderer.merge(iCanvas, layerData);
-};
-
-// Returns an object with additional layer information as well as the input images
-// to be passed to the different processing functions.
-CanvasRenderer.getLayerData = function (iCanvas, layerImages) {
-    var d, layer, layerImg;
-    var layerData = [];
-    for (var i = 0; i < layerImages.length; i += 1) {
-        layer = iCanvas.layers[i];
-        layerImg = layerImages[i];
-        d = { img: layerImg,
-            opacity: layer.opacity,
-            blendmode: layer.blendmode,
-            transform: layer.transform,
-            flip_h: layer.flip_h, flip_v: layer.flip_v
-        };
-        layerData.push(d);
-    }
-    return layerData;
-};
-
-// Renders the image canvas. Top level.
-CanvasRenderer.render = function (iCanvas) {
-    var layerImages = [];
-    for (var i = 0; i < iCanvas.layers.length; i += 1) {
-        layerImages.push(CanvasRenderer.processLayer(iCanvas, iCanvas.layers[i]));
-    }
-    return CanvasRenderer.composite(iCanvas, CanvasRenderer.getLayerData(iCanvas, layerImages));
-};
-
-// Renders the image canvas and turns it into a black and white image. Useful for rendering a layer mask.
-CanvasRenderer.renderBW = function (iCanvas) {
-    var canvas = CanvasRenderer.render(iCanvas);
-    var data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
-    var bwFilter = {name: 'luminancebw'};
-    return CanvasRenderer.processImage(canvas, [bwFilter]);
-};
-
-module.exports = CanvasRenderer;
-
-},{"./blend":5,"./process":8,"./util":9}],7:[function(require,module,exports){
-'use strict';
-
-var util = require('./util');
-var CanvasRenderer = require('./canvasrenderer');
-var AsyncRenderer = require('./asyncrenderer');
-
-var img, ImageCanvas, Layer, Img;
-
-var DEFAULT_WIDTH = 800;
-var DEFAULT_HEIGHT = 800;
-
-// Different layer types.
-var TYPE_PATH = 'path';
-var TYPE_IMAGE = 'image';
-var TYPE_HTML_CANVAS = 'htmlCanvas';
-var TYPE_IMAGE_CANVAS = 'iCanvas';
-var TYPE_FILL = 'fill';
-var TYPE_GRADIENT = 'gradient';
-
-var IDENTITY_TRANSFORM = util.transform();
-var Transform = IDENTITY_TRANSFORM;
-
-var clamp = util.clamp;
-
-// Named colors supported by all browsers.
-// See: http://www.w3schools.com/html/html_colornames.asp
-var colors = ['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darksalmon', 'darkseagreen', 'darkslateblue', 'darkslategray', 'darkturquoise', 'darkviolet', 'deeppink', 'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen', 'fuchsia', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'greenyellow', 'grey', 'honeydew', 'hotpink', 'indianred', 'indigo', 'ivory', 'khaki', 'lavender', 'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgreen', 'lightgrey', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightsteelblue', 'lightyellow', 'lime', 'limegreen', 'linen', 'maroon', 'mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite', 'navy', 'oldlace', 'olive', 'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue', 'purple', 'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell', 'sienna', 'silver', 'skyblue', 'slateblue', 'slategray', 'snow', 'springgreen', 'steelblue', 'tan', 'teal', 'thistle', 'tomato', 'transparent', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen'];
-
-
-// Converts a number of arguments to a type of color argument that the html canvas context can understand:
-// a named color, a hex color or a string in the form of rgba(r, g, b, a)
-function toColor(v1, v2, v3, v4, v5) {
-    var _r, _g, _b, _a, R, G, B, rgb, options;
-    if (v1 === undefined) {
-        _r = _g = _b = 0;
-        _a = 1;
-    } else if (Array.isArray(v1)) {
-        options = v2 || {};
-        _r = v1[0] !== undefined ? v1[0] : 0;
-        _g = v1[1] !== undefined ? v1[1] : 0;
-        _b = v1[2] !== undefined ? v1[2] : 0;
-        _a = v1[3] !== undefined ? v1[3] : options.base || 1;
-    } else if (v1.r !== undefined) {
-        options = v2 || {};
-        _r = v1.r;
-        _g = v1.g;
-        _b = v1.b;
-        _a = v1.a !== undefined ? v1.a : options.base || 1;
-    } else if (typeof v1 === 'string') {
-        if (v1.indexOf('#') === 0) {
-            return v1;
-        }
-        if (v1.indexOf('rgb') === 0) {
-            return v1;
-        }
-        if (colors.indexOf(v1) !== -1) {
-            return v1;
-        }
-    } else if (typeof v1 === 'number') {
-        if (arguments.length === 1) { // Grayscale value
-            _r = _g = _b = v1;
-            _a = 1;
-        } else if (arguments.length === 2) { // Gray and alpha or options
-            _r = _g = _b = v1;
-            if (typeof v2 === 'number') {
-                _a = v2;
-            } else {
-                options = v2;
-                _a = options.base || 1;
-            }
-        } else if (arguments.length === 3) { // RGB or gray, alpha and options
-            if (typeof v3 === 'number') {
-                _r = v1;
-                _g = v2;
-                _b = v3;
-                _a = 1;
-            } else {
-                _r = _g = _b = v1;
-                _a = v2;
-                options = v3;
-            }
-        } else if (arguments.length === 4) { // RGB and alpha or options
-            _r = v1;
-            _g = v2;
-            _b = v3;
-            if (typeof v4 === 'number') {
-                _a = v4;
-            } else {
-                options = v4 || {};
-                _a = options.base || 1;
-            }
-        } else { // RGBA + options
-            _r = v1;
-            _g = v2;
-            _b = v3;
-            _a = v4;
-            options = v5;
-        }
-    }
-
-    if (!(typeof _r === 'number' &&
-        typeof _g === 'number' &&
-        typeof _b === 'number' &&
-        typeof _a === 'number')) {
-        throw new Error('Invalid color arguments');
-    }
-
-    options = options || {};
-
-    // The base option allows you to specify values in a different range.
-    if (options.base !== undefined) {
-        _r /= options.base;
-        _g /= options.base;
-        _b /= options.base;
-        _a /= options.base;
-    }
-    R = Math.round(_r * 255);
-    G = Math.round(_g * 255);
-    B = Math.round(_b * 255);
-    return 'rgba(' + R + ', ' + G + ', ' + B + ', ' + _a + ')';
-}
-
-// Converts a number of arguments into a dictionary of gradient information that is understood by the renderer.
-function toGradientData(v1, v2, v3, v4, v5) {
-    var startColor, endColor, type, rotation, spread, d;
-    var data = {};
-
-    if (arguments.length === 1) { // The argument is a dictionary or undefined.
-        d = v1 || {};
-        startColor = d.startColor;
-        endColor = d.endColor;
-        type = d.type;
-        rotation = d.rotation;
-        spread = d.spread;
-    } else if (arguments.length >= 2) { // The first two arguments are a start color and an end color.
-        startColor = v1;
-        endColor = v2;
-        type = 'linear';
-        rotation = 0;
-        spread = 0;
-        if (arguments.length === 3) {
-            if (typeof v3 === 'string') { // The type can be either linear or radial.
-                type = v3;
-            } else if (typeof v3 === 'number') { // The type is implicitly linear and the third argument is the rotation angle.
-                rotation = v3;
-            }
-        } else if (arguments.length === 4) {
-            if (typeof v3 === 'number') { // The type is implicitly linear and the third/forth arguments are the rotation angle and gradient spread.
-                rotation = v3;
-                spread = v4;
-            } else if (v3 === 'linear') { // The type is explicitly linear and the forth argument is the rotation angle.
-                rotation = v4;
-            } else if (v3 === 'radial') { // The type is explicitly radial and the forth argument is the gradient spread.
-                type = v3;
-                spread = v4;
-            } else {
-                throw new Error('Wrong argument provided: ' + v3);
-            }
-        } else if (arguments.length === 5) { // Type, rotation (unused in case of radial type gradient), and gradient spread.
-            type = v3;
-            rotation = v4;
-            spread = v5;
-        }
-    }
-
-    if (!startColor && startColor !== 0) {
-        throw new Error('No startColor was given.');
-    }
-    if (!endColor && endColor !== 0) {
-        throw new Error('No endColor was given.');
-    }
-
-    try {
-        data.startColor = toColor(startColor);
-    } catch (e1) {
-        throw new Error('startColor is not a valid color: ' + startColor);
-    }
-
-    try {
-        data.endColor = toColor(endColor);
-    } catch (e2) {
-        throw new Error('endColor is not a valid color: ' + endColor);
-    }
-
-    if (type === undefined) {
-        type = 'linear';
-    }
-    if (type !== 'linear' && type !== 'radial') {
-        throw new Error('Unknown gradient type: ' + type);
-    }
-
-    data.type = type;
-
-    if (spread === undefined) {
-        spread = 0;
-    }
-    if (typeof spread !== 'number') {
-        throw new Error('Spread value is not a number: ' + spread);
-    }
-
-    if (type === 'linear') {
-        if (rotation === undefined) {
-            rotation = 0;
-        }
-        if (typeof rotation !== 'number') {
-            throw new Error('Rotation value is not a number: ' + rotation);
-        }
-        data.rotation = rotation;
-    }
-
-    data.spread = clamp(spread, 0, 0.99);
-
-    return data;
-}
-
-function findType(data) {
-    if (typeof data === 'string') {
-        return TYPE_PATH;
-    } else if (data instanceof Image) {
-        return TYPE_IMAGE;
-    } else if (data instanceof HTMLCanvasElement) {
-        return TYPE_HTML_CANVAS;
-    } else if (data instanceof ImageCanvas) {
-        return TYPE_IMAGE_CANVAS;
-    } else if (data.r !== undefined && data.g !== undefined && data.b !== undefined && data.a !== undefined) {
-        return TYPE_FILL;
-    } else if (data.startColor !== undefined && data.endColor !== undefined) {
-        return TYPE_GRADIENT;
-    }
-    throw new Error('Cannot establish type for data ', data);
-}
-
-
-// IMAGE LAYER.
-
-Layer = function (data, type) {
-    if (!type) {
-        type = findType(data);
-    }
-    this.data = data;
-    this.type = type;
-
-    if (type === TYPE_HTML_CANVAS || type === TYPE_IMAGE_CANVAS || type === TYPE_IMAGE) {
-        this.width = data.width;
-        this.height = data.height;
-    }
-
-    // Compositing.
-    this.opacity = 1.0;
-    this.blendmode = 'source-over';
-
-    // Transformations.
-    this.transform = IDENTITY_TRANSFORM;
-    this.flip_h = false;
-    this.flip_v = false;
-
-    // An alpha mask hides parts of the masked layer where the mask is darker.
-    this.mask = new ImageCanvas();
-
-    this.filters = [];
-};
-
-Layer.Transform = Layer.IDENTITY_TRANSFORM = IDENTITY_TRANSFORM;
-
-// Copies the layer object.
-Layer.prototype.clone = function () {
-    function cloneFilter(filter) {
-        var key, value;
-        var f = {};
-        f.name = filter.name;
-        if (filter.options !== undefined) {
-            f.options = {};
-            var optionsKeys = Object.keys(filter.options);
-            for (var i = 0; i < optionsKeys.length; i += 1) {
-                key = optionsKeys[i];
-                value = filter.options[key];
-                if (Array.isArray(value)) {
-                    f.options[key] = value.slice(0);
-                } else {
-                    f.options[key] = value;
-                }
-            }
-        }
-        return f;
-    }
-
-    var d = {
-        data: this.data,
-        type: this.type,
-        width: this.width,
-        height: this.height,
-        opacity: this.opacity,
-        blendmode: this.blendmode,
-        transform: this.transform,
-        flip_h: this.flip_h,
-        flip_v: this.flip_v,
-        mask: this.mask.clone(),
-        filters: []
-    };
-
-    if (this.type === TYPE_IMAGE_CANVAS) {
-        d.data = this.data.clone();
-    } else if (this.type === TYPE_GRADIENT) {
-        d.data = {
-            startColor: this.data.startColor,
-            endColor: this.data.endColor,
-            type: this.data.type,
-            rotation: this.data.rotation,
-            spread: this.data.spread
-        };
-    }
-
-    for (var i = 0; i < this.filters.length; i += 1) {
-        d.filters.push(cloneFilter(this.filters[i]));
-    }
-
-    d.__proto__ = this.__proto__;
-
-    return d;
-};
-
-// Sets the opacity of the layer (requires a number in the range 0.0-1.0).
-Layer.prototype.setOpacity = function (opacity) {
-    this.opacity = clamp(opacity, 0, 1);
-};
-
-// Within an image canvas, a layer is by default positioned in the center.
-// Translating moves the layer away from this center.
-// Each successive call to the translate function performs an additional translation on top of the current transformation matrix.
-Layer.prototype.translate = function (tx, ty) {
-    ty = ty === undefined ? 0 : ty;
-    var t = Transform.translate(tx, ty);
-    this.transform = this.transform.prepend(t);
-};
-
-// Scaling happens relatively in a 0.0-1.0 based range where 1.0 stands for 100%.
-// Each successive call to the scale function performs an additional scaling operation on top of the current transformation matrix.
-// If only one parameter is supplied, the layer is scaled proportionally.
-Layer.prototype.scale = function (sx, sy) {
-    sy = sy === undefined ? sx : sy;
-    var t = Transform.scale(sx, sy);
-    this.transform = this.transform.prepend(t);
-};
-
-// The supplied parameter should be in degrees (not radians).
-// Each successive call to the rotation function performs an additional rotation on top of the current transformation matrix.
-Layer.prototype.rotate = function (rot) {
-    var t = Transform.rotate(rot);
-    this.transform = this.transform.prepend(t);
-};
-
-// Each successive call to the skew function performs an additional skewing operation on top of the current transformation matrix.
-Layer.prototype.skew = function (kx, ky) {
-    ky = ky === undefined ? kx : ky;
-    var t = Transform.skew(kx, ky);
-    this.transform = this.transform.prepend(t);
-};
-
-// Flips the layer horizontally.
-Layer.prototype.flipHorizontal = function (arg) {
-    if (arg !== undefined) {
-        this.flip_h = arg;
-    } else {
-        this.flip_h = !this.flip_h;
-    }
-};
-
-// Flips the layer vertically.
-Layer.prototype.flipVertical = function (arg) {
-    if (arg !== undefined) {
-        this.flip_v = arg;
-    } else {
-        this.flip_v = !this.flip_v;
-    }
-};
-
-Layer.prototype.addFilter = function (filter, options) {
-    this.filters.push({
-        name: filter,
-        options: options
-    });
-};
-
-// Renders the layer to a new canvas.
-Layer.prototype.draw = function (ctx) {
-    var width = this.width === undefined ? DEFAULT_WIDTH : this.width;
-    var height = this.height === undefined ? DEFAULT_HEIGHT : this.height;
-    var canvas = new ImageCanvas(width, height);
-    canvas.addLayer(this);
-    canvas.draw(ctx);
-};
-
-Layer.prototype.toCanvas = function () {
-    var canvas = document.createElement('canvas');
-    canvas.width = this.width;
-    canvas.height = this.height;
-    var ctx = canvas.getContext('2d');
-    this.draw(ctx);
-    return canvas;
-};
-
-Layer.fromFile = function (filename) {
-    return new Layer(filename, TYPE_PATH);
-};
-
-Layer.fromImage = function (image) {
-    return new Layer(image, TYPE_IMAGE);
-};
-
-Layer.fromCanvas = function (canvas) {
-    if (canvas instanceof HTMLCanvasElement) {
-        return Layer.fromHtmlCanvas(canvas);
-    }
-    return Layer.fromImageCanvas(canvas);
-};
-
-Layer.fromHtmlCanvas = function (canvas) {
-    return new Layer(canvas, TYPE_HTML_CANVAS);
-};
-
-Layer.fromImageCanvas = function (iCanvas) {
-    return new Layer(iCanvas, TYPE_IMAGE_CANVAS);
-};
-
-Layer.fromColor = function (color) {
-    return new Layer(toColor(color), TYPE_FILL);
-};
-
-Layer.fromGradient = function () {
-    return new Layer(toGradientData.apply(null, arguments), TYPE_GRADIENT);
-};
-
-Layer.prototype.isPath = function () {
-    return this.type === TYPE_PATH;
-};
-
-Layer.prototype.isFill = function () {
-    return this.type === TYPE_FILL;
-};
-
-Layer.prototype.isGradient = function () {
-    return this.type === TYPE_GRADIENT;
-};
-
-Layer.prototype.isHtmlCanvas = function () {
-    return this.type === TYPE_HTML_CANVAS;
-};
-
-Layer.prototype.isImage = function () {
-    return this.type === TYPE_IMAGE;
-};
-
-Layer.prototype.isImageCanvas = function () {
-    return this.type === TYPE_IMAGE_CANVAS;
-};
-
-
-// IMAGE PIXELS.
-
-var Pixels = function (canvas) {
-    this.width = canvas.width;
-    this.height = canvas.height;
-    var ctx = canvas.getContext('2d');
-    this._data = ctx.getImageData(0, 0, this.width, this.height);
-    this.array = this._data.data;
-};
-
-Pixels.prototype.get = function (i) {
-    i *= 4;
-    var v = this.array;
-    return [v[i + 0], v[i + 1], v[i + 2], v[i + 3]];
-};
-
-Pixels.prototype.set = function (i, rgba) {
-    i *= 4;
-    var v = this.array;
-    v[i + 0] = rgba[0];
-    v[i + 1] = rgba[1];
-    v[i + 2] = rgba[2];
-    v[i + 3] = rgba[3];
-};
-
-Pixels.prototype.toCanvas = function () {
-    var canvas = document.createElement('canvas');
-    canvas.width = this.width;
-    canvas.height = this.height;
-    var ctx = canvas.getContext('2d');
-    ctx.putImageData(this._data, 0, 0);
-    return canvas;
-};
-
-
-// IMAGE CANVAS.
-
-ImageCanvas = function (width, height) {
-    if (!width) {
-        width = DEFAULT_WIDTH;
-    }
-    if (!height) {
-        height = DEFAULT_HEIGHT;
-    }
-
-    this.width = width;
-    this.height = height;
-    this.layers = [];
-};
-
-// Copies the ImageCanvas.
-ImageCanvas.prototype.clone = function () {
-    var c = new ImageCanvas(this.width, this.height);
-    for (var i = 0; i < this.layers.length; i += 1) {
-        c.layers.push(this.layers[i].clone());
-    }
-    return c;
-};
-
-// Creates a new layer from figuring out the given argument(s) and adds it to the canvas.
-ImageCanvas.prototype.addLayer = function (arg0) {
-    var layer;
-
-    try {
-        return this.addGradientLayer.apply(this, arguments);
-    } catch (e1) {
-    }
-
-    try {
-        return this.addColorLayer.apply(this, arguments);
-    } catch (e2) {
-    }
-
-    if (arguments.length === 1) {
-        if (typeof arg0 === 'string') {
-            layer = new Layer(arg0, TYPE_PATH);
-        } else if (arg0 instanceof Layer) {
-            layer = arg0;
-        } else if (arg0 instanceof HTMLCanvasElement) {
-            layer = new Layer(arg0, TYPE_HTML_CANVAS);
-        } else if (arg0 instanceof Image) {
-            layer = new Layer(arg0, TYPE_IMAGE);
-        } else if (arg0 instanceof ImageCanvas) {
-            layer = new Layer(arg0, TYPE_IMAGE_CANVAS);
-        }
-    }
-
-    if (!layer) {
-        throw new Error('Error creating layer.');
-    }
-
-    this.layers.push(layer);
-    return layer;
-};
-
-// Adds a new color layer to the canvas.
-ImageCanvas.prototype.addColorLayer = function () {
-    var c = toColor.apply(null, arguments);
-    var layer = new Layer(c, TYPE_FILL);
-    this.layers.push(layer);
-    return layer;
-};
-
-// Adds a new gradient layer to the canvas.
-ImageCanvas.prototype.addGradientLayer = function () {
-    var c = toGradientData.apply(null, arguments);
-    var layer = new Layer(c, TYPE_GRADIENT);
-    this.layers.push(layer);
-    return layer;
-};
-
-// Renders the canvas and passes the result (a html canvas) to the given callback function.
-ImageCanvas.prototype.render = function (callback) {
-    var renderer = callback ? AsyncRenderer : CanvasRenderer;
-    return renderer.render(this, callback);
-};
-
-// Renders the canvas on another canvas.
-ImageCanvas.prototype.draw = function (ctx, callback) {
-    if (callback) {
-        this.render(function (canvas) {
-            ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
-        });
-    } else {
-        var canvas = this.render();
-        ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
-    }
-};
-
-
-// Img
-
-function isPoint(arg) {
-    if (!arg) { return false; }
-    return arg.x !== undefined && arg.y !== undefined;
-}
-
-function pointFromArray(arg) {
-    var x = arg[0];
-    var y = arg.length > 1 ? arg[1] : x;
-    return {x: x, y: y};
-}
-
-function pointFromNumber(arg) {
-    return {x: arg, y: arg};
-}
-
-function isValidArg(arg) {
-    return arg !== undefined && arg !== null;
-}
-
-function convertArg(arg) {
-    if (Array.isArray(arg)) {
-        return pointFromArray(arg);
-    } else if (typeof arg === 'number') {
-        return pointFromNumber(arg);
-    } else if (isPoint(arg)) {
-        return arg;
-    }
-}
-
-Img = function (canvas, x, y) {
-    this.canvas = canvas;
-    this.originalWidth = canvas ? canvas.width : 0;
-    this.originalHeight = canvas ? canvas.height: 0;
-    this.transform = x || y ? Transform.translate(x, y) : Layer.IDENTITY_TRANSFORM;
-};
-
-Img.prototype.clone = function () {
-    var n = new Img();
-    n.canvas = this.canvas;
-    n.originalWidth = this.originalWidth;
-    n.originalHeight = this.originalHeight;
-    n.transform = this.transform;
-    return n;
-};
-
-Img.prototype.withCanvas = function (canvas) {
-    var n = this.clone();
-    n.canvas = canvas;
-    return n;
-};
-
-Img.prototype._transform = function (t) {
-    var n = this.clone();
-    n.transform = n.transform.prepend(t);
-    return n;
-};
-
-Img.prototype.translate = function (position) {
-    var t = pointFromNumber(0);
-    var args = arguments;
-    if (args.length === 1 && isValidArg(position)) {
-        t = convertArg(position);
-    } else if (args.length === 2) {
-        t = {x: args[0], y: args[1]};
-    }
-    if (t.x === 0 && t.y === 0) { return this; }
-    return this._transform(Transform.translate(t.x, t.y));
-};
-
-Img.prototype.rotate = function (angle) {
-    if (!angle) { return this; }
-    var o = pointFromNumber(0);
-    var args = arguments;
-    if (args.length === 2) {
-        o = convertArg(args[1]);
-    } else if (args.length === 3) {
-        o = {x: args[1], y: args[2]};
-    }
-    return this._transform(Transform.translate(o.x, o.y).rotate(angle).translate(-o.x, -o.y));
-};
-
-Img.prototype.scale = function (scale) {
-    var s = pointFromNumber(100);
-    var o = pointFromNumber(0);
-    var args = arguments;
-    if (args.length === 1 && isValidArg(scale)) {
-        s = convertArg(scale);
-    } else if (args.length === 2) {
-        if (typeof scale === 'number' && typeof args[1] === 'number') {
-            s = {x: args[0], y: args[1]};
-        } else {
-            s = convertArg(scale);
-            o = convertArg(args[1]);
-        }
-    } else if (args.length === 4) {
-        s = {x: args[0], y: args[1]};
-        o = {x: args[2], y: args[3]};
-    }
-    if (s.x === 100 && s.y === 100) { return this; }
-    return this._transform(Transform.translate(o.x, o.y).scale(s.x / 100, s.y / 100).translate(-o.x, -o.y));
-};
-
-Img.prototype.skew = function (skew) {
-    var k = pointFromNumber(0);
-    var o = pointFromNumber(0);
-    var args = arguments;
-    if (args.length === 1 && isValidArg(skew)) {
-        k = convertArg(skew);
-    } else if (args.length === 2) {
-        if (typeof skew === 'number' && typeof args[1] === 'number') {
-            k = {x: args[0], y: args[1]};
-        } else {
-            k = convertArg(skew);
-            o = convertArg(args[1]);
-        }
-    } else if (args.length === 4) {
-        k = {x: args[0], y: args[1]};
-        o = {x: args[2], y: args[3]};
-    }
-    if (k.x === 0 && k.y === 0) { return this; }
-    return this._transform(Transform.translate(o.x, o.y).skew(k.x, k.y).translate(-o.x, -o.y));
-};
-
-Img.prototype.transformed = function () {
-    return img.merge([this]);
-};
-
-Img.prototype.bounds = function () {
-    var t = this.transform;
-    var x = this.originalWidth / 2;
-    var y = this.originalHeight / 2;
-
-    var p1 = {x: -x, y: -y};
-    var p2 = {x: x, y: -y};
-    var p3 = {x: -x, y: y};
-    var p4 = {x: x, y: y};
-    var points = [p1, p2, p3, p4];
-    var pt, minx, miny, maxx, maxy;
-
-    for (var i = 0; i < 4; i += 1) {
-        pt = t.transformPoint(points[i]);
-        if (i === 0) {
-            minx = maxx = pt.x;
-            miny = maxy = pt.y;
-        } else {
-            if (pt.x < minx) {
-                minx = pt.x;
-            }
-            if (pt.x > maxx) {
-                maxx = pt.x;
-            }
-            if (pt.y < miny) {
-                miny = pt.y;
-            }
-            if (pt.y > maxy) {
-                maxy = pt.y;
-            }
-        }
-    }
-    return {x: minx, y: miny, width: maxx - minx, height: maxy - miny};
-};
-
-Img.prototype.colorize = function (color) {
-    var colorLayer = Layer.fromColor(color);
-    colorLayer.width = this.originalWidth;
-    colorLayer.height = this.originalHeight;
-    var i = new Img(colorLayer.toCanvas());
-    i = i._transform(this.transform.matrix());
-    return img.merge([this, i]);
-};
-
-Img.prototype.desaturate = function () {
-    var layer = this.toLayer(false);
-    layer.addFilter('desaturate');
-    return this.withCanvas(layer.toCanvas());
-};
-
-Img.prototype.crop = function (bounding) {
-    // Calculates the intersecting rectangle of two input rectangles.
-    function rectIntersect(r1, r2) {
-        var right1 = r1.x + r1.width,
-            bottom1 = r1.y + r1.height,
-            right2 = r2.x + r2.width,
-            bottom2 = r2.y + r2.height,
-
-            x = Math.max(r1.x, r2.x),
-            y = Math.max(r1.y, r2.y),
-            w = Math.max(Math.min(right1, right2) - x, 0),
-            h = Math.max(Math.min(bottom1, bottom2) - y, 0);
-        return {x: x, y: y, width: w, height: h};
-    }
-
-    var iBounds = this.bounds();
-    var bounds = bounding.bounds();
-    var ri = rectIntersect(iBounds, bounds);
-    var width = Math.ceil(ri.width);
-    var height = Math.ceil(ri.height);
-
-    if (ri.width === 0 || ri.height === 0) {
-        throw new Error('Resulting image has no dimensions');
-    }
-
-    var canvas = new img.ImageCanvas(width, height);
-    var l1 = canvas.addLayer(this.toLayer());
-    l1.translate(width / 2 - bounds.width - bounds.x,
-        height / 2 - bounds.height - bounds.y);
-    if (width < bounds.width && ri.x > iBounds.x) {
-        l1.translate(bounds.width - width, 0);
-    }
-    if (height < bounds.height && ri.y > iBounds.y) {
-        l1.translate(0, bounds.height - height);
-    }
-
-    return new Img(canvas.render(), ri.x + width / 2, ri.y + height / 2);
-};
-
-Img.prototype.draw = function (ctx) {
-    ctx.save();
-    var m = this.transform.matrix();
-    ctx.transform(m[0], m[1], m[3], m[4], m[6], m[7]);
-    ctx.translate(-this.originalWidth / 2, -this.originalHeight / 2);
-    ctx.drawImage(this.canvas, 0, 0);
-    ctx.restore();
-};
-
-Img.prototype.toLayer = function (copyTransformations) {
-    var canvas = document.createElement('canvas');
-    canvas.width = this.canvas.width;
-    canvas.height = this.canvas.height;
-    var ctx = canvas.getContext('2d');
-    ctx.drawImage(this.canvas, 0, 0);
-    var layer = img.Layer.fromHtmlCanvas(canvas);
-    if (copyTransformations === undefined) {
-        copyTransformations = true;
-    }
-    if (copyTransformations) {
-        layer.transform = this.transform;
+process.nextTick = function (fun) {
+    queue.push(fun);
+    if (!draining) {
+        setTimeout(drainQueue, 0);
     }
-    return layer;
 };
-
-Img.prototype.getPixels = function () {
-    return new Pixels(this.canvas);
-};
-
-Img.prototype.toImage = function () {
-    var b = this.bounds();
-    var cropped = this.crop({bounds: function() { return b; }});
-    var i = new Image();
-    i.width = cropped.canvas.width;
-    i.height = cropped.canvas.height;
-    i.src = cropped.canvas.toDataURL();
-    return i;
-};
-
-img = {};
-img.Layer = Layer;
-img.ImageCanvas = ImageCanvas;
-img.Img = Img;
-img.Pixels = Pixels;
-
-// MODULE SUPPORT ///////////////////////////////////////////////////////
-
-var async = require('async');
-
-function loadImage(image, callback) {
-    var img = new Image();
-    img.onload = function () {
-        callback(null, [image, this]);
-    };
-    img.src = image;
-}
-
-function loadImages(images, callback) {
-    async.map(images,
-        loadImage, function (err, loadedImages) {
-            if (callback) {
-                var name, image;
-                var d = {};
-                for (var i = 0; i < loadedImages.length; i += 1) {
-                    name = loadedImages[i][0];
-                    image = loadedImages[i][1];
-                    d[name] = image;
-                }
-                callback(d);
-            }
-        });
-}
-
-function rectUnite(r1, r2) {
-    var x = Math.min(r1.x, r2.x),
-        y = Math.min(r1.y, r2.y),
-        width = Math.max(r1.x + r1.width, r2.x + r2.width) - x,
-        height = Math.max(r1.y + r1.height, r2.y + r2.height) - y;
-    return {x: x, y: y, width: width, height: height};
-}
-
-function merge(images) {
-    var i, image, b, l;
-    for (i = 0; i < images.length; i += 1) {
-        image = images[i];
-        if (i === 0) {
-            b = image.bounds();
-        } else {
-            b = rectUnite(b, image.bounds());
-        }
-    }
-    var dx = b.width / 2 + b.x;
-    var dy = b.height / 2 + b.y;
-
-    var canvas = new ImageCanvas(b.width, b.height);
-    for (i = 0; i < images.length; i += 1) {
-        l = canvas.addLayer(images[i].toLayer());
-        l.translate(-dx, -dy);
-    }
-    return new Img(canvas.render(), dx, dy);
-};
-
-img.loadImages = loadImages;
-img.merge = merge;
-
-module.exports = img;
-
-},{"./asyncrenderer":4,"./canvasrenderer":6,"./util":9,"async":2}],8:[function(require,module,exports){
-/*!
- * Image processing based on Pixastic library:
- *
- * Pixastic - JavaScript Image Processing
- * http://pixastic.com/
- * Copyright 2012, Jacob Seidelin
- *
- * Dual licensed under the MPL 1.1 or GPLv3 licenses.
- * http://pixastic.com/license-mpl.txt
- * http://pixastic.com/license-gpl-3.0.txt
- *
- */
-
-'use strict';
-
-var stackblur = require('stackblur');
-var util = require('./util');
-
-var clamp = util.clamp;
-
-function defaultOptions(options, defaults) {
-    if (!options) {
-        return defaults;
-    }
-    var opt, o = {};
-    for (opt in defaults) {
-        if (defaults.hasOwnProperty(opt)) {
-            if (typeof options[opt] === 'undefined') {
-                o[opt] = defaults[opt];
-            } else {
-                o[opt] = options[opt];
-            }
-        }
-    }
-    return o;
-}
-
-function smoothstep(a, b, x) {
-    /* Returns a smooth transition between 0.0 and 1.0 using Hermite interpolation (cubic spline),
-     * where x is a number between a and b. The return value will ease (slow down) as x nears a or b.
-     * For x smaller than a, returns 0.0. For x bigger than b, returns 1.0.
-     */
-    if (x < a) { return 0.0; }
-    if (x >=b) { return 1.0; }
-    x = (x - a) / ( b - a);
-    return x * x * (3 - 2 * x);
-}
-
-function noise() {
-    return Math.random() * 0.5 + 0.5;
-}
-
-function colorDistance(scale, dest, src) {
-    return clamp(scale * dest + (1 - scale) * src, 0, 255);
-}
-
-function convolve3x3(inData, outData, width, height, kernel, alpha, invert, mono) {
-    var x, y, n = width * height * 4,
-        idx, r, g, b, a,
-        pyc, pyp, pyn,
-        pxc, pxp, pxn,
-
-        k00 = kernel[0][0], k01 = kernel[0][1], k02 = kernel[0][2],
-        k10 = kernel[1][0], k11 = kernel[1][1], k12 = kernel[1][2],
-        k20 = kernel[2][0], k21 = kernel[2][1], k22 = kernel[2][2],
-
-        p00, p01, p02,
-        p10, p11, p12,
-        p20, p21, p22;
-
-    for (y = 0; y < height; y += 1) {
-        pyc = y * width * 4;
-        pyp = pyc - width * 4;
-        pyn = pyc + width * 4;
-
-        if (y < 1) {
-            pyp = pyc;
-        }
-        if (y >= width - 1) {
-            pyn = pyc;
-        }
-
-        for (x = 0; x < width; x += 1) {
-            idx = (y * width + x) * 4;
-
-            pxc = x * 4;
-            pxp = pxc - 4;
-            pxn = pxc + 4;
-
-            if (x < 1) {
-                pxp = pxc;
-            }
-            if (x >= width - 1) {
-                pxn = pxc;
-            }
-
-            p00 = pyp + pxp;
-            p01 = pyp + pxc;
-            p02 = pyp + pxn;
-            p10 = pyc + pxp;
-            p11 = pyc + pxc;
-            p12 = pyc + pxn;
-            p20 = pyn + pxp;
-            p21 = pyn + pxc;
-            p22 = pyn + pxn;
-
-            r = inData[p00] * k00 + inData[p01] * k01 + inData[p02] * k02 +
-                inData[p10] * k10 + inData[p11] * k11 + inData[p12] * k12 +
-                inData[p20] * k20 + inData[p21] * k21 + inData[p22] * k22;
-
-            g = inData[p00 + 1] * k00 + inData[p01 + 1] * k01 + inData[p02 + 1] * k02 +
-                inData[p10 + 1] * k10 + inData[p11 + 1] * k11 + inData[p12 + 1] * k12 +
-                inData[p20 + 1] * k20 + inData[p21 + 1] * k21 + inData[p22 + 1] * k22;
-
-            b = inData[p00 + 2] * k00 + inData[p01 + 2] * k01 + inData[p02 + 2] * k02 +
-                inData[p10 + 2] * k10 + inData[p11 + 2] * k11 + inData[p12 + 2] * k12 +
-                inData[p20 + 2] * k20 + inData[p21 + 2] * k21 + inData[p22 + 2] * k22;
-
-            if (alpha) {
-                a = inData[p00 + 3] * k00 + inData[p01 + 3] * k01 + inData[p02 + 3] * k02 +
-                    inData[p10 + 3] * k10 + inData[p11 + 3] * k11 + inData[p12 + 3] * k12 +
-                    inData[p20 + 3] * k20 + inData[p21 + 3] * k21 + inData[p22 + 3] * k22;
-            } else {
-                a = inData[idx + 3];
-            }
-
-            if (mono) {
-                r = g = b = (r + g + b) / 3;
-            }
-            if (invert) {
-                r = 255 - r;
-                g = 255 - g;
-                b = 255 - b;
-            }
-
-            outData[idx] = r;
-            outData[idx + 1] = g;
-            outData[idx + 2] = b;
-            outData[idx + 3] = a;
-        }
-    }
-}
-
-function convolve5x5(inData, outData, width, height, kernel, alpha, invert, mono) {
-    var x, y, n = width * height * 4,
-        idx, r, g, b, a,
-        pyc, pyp, pyn, pypp, pynn,
-        pxc, pxp, pxn, pxpp, pxnn,
-
-        k00 = kernel[0][0], k01 = kernel[0][1], k02 = kernel[0][2], k03 = kernel[0][3], k04 = kernel[0][4],
-        k10 = kernel[1][0], k11 = kernel[1][1], k12 = kernel[1][2], k13 = kernel[1][3], k14 = kernel[1][4],
-        k20 = kernel[2][0], k21 = kernel[2][1], k22 = kernel[2][2], k23 = kernel[2][3], k24 = kernel[2][4],
-        k30 = kernel[3][0], k31 = kernel[3][1], k32 = kernel[3][2], k33 = kernel[3][3], k34 = kernel[3][4],
-        k40 = kernel[4][0], k41 = kernel[4][1], k42 = kernel[4][2], k43 = kernel[4][3], k44 = kernel[4][4],
-
-        p00, p01, p02, p03, p04,
-        p10, p11, p12, p13, p14,
-        p20, p21, p22, p23, p24,
-        p30, p31, p32, p33, p34,
-        p40, p41, p42, p43, p44;
-
-    for (y = 0; y < height; y += 1) {
-        pyc = y * width * 4;
-        pyp = pyc - width * 4;
-        pypp = pyc - width * 4 * 2;
-        pyn = pyc + width * 4;
-        pynn = pyc + width * 4 * 2;
-
-        if (y < 1) {
-            pyp = pyc;
-        }
-        if (y >= width - 1) {
-            pyn = pyc;
-        }
-        if (y < 2) {
-            pypp = pyp;
-        }
-        if (y >= width - 2) {
-            pynn = pyn;
-        }
-
-        for (x = 0; x < width; x += 1) {
-            idx = (y * width + x) * 4;
-
-            pxc = x * 4;
-            pxp = pxc - 4;
-            pxn = pxc + 4;
-            pxpp = pxc - 8;
-            pxnn = pxc + 8;
-
-            if (x < 1) {
-                pxp = pxc;
-            }
-            if (x >= width - 1) {
-                pxn = pxc;
-            }
-            if (x < 2) {
-                pxpp = pxp;
-            }
-            if (x >= width - 2) {
-                pxnn = pxn;
-            }
-
-            p00 = pypp + pxpp;
-            p01 = pypp + pxp;
-            p02 = pypp + pxc;
-            p03 = pypp + pxn;
-            p04 = pypp + pxnn;
-            p10 = pyp + pxpp;
-            p11 = pyp + pxp;
-            p12 = pyp + pxc;
-            p13 = pyp + pxn;
-            p14 = pyp + pxnn;
-            p20 = pyc + pxpp;
-            p21 = pyc + pxp;
-            p22 = pyc + pxc;
-            p23 = pyc + pxn;
-            p24 = pyc + pxnn;
-            p30 = pyn + pxpp;
-            p31 = pyn + pxp;
-            p32 = pyn + pxc;
-            p33 = pyn + pxn;
-            p34 = pyn + pxnn;
-            p40 = pynn + pxpp;
-            p41 = pynn + pxp;
-            p42 = pynn + pxc;
-            p43 = pynn + pxn;
-            p44 = pynn + pxnn;
-
-            r = inData[p00] * k00 + inData[p01] * k01 + inData[p02] * k02 + inData[p03] * k04 + inData[p02] * k04 +
-                inData[p10] * k10 + inData[p11] * k11 + inData[p12] * k12 + inData[p13] * k14 + inData[p12] * k14 +
-                inData[p20] * k20 + inData[p21] * k21 + inData[p22] * k22 + inData[p23] * k24 + inData[p22] * k24 +
-                inData[p30] * k30 + inData[p31] * k31 + inData[p32] * k32 + inData[p33] * k34 + inData[p32] * k34 +
-                inData[p40] * k40 + inData[p41] * k41 + inData[p42] * k42 + inData[p43] * k44 + inData[p42] * k44;
-
-            g = inData[p00 + 1] * k00 + inData[p01 + 1] * k01 + inData[p02 + 1] * k02 + inData[p03 + 1] * k04 + inData[p02 + 1] * k04 +
-                inData[p10 + 1] * k10 + inData[p11 + 1] * k11 + inData[p12 + 1] * k12 + inData[p13 + 1] * k14 + inData[p12 + 1] * k14 +
-                inData[p20 + 1] * k20 + inData[p21 + 1] * k21 + inData[p22 + 1] * k22 + inData[p23 + 1] * k24 + inData[p22 + 1] * k24 +
-                inData[p30 + 1] * k30 + inData[p31 + 1] * k31 + inData[p32 + 1] * k32 + inData[p33 + 1] * k34 + inData[p32 + 1] * k34 +
-                inData[p40 + 1] * k40 + inData[p41 + 1] * k41 + inData[p42 + 1] * k42 + inData[p43 + 1] * k44 + inData[p42 + 1] * k44;
-
-            b = inData[p00 + 2] * k00 + inData[p01 + 2] * k01 + inData[p02 + 2] * k02 + inData[p03 + 2] * k04 + inData[p02 + 2] * k04 +
-                inData[p10 + 2] * k10 + inData[p11 + 2] * k11 + inData[p12 + 2] * k12 + inData[p13 + 2] * k14 + inData[p12 + 2] * k14 +
-                inData[p20 + 2] * k20 + inData[p21 + 2] * k21 + inData[p22 + 2] * k22 + inData[p23 + 2] * k24 + inData[p22 + 2] * k24 +
-                inData[p30 + 2] * k30 + inData[p31 + 2] * k31 + inData[p32 + 2] * k32 + inData[p33 + 2] * k34 + inData[p32 + 2] * k34 +
-                inData[p40 + 2] * k40 + inData[p41 + 2] * k41 + inData[p42 + 2] * k42 + inData[p43 + 2] * k44 + inData[p42 + 2] * k44;
-
-            if (alpha) {
-                a = inData[p00 + 3] * k00 + inData[p01 + 3] * k01 + inData[p02 + 3] * k02 + inData[p03 + 3] * k04 + inData[p02 + 3] * k04 +
-                    inData[p10 + 3] * k10 + inData[p11 + 3] * k11 + inData[p12 + 3] * k12 + inData[p13 + 3] * k14 + inData[p12 + 3] * k14 +
-                    inData[p20 + 3] * k20 + inData[p21 + 3] * k21 + inData[p22 + 3] * k22 + inData[p23 + 3] * k24 + inData[p22 + 3] * k24 +
-                    inData[p30 + 3] * k30 + inData[p31 + 3] * k31 + inData[p32 + 3] * k32 + inData[p33 + 3] * k34 + inData[p32 + 3] * k34 +
-                    inData[p40 + 3] * k40 + inData[p41 + 3] * k41 + inData[p42 + 3] * k42 + inData[p43 + 3] * k44 + inData[p42 + 3] * k44;
-            } else {
-                a = inData[idx + 3];
-            }
-
-            if (mono) {
-                r = g = b = (r + g + b) / 3;
-            }
-
-            if (invert) {
-                r = 255 - r;
-                g = 255 - g;
-                b = 255 - b;
-            }
-
-            outData[idx] = r;
-            outData[idx + 1] = g;
-            outData[idx + 2] = b;
-            outData[idx + 3] = a;
-        }
-    }
-}
-
-function gaussian(inData, outData, width, height, kernelSize) {
-    var x, y, i, j, n = width * height * 4,
-        r, g, b, a, idx,
-        inx, iny, w,
-        tmpData = [],
-        maxKernelSize = 13,
-        k1, k2, weights,
-        kernels = [
-            [1]
-        ];
-
-    kernelSize = clamp(kernelSize, 3, maxKernelSize);
-    k1 = -kernelSize / 2 + (kernelSize % 2 ? 0.5 : 0);
-    k2 = kernelSize + k1;
-
-    for (i = 1; i < maxKernelSize; i += 1) {
-        kernels[0][i] = 0;
-    }
-
-    for (i = 1; i < maxKernelSize; i += 1) {
-        kernels[i] = [1];
-        for (j = 1; j < maxKernelSize; j += 1) {
-            kernels[i][j] = kernels[i - 1][j] + kernels[i - 1][j - 1];
-        }
-    }
-
-    weights = kernels[kernelSize - 1];
-
-    for (i = 0, w = 0; i < kernelSize; i += 1) {
-        w += weights[i];
-    }
-    for (i = 0; i < kernelSize; i += 1) {
-        weights[i] /= w;
-    }
-
-    // pass 1
-    for (y = 0; y < height; y += 1) {
-        for (x = 0; x < width; x += 1) {
-            r = g = b = a = 0;
-
-            for (i = k1; i < k2; i += 1) {
-                inx = x + i;
-                iny = y;
-                w = weights[i - k1];
-
-                if (inx < 0) {
-                    inx = 0;
-                }
-                if (inx >= width) {
-                    inx = width - 1;
-                }
-
-                idx = (iny * width + inx) * 4;
-
-                r += inData[idx] * w;
-                g += inData[idx + 1] * w;
-                b += inData[idx + 2] * w;
-                a += inData[idx + 3] * w;
-
-            }
-
-            idx = (y * width + x) * 4;
-
-            tmpData[idx] = r;
-            tmpData[idx + 1] = g;
-            tmpData[idx + 2] = b;
-            tmpData[idx + 3] = a;
-        }
-    }
-
-    // pass 2
-    for (y = 0; y < height; y += 1) {
-        for (x = 0; x < width; x += 1) {
-            r = g = b = a = 0;
-
-            for (i = k1; i < k2; i += 1) {
-                inx = x;
-                iny = y + i;
-                w = weights[i - k1];
-
-                if (iny < 0) {
-                    iny = 0;
-                }
-                if (iny >= height) {
-                    iny = height - 1;
-                }
-
-                idx = (iny * width + inx) * 4;
-
-                r += tmpData[idx] * w;
-                g += tmpData[idx + 1] * w;
-                b += tmpData[idx + 2] * w;
-                a += tmpData[idx + 3] * w;
-            }
-
-            idx = (y * width + x) * 4;
-
-            outData[idx] = r;
-            outData[idx + 1] = g;
-            outData[idx + 2] = b;
-            outData[idx + 3] = a;
-        }
-    }
-}
-
-function getPixel(v, i) {
-    i *= 4;
-    return [v[i + 0], v[i + 1], v[i + 2], v[i + 3]];
-}
-
-function setPixel(v, i, rgba) {
-    i *= 4;
-    v[i + 0] = rgba[0];
-    v[i + 1] = rgba[1];
-    v[i + 2] = rgba[2];
-    v[i + 3] = rgba[3];
-}
-
-// Polar filters (distortion filters) are from canvas.js: https://github.com/clips/pattern/blob/master/pattern/canvas.js (BSD)
-// De Smedt T. & Daelemans W. (2012). Pattern for Python. Journal of Machine Learning Research.
-// Based on: L. Spagnolini, 2007
-
-function polar(inData, outData, x0, y0, width, height, callback) {
-    /* Sets image data based on a polar coordinates filter.
-     * The given callback is a function(distance, angle) that returns new [distance, angle].
-     */
-    x0 = width / 2 + (x0 || 0);
-    y0 = height / 2 + (y0 || 0);
-    var y1, x1, x, y, d, a, v;
-    for (y1 = 0; y1 < height; y1 += 1) {
-        for (x1 = 0; x1 < width; x1 += 1) {
-            x = x1 - x0;
-            y = y1 - y0;
-            d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-            a = Math.atan2(y, x);
-            v = callback(d, a);
-            d = v[0];
-            a = v[1];
-            setPixel(outData, x1 + y1 * width, getPixel(inData,
-                Math.round(x0 + Math.cos(a) * d) +
-                Math.round(y0 + Math.sin(a) * d) * width
-            ));
-        }
-    }
-}
-
-var process = {
-
-    invert: function (inData, outData, width, height) {
-        var i, n = width * height * 4;
-
-        for (i = 0; i < n; i += 4) {
-            outData[i] = 255 - inData[i];
-            outData[i + 1] = 255 - inData[i + 1];
-            outData[i + 2] = 255 - inData[i + 2];
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    sepia: function (inData, outData, width, height) {
-        var i, n = width * height * 4,
-            r, g, b;
 
-        for (i = 0; i < n; i += 4) {
-            r = inData[i];
-            g = inData[i + 1];
-            b = inData[i + 2];
-            outData[i] = (r * 0.393 + g * 0.769 + b * 0.189);
-            outData[i + 1] = (r * 0.349 + g * 0.686 + b * 0.168);
-            outData[i + 2] = (r * 0.272 + g * 0.534 + b * 0.131);
-            outData[i + 3] = inData[i + 3];
-        }
-    },
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
 
-    solarize: function (inData, outData, width, height) {
-        var i, n = width * height * 4,
-            r, g, b;
+function noop() {}
 
-        for (i = 0; i < n; i += 4) {
-            r = inData[i];
-            g = inData[i + 1];
-            b = inData[i + 2];
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
 
-            outData[i] = r > 127 ? 255 - r : r;
-            outData[i + 1] = g > 127 ? 255 - g : g;
-            outData[i + 2] = b > 127 ? 255 - b : b;
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    brightness: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {
-            brightness: 1,
-            contrast: 0
-        });
-
-        var i, n = width * height * 4,
-            r, g, b,
-            contrast = clamp(options.contrast, -1, 1) / 2,
-            brightness = 1 + clamp(options.brightness, -1, 1),
-            brightMul = brightness < 0 ? -brightness : brightness,
-            brightAdd = brightness < 0 ? 0 : brightness,
-            contrastAdd;
-
-        contrast = 0.5 * Math.tan((contrast + 1) * Math.PI / 4);
-        contrastAdd = -(contrast - 0.5) * 255;
-
-        for (i = 0; i < n; i += 4) {
-            r = inData[i];
-            g = inData[i + 1];
-            b = inData[i + 2];
-
-            r = (r + r * brightMul + brightAdd) * contrast + contrastAdd;
-            g = (g + g * brightMul + brightAdd) * contrast + contrastAdd;
-            b = (b + b * brightMul + brightAdd) * contrast + contrastAdd;
-
-            outData[i] = r;
-            outData[i + 1] = g;
-            outData[i + 2] = b;
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    desaturate: function (inData, outData, width, height) {
-        var i, n = width * height * 4,
-            level;
-
-        for (i = 0; i < n; i += 4) {
-            level = inData[i] * 0.3 + inData[i + 1] * 0.59 + inData[i + 2] * 0.11;
-            outData[i] = level;
-            outData[i + 1] = level;
-            outData[i + 2] = level;
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    lighten: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {amount: 0.25});
-        var i, n = width * height * 4,
-            mul = 1 + clamp(options.amount, 0, 1);
-
-        for (i = 0; i < n; i += 4) {
-            outData[i] = inData[i] * mul;
-            outData[i + 1] = inData[i + 1] * mul;
-            outData[i + 2] = inData[i + 2] * mul;
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    noise: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {amount: 0.5, strength: 0.5, mono: false});
-        var i, n = width * height * 4,
-            rnd, r, g, b,
-            amount = clamp(options.amount, 0, 1),
-            strength = clamp(options.strength, 0, 1),
-            mono = !!options.mono,
-            random = Math.random;
-
-        for (i = 0; i < n; i += 4) {
-            r = inData[i];
-            g = inData[i + 1];
-            b = inData[i + 2];
-
-            rnd = random();
-
-            if (rnd < amount) {
-                if (mono) {
-                    rnd = strength * ((rnd / amount) * 2 - 1) * 255;
-                    r += rnd;
-                    g += rnd;
-                    b += rnd;
-                } else {
-                    r += strength * random() * 255;
-                    g += strength * random() * 255;
-                    b += strength * random() * 255;
-                }
-            }
-
-            outData[i] = r;
-            outData[i + 1] = g;
-            outData[i + 2] = b;
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    flipv: function (inData, outData, width, height) {
-        var x, y, n = width * height * 4,
-            inPix, outPix;
-
-        for (y = 0; y < height; y += 1) {
-            for (x = 0; x < width; x += 1) {
-                inPix = (y * width + x) * 4;
-                outPix = (y * width + (width - x - 1)) * 4;
-
-                outData[outPix] = inData[inPix];
-                outData[outPix + 1] = inData[inPix + 1];
-                outData[outPix + 2] = inData[inPix + 2];
-                outData[outPix + 3] = inData[inPix + 3];
-            }
-        }
-    },
-
-    fliph: function (inData, outData, width, height) {
-        var x, y, n = width * height * 4,
-            inPix, outPix;
-
-        for (y = 0; y < height; y += 1) {
-            for (x = 0; x < width; x += 1) {
-                inPix = (y * width + x) * 4;
-                outPix = ((height - y - 1) * width + x) * 4;
-
-                outData[outPix] = inData[inPix];
-                outData[outPix + 1] = inData[inPix + 1];
-                outData[outPix + 2] = inData[inPix + 2];
-                outData[outPix + 3] = inData[inPix + 3];
-            }
-        }
-    },
-
-    // Uses fast stackblur algorithm from http://www.quasimondo.com/StackBlurForCanvas
-    blur: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {radius: 10});
-        for (var i = 0; i < inData.length; i += 1) {
-            outData[i] = inData[i];
-        }
-        stackblur(outData, width, height, options.radius);
-    },
-
-    glow: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {amount: 0.75, kernelSize: 5});
-        var i, n = width * height * 4,
-            r, g, b,
-            amount = options.amount,
-            tmpData = [];
-
-        gaussian(inData, tmpData, width, height, options.kernelSize);
-
-        for (i = 0; i < n; i += 4) {
-            r = inData[i] + tmpData[i] * amount;
-            g = inData[i + 1] + tmpData[i + 1] * amount;
-            b = inData[i + 2] + tmpData[i + 2] * amount;
-            if (r > 255) {
-                r = 255;
-            }
-            if (g > 255) {
-                g = 255;
-            }
-            if (b > 255) {
-                b = 255;
-            }
-            outData[i] = r;
-            outData[i + 1] = g;
-            outData[i + 2] = b;
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    convolve3x3: function (inData, outData, width, height, options) {
-        convolve3x3(inData, outData, width, height, options.kernel);
-    },
-
-    convolve5x5: function (inData, outData, width, height, options) {
-        convolve5x5(inData, outData, width, height, options.kernel);
-    },
-
-    // A 3x3 high-pass filter
-    sharpen3x3: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {strength: 1});
-        var a = -clamp(options.strength, 0, 1);
-        convolve3x3(inData, outData, width, height,
-            [
-                [a, a, a],
-                [a, 1 - a * 8, a],
-                [a, a, a]
-            ]);
-    },
-
-    // A 5x5 high-pass filter
-    sharpen5x5: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {strength: 1});
-        var a = -clamp(options.strength, 0, 1);
-        convolve5x5(inData, outData, width, height,
-            [
-                [a, a, a, a, a],
-                [a, a, a, a, a],
-                [a, a, 1 - a * 24, a, a],
-                [a, a, a, a, a],
-                [a, a, a, a, a]
-            ]);
-    },
-
-    // A 3x3 low-pass mean filter
-    soften3x3: function (inData, outData, width, height) {
-        var c = 1 / 9;
-        convolve3x3(inData, outData, width, height,
-            [
-                [c, c, c],
-                [c, c, c],
-                [c, c, c]
-            ]);
-    },
-
-    // A 5x5 low-pass mean filter
-    soften5x5: function (inData, outData, width, height) {
-        var c = 1 / 25;
-        convolve5x5(inData, outData, width, height,
-            [
-                [c, c, c, c, c],
-                [c, c, c, c, c],
-                [c, c, c, c, c],
-                [c, c, c, c, c],
-                [c, c, c, c, c]
-            ]);
-    },
-
-    // A 3x3 Cross edge-detect
-    crossedges: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {strength: 1});
-        var a = clamp(options.strength, 0, 1) * 5;
-        convolve3x3(inData, outData, width, height,
-            [
-                [ 0, -a, 0],
-                [-a, 0, a],
-                [ 0, a, 0]
-            ],
-            false, true);
-    },
-
-    // 3x3 directional emboss
-    emboss: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {amount: 1, angle: 0});
-        var i, n = width * height * 4,
-            amount = options.amount,
-            angle = options.angle,
-            x = Math.cos(-angle) * amount,
-            y = Math.sin(-angle) * amount,
-
-            a00 = -x - y,
-            a10 = -x,
-            a20 = y - x,
-            a01 = -y,
-            a21 = y,
-            a02 = -y + x,
-            a12 = x,
-            a22 = y + x,
-
-            tmpData = [];
-
-        convolve3x3(inData, tmpData, width, height,
-            [
-                [a00, a01, a02],
-                [a10, 0, a12],
-                [a20, a21, a22]
-            ]);
-
-        for (i = 0; i < n; i += 4) {
-            outData[i] = 128 + tmpData[i];
-            outData[i + 1] = 128 + tmpData[i + 1];
-            outData[i + 2] = 128 + tmpData[i + 2];
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-
-    // A 3x3 Sobel edge detect (similar to Photoshop's)
-    findedges: function (inData, outData, width, height) {
-        var i, n = width * height * 4,
-            gr1, gr2, gg1, gg2, gb1, gb2,
-            data1 = [],
-            data2 = [];
-
-        convolve3x3(inData, data1, width, height,
-            [
-                [-1, 0, 1],
-                [-2, 0, 2],
-                [-1, 0, 1]
-            ]);
-
-        convolve3x3(inData, data2, width, height,
-            [
-                [-1, -2, -1],
-                [ 0, 0, 0],
-                [ 1, 2, 1]
-            ]);
-
-        for (i = 0; i < n; i += 4) {
-            gr1 = data1[i];
-            gr2 = data2[i];
-            gg1 = data1[i + 1];
-            gg2 = data2[i + 1];
-            gb1 = data1[i + 2];
-            gb2 = data2[i + 2];
-
-            if (gr1 < 0) {
-                gr1 = -gr1;
-            }
-            if (gr2 < 0) {
-                gr2 = -gr2;
-            }
-            if (gg1 < 0) {
-                gg1 = -gg1;
-            }
-            if (gg2 < 0) {
-                gg2 = -gg2;
-            }
-            if (gb1 < 0) {
-                gb1 = -gb1;
-            }
-            if (gb2 < 0) {
-                gb2 = -gb2;
-            }
-
-            outData[i] = 255 - (gr1 + gr2) * 0.8;
-            outData[i + 1] = 255 - (gg1 + gg2) * 0.8;
-            outData[i + 2] = 255 - (gb1 + gb2) * 0.8;
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    // A 3x3 edge enhance
-    edgeenhance3x3: function (inData, outData, width, height) {
-        var c = -1 / 9;
-        convolve3x3(inData, outData, width, height,
-            [
-                [c, c, c],
-                [c, 17 / 9, c],
-                [c, c, c]
-            ]);
-    },
-
-    // A 5x5 edge enhance
-    edgeenhance5x5: function (inData, outData, width, height) {
-        var c = -1 / 25;
-        convolve5x5(inData, outData, width, height,
-            [
-                [c, c, c, c, c],
-                [c, c, c, c, c],
-                [c, c, 49 / 25, c, c],
-                [c, c, c, c, c],
-                [c, c, c, c, c]
-            ]);
-    },
-
-    // A 3x3 Laplacian edge-detect
-    laplace3x3: function (inData, outData, width, height) {
-        convolve3x3(inData, outData, width, height,
-            [
-                [-1, -1, -1],
-                [-1, 8, -1],
-                [-1, -1, -1]
-            ],
-            false, true, true);
-    },
-
-    // A 5x5 Laplacian edge-detect
-    laplace5x5: function (inData, outData, width, height) {
-        convolve5x5(inData, outData, width, height,
-            [
-                [-1, -1, -1, -1, -1],
-                [-1, -1, -1, -1, -1],
-                [-1, -1, 24, -1, -1],
-                [-1, -1, -1, -1, -1],
-                [-1, -1, -1, -1, -1]
-            ],
-            false, true, true);
-    },
-
-    coloradjust: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {r: 0, g: 0, b: 0});
-        var i, n = width * height * 4,
-            r, g, b,
-            ar = clamp(options.r, -1, 1) * 255,
-            ag = clamp(options.g, -1, 1) * 255,
-            ab = clamp(options.b, -1, 1) * 255;
-
-        for (i = 0; i < n; i += 4) {
-            r = inData[i] + ar;
-            g = inData[i + 1] + ag;
-            b = inData[i + 2] + ab;
-            if (r < 0) {
-                r = 0;
-            }
-            if (g < 0) {
-                g = 0;
-            }
-            if (b < 0) {
-                b = 0;
-            }
-            if (r > 255) {
-                r = 255;
-            }
-            if (g > 255) {
-                g = 255;
-            }
-            if (b > 255) {
-                b = 255;
-            }
-            outData[i] = r;
-            outData[i + 1] = g;
-            outData[i + 2] = b;
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    colorfilter: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {luminosity: false, r: 1, g: 0.5, b: 0});
-        var i, n = width * height * 4,
-            r, g, b,
-            luminosity = !!options.luminosity,
-            min, max, h, l, h1, chroma, tmp, m,
-            ar = clamp(options.r, 0, 1),
-            ag = clamp(options.g, 0, 1),
-            ab = clamp(options.b, 0, 1);
-
-        for (i = 0; i < n; i += 4) {
-            r = inData[i] / 255;
-            g = inData[i + 1] / 255;
-            b = inData[i + 2] / 255;
-
-            l = r * 0.3 + g * 0.59 + b * 0.11;
-
-            r = (r + r * ar) / 2;
-            g = (g + g * ag) / 2;
-            b = (b + b * ab) / 2;
-
-            if (luminosity) {
-                min = max = r;
-                if (g > max) {
-                    max = g;
-                }
-                if (b > max) {
-                    max = b;
-                }
-                if (g < min) {
-                    min = g;
-                }
-                if (b < min) {
-                    min = b;
-                }
-                chroma = (max - min);
-
-                if (r === max) {
-                    h = ((g - b) / chroma) % 6;
-                } else if (g === max) {
-                    h = ((b - r) / chroma) + 2;
-                } else {
-                    h = ((r - g) / chroma) + 4;
-                }
-
-                h1 = h >> 0;
-                tmp = chroma * (h - h1);
-                r = g = b = l - (r * 0.3 + g * 0.59 + b * 0.11);
-
-                if (h1 === 0) {
-                    r += chroma;
-                    g += tmp;
-                } else if (h1 === 1) {
-                    r += chroma - tmp;
-                    g += chroma;
-                } else if (h1 === 2) {
-                    g += chroma;
-                    b += tmp;
-                } else if (h1 === 3) {
-                    g += chroma - tmp;
-                    b += chroma;
-                } else if (h1 === 4) {
-                    r += tmp;
-                    b += chroma;
-                } else if (h1 === 5) {
-                    r += chroma;
-                    b += chroma - tmp;
-                }
-            }
-
-            outData[i] = r * 255;
-            outData[i + 1] = g * 255;
-            outData[i + 2] = b * 255;
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    hsl: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {hue: 0.5, saturation: 0.3, lightness: 0.1});
-        var i, n = width * height * 4,
-            r, g, b,
-            hue = clamp(options.hue, -1, 1),
-            saturation = clamp(options.saturation, -1, 1),
-            lightness = clamp(options.lightness, -1, 1),
-            satMul = 1 + saturation * (saturation < 0 ? 1 : 2),
-            lightMul = lightness < 0 ? 1 + lightness : 1 - lightness,
-            lightAdd = lightness < 0 ? 0 : lightness * 255,
-            vs, ms, vm, h, s, l, v, m, vmh, sextant;
-
-        hue = (hue * 6) % 6;
-
-        for (i = 0; i < n; i += 4) {
-
-            r = inData[i];
-            g = inData[i + 1];
-            b = inData[i + 2];
-
-            if (hue !== 0 || saturation !== 0) {
-                // ok, here comes rgb to hsl + adjust + hsl to rgb, all in one jumbled mess.
-                // It's not so pretty, but it's been optimized to get somewhat decent performance.
-                // The transforms were originally adapted from the ones found in Graphics Gems, but have been heavily modified.
-                vs = r;
-                if (g > vs) {
-                    vs = g;
-                }
-                if (b > vs) {
-                    vs = b;
-                }
-                ms = r;
-                if (g < ms) {
-                    ms = g;
-                }
-                if (b < ms) {
-                    ms = b;
-                }
-                vm = vs - ms;
-                l = (ms + vs) / 510;
-
-                if (l > 0 && vm > 0) {
-                    if (l <= 0.5) {
-                        s = vm / (vs + ms) * satMul;
-                        if (s > 1) {
-                            s = 1;
-                        }
-                        v = (l * (1 + s));
-                    } else {
-                        s = vm / (510 - vs - ms) * satMul;
-                        if (s > 1) {
-                            s = 1;
-                        }
-                        v = (l + s - l * s);
-                    }
-                    if (r === vs) {
-                        if (g === ms) {
-                            h = 5 + ((vs - b) / vm) + hue;
-                        } else {
-                            h = 1 - ((vs - g) / vm) + hue;
-                        }
-                    } else if (g === vs) {
-                        if (b === ms) {
-                            h = 1 + ((vs - r) / vm) + hue;
-                        } else {
-                            h = 3 - ((vs - b) / vm) + hue;
-                        }
-                    } else {
-                        if (r === ms) {
-                            h = 3 + ((vs - g) / vm) + hue;
-                        } else {
-                            h = 5 - ((vs - r) / vm) + hue;
-                        }
-                    }
-                    if (h < 0) {
-                        h += 6;
-                    }
-                    if (h >= 6) {
-                        h -= 6;
-                    }
-                    m = (l + l - v);
-                    sextant = h >> 0;
-                    vmh = (v - m) * (h - sextant);
-                    if (sextant === 0) {
-                        r = v;
-                        g = m + vmh;
-                        b = m;
-                    } else if (sextant === 1) {
-                        r = v - vmh;
-                        g = v;
-                        b = m;
-                    } else if (sextant === 2) {
-                        r = m;
-                        g = v;
-                        b = m + vmh;
-                    } else if (sextant === 3) {
-                        r = m;
-                        g = v - vmh;
-                        b = v;
-                    } else if (sextant === 4) {
-                        r = m + vmh;
-                        g = m;
-                        b = v;
-                    } else if (sextant === 5) {
-                        r = v;
-                        g = m;
-                        b = v - vmh;
-                    }
-
-                    r *= 255;
-                    g *= 255;
-                    b *= 255;
-                }
-            }
-
-            r = r * lightMul + lightAdd;
-            g = g * lightMul + lightAdd;
-            b = b * lightMul + lightAdd;
-
-            if (r < 0) {
-                r = 0;
-            }
-            if (g < 0) {
-                g = 0;
-            }
-            if (b < 0) {
-                b = 0;
-            }
-            if (r > 255) {
-                r = 255;
-            }
-            if (g > 255) {
-                g = 255;
-            }
-            if (b > 255) {
-                b = 255;
-            }
-
-            outData[i] = r;
-            outData[i + 1] = g;
-            outData[i + 2] = b;
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    posterize: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {levels: 5});
-        var i, n = width * height * 4,
-            r, g, b,
-            numLevels = clamp(options.levels, 2, 256),
-            numAreas = 256 / numLevels,
-            numValues = 256 / (numLevels - 1);
-
-        for (i = 0; i < n; i += 4) {
-            outData[i] = numValues * ((inData[i] / numAreas) >> 0);
-            outData[i + 1] = numValues * ((inData[i + 1] / numAreas) >> 0);
-            outData[i + 2] = numValues * ((inData[i + 2] / numAreas) >> 0);
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    removenoise: function (inData, outData, width, height) {
-        var x, y, n = width * height * 4,
-            r, g, b, c, idx,
-            pyc, pyp, pyn,
-            pxc, pxp, pxn,
-            minR, minG, minB, maxR, maxG, maxB;
-
-        for (y = 0; y < height; y += 1) {
-            pyc = y * width * 4;
-            pyp = pyc - width * 4;
-            pyn = pyc + width * 4;
-
-            if (y < 1) {
-                pyp = pyc;
-            }
-            if (y >= width - 1) {
-                pyn = pyc;
-            }
-
-            for (x = 0; x < width; x += 1) {
-                idx = (y * width + x) * 4;
-
-                pxc = x * 4;
-                pxp = pxc - 4;
-                pxn = pxc + 4;
-
-                if (x < 1) {
-                    pxp = pxc;
-                }
-                if (x >= width - 1) {
-                    pxn = pxc;
-                }
-
-                minR = maxR = inData[pyc + pxp];
-                c = inData[pyc + pxn];
-                if (c < minR) {
-                    minR = c;
-                }
-                if (c > maxR) {
-                    maxR = c;
-                }
-                c = inData[pyp + pxc];
-                if (c < minR) {
-                    minR = c;
-                }
-                if (c > maxR) {
-                    maxR = c;
-                }
-                c = inData[pyn + pxc];
-                if (c < minR) {
-                    minR = c;
-                }
-                if (c > maxR) {
-                    maxR = c;
-                }
-
-                minG = inData[pyc + pxp + 1];
-                c = inData[pyc + pxn + 1];
-                if (c < minG) {
-                    minG = c;
-                }
-                c = inData[pyp + pxc + 1];
-                if (c < minG) {
-                    minG = c;
-                }
-                c = inData[pyn + pxc + 1];
-                if (c < minG) {
-                    minG = c;
-                }
-
-                minB = inData[pyc + pxp + 2];
-                c = inData[pyc + pxn + 2];
-                if (c < minB) {
-                    minB = c;
-                }
-                c = inData[pyp + pxc + 2];
-                if (c < minB) {
-                    minB = c;
-                }
-                c = inData[pyn + pxc + 2];
-                if (c < minB) {
-                    minB = c;
-                }
-
-                r = inData[idx];
-                g = inData[idx + 1];
-                b = inData[idx + 2];
-
-                if (r < minR) {
-                    r = minR;
-                }
-                if (r > maxR) {
-                    r = maxR;
-                }
-                if (g < minG) {
-                    g = minG;
-                }
-                if (g > maxG) {
-                    g = maxG;
-                }
-                if (b < minB) {
-                    b = minB;
-                }
-                if (b > maxB) {
-                    b = maxB;
-                }
-
-                outData[idx] = r;
-                outData[idx + 1] = g;
-                outData[idx + 2] = b;
-                outData[idx + 3] = inData[idx + 3];
-            }
-        }
-    },
-
-    mosaic: function (inData, outData, width, height, options) {
-        options = defaultOptions(options, {blockSize: 8});
-        var blockSize = clamp(options.blockSize, 1, Math.max(width, height)),
-            yBlocks = Math.ceil(height / blockSize),
-            xBlocks = Math.ceil(width / blockSize),
-            y0, y1, x0, x1, idx, pidx,
-            i, j, bidx, r, g, b, bi, bj,
-            n = yBlocks * xBlocks,
-            prog, lastProg = 0;
-
-        y0 = 0;
-        bidx = 0;
-        for (i = 0; i < yBlocks; i += 1) {
-            y1 = clamp(y0 + blockSize, 0, height);
-            x0 = 0;
-            for(j = 0; j < xBlocks; j += 1) {
-                x1 = clamp(x0 + blockSize, 0, width);
-
-                idx = (y0 * width + x0) << 2;
-                r = inData[idx];
-                g = inData[idx + 1];
-                b = inData[idx + 2];
-
-                for(bi = y0; bi < y1; bi += 1) {
-                   for(bj = x0; bj < x1; bj += 1) {
-                       pidx = (bi * width + bj) << 2;
-                       outData[pidx] = r;
-                       outData[pidx + 1] = g;
-                       outData[pidx + 2] = b;
-                       outData[pidx + 3] = inData[pidx + 3];
-                   }
-                }
-                x0 = x1;
-                bidx += 1;
-            }
-            y0 = y1;
-        }
-    },
-
-    equalize : function(inData, outData, width, height, options) {
-        var n = width * height, p, i, level, ratio,
-            prog, lastProg;
-        var round = Math.round;
-        // build histogram
-        var pdf = new Array(256);
-        for (i = 0; i < 256; i += 1) {
-            pdf[i] = 0;
-        }
-
-        for (i = 0; i < n; i += 1) {
-            p = i * 4;
-            level = clamp(round(inData[p] * 0.3 + inData[p + 1] * 0.59 + inData[p + 2] * 0.11), 0, 255);
-            outData[p + 3] = level;
-            pdf[level] += 1;
-        }
-
-        // build cdf
-        var cdf = new Array(256);
-        cdf[0] = pdf[0];
-        for(i = 1; i < 256; i += 1) {
-            cdf[i] = cdf[i - 1] + pdf[i];
-        }
-
-        // normalize cdf
-        for(i = 0; i < 256; i += 1) {
-            cdf[i] = cdf[i] / n * 255.0;
-        }
-
-        // map the pixel values
-        for (i = 0; i < n; i += 1) {
-            p = i * 4;
-            level = outData[p + 3];
-            ratio = cdf[level] / (level || 1);
-            outData[p] = clamp(round(inData[p] * ratio), 0, 255);
-            outData[p + 1] = clamp(round(inData[p + 1] * ratio), 0, 255);
-            outData[p + 2] = clamp(round(inData[p + 2] * ratio), 0, 255);
-            outData[p + 3] = inData[p + 3];
-        }
-    },
-
-    luminancebw: function (inData, outData, width, height) {
-        var i, n = width * height * 4,
-            lum;
-
-        for (i = 0; i < n; i += 4) {
-            lum = inData[i] * 0.2125 + inData[i + 1] * 0.7154 + inData[i + 2] * 0.0721;
-            outData[i] = lum;
-            outData[i + 1] = lum;
-            outData[i + 2] = lum;
-            outData[i + 3] = inData[i + 3];
-        }
-    },
-
-    mask: function (inData, outData, width, height, options) {
-        var i, n = width * height * 4,
-            data = options.data;
-
-        // todo: consider the masking image's dimensions and position.
-
-        for (i = 0; i < n; i += 4) {
-            outData[i] = inData[i];
-            outData[i + 1] = inData[i + 1];
-            outData[i + 2] = inData[i + 2];
-            outData[i + 3] = inData[i + 3] * data[i] / 255 * data[i + 3] / 255;
-        }
-    },
-
-    // Distortion filters
-
-    bump: function (inData, outData, width, height, options) {
-        /* options:
-         *  - dx: horizontal offset (in pixels) of the effect.
-         *  - dy: vertical offset (in pixels) of the effect.
-         *  - radius: the radius of the effect in pixels.
-         *  - zoom: the amount of bulge (0.0-1.0).
-         */
-        options = defaultOptions(options, {dx: 0, dy: 0, radius: 0, zoom: 0});
-        var m1 = options.radius;
-        var m2 = clamp(options.zoom, 0, 1);
-        return polar(inData, outData, options.dx, options.dy, width, height, function (d, a) {
-            return [d * smoothstep(0, m2, d / m1), a];
-        });
-    },
-
-    dent: function (inData, outData, width, height, options) {
-        /* options:
-         *  - dx: horizontal offset (in pixels) of the effect.
-         *  - dy: vertical offset (in pixels) of the effect.
-         *  - radius: the radius of the effect in pixels.
-         *  - zoom: the amount of pinch (0.0-1.0).
-         */
-        options = defaultOptions(options, {dx: 0, dy: 0, radius: 0, zoom: 0});
-        var m1 = options.radius;
-        var m2 = clamp(options.zoom, 0, 1);
-        return polar(inData, outData, options.dx, options.dy, width, height, function (d, a) {
-            return [2 * d - d * smoothstep(0, m2, d / m1), a];
-        });
-    },
-
-    pinch: function (inData, outData, width, height, options) {
-        /* options:
-         *  - dx: horizontal offset (in pixels) of the effect.
-         *  - dy: vertical offset (in pixels) of the effect.
-         *  - zoom: the amount of bulge or pinch (-1.0-1.0):
-         */
-        options = defaultOptions(options, {dx: 0, dy: 0, zoom: 0});
-        var m1 = util.distance(0, 0, width, height);
-        var m2 = clamp(options.zoom * 0.75, -0.75, 0.75);
-        return polar(inData, outData, options.dx, options.dy, width, height, function (d, a) {
-            return [d * Math.pow(m1 / d, m2) * (1 - m2), a];
-        });
-    },
-
-    splash: function (inData, outData, width, height, options) {
-        /* options:
-         *  - dx: horizontal offset (in pixels) of the effect.
-         *  - dy: vertical offset (in pixels) of the effect.
-         *  - radius: the radius of the unaffected area in pixels.
-         */
-        options = defaultOptions(options, {dx: 0, dy: 0, radius: 0});
-        var m = options.radius;
-        return polar(inData, outData, options.dx, options.dy, width, height, function (d, a) {
-            return [(d > m)? m : d, a];
-        });
-    },
-
-    twirl: function (inData, outData, width, height, options) {
-        /* options:
-         *  - dx: horizontal offset (in pixels) of the effect.
-         *  - dy: vertical offset (in pixels) of the effect.
-         *  - radius: the radius of the effect in pixels.
-         *  - angle: the amount of rotation in degrees.
-         */
-        options = defaultOptions(options, {dx: 0, dy: 0, radius: 0, angle: 0});
-        var m1 = util.radians(options.angle);
-        var m2 = options.radius;
-        return polar(inData, outData, options.dx, options.dy, width, height, function (d, a) {
-            return [d, a + (1 - smoothstep(-m2, m2, d)) * m1];
-        });
-    }
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
 };
-
-
-// MODULE SUPPORT ///////////////////////////////////////////////////////
-
-module.exports = process;
-
-},{"./util":9,"stackblur":3}],9:[function(require,module,exports){
-'use strict';
-
-// UTILITIES.
-
-function degrees(radians) {
-    return radians * 180 / Math.PI;
-}
-
-function radians(degrees) {
-    return degrees / 180 * Math.PI;
-}
-
-function distance(x0, y0, x1, y1) {
-    return Math.sqrt(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2));
-}
-
-function clamp(val, min, max) {
-    return Math.min(max, Math.max(min, val));
-}
-
-// Basic affine transform functionality.
-function transform(m) {
-    // Identity matrix.
-    if (m === undefined) {
-        m = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-    } else {
-        m = m.slice();
-    }
-
-    // Performs the 3x3 matrix multiplication of the current matrix with the input matrix a.
-    function _mmult(a, m) {
-        m = m.slice();
-
-        var m0 = m[0];
-        var m1 = m[1];
-        var m2 = m[2];
-        var m3 = m[3];
-        var m4 = m[4];
-        var m5 = m[5];
-        var m6 = m[6];
-        var m7 = m[7];
-        var m8 = m[8];
-
-        m[0] = a[0] * m0 + a[1] * m3;
-        m[1] = a[0] * m1 + a[1] * m4;
-        m[3] = a[3] * m0 + a[4] * m3;
-        m[4] = a[3] * m1 + a[4] * m4;
-        m[6] = a[6] * m0 + a[7] * m3 + m6;
-        m[7] = a[6] * m1 + a[7] * m4 + m7;
-
-        return transform(m);
-    }
-
-    return {
-        matrix: function () {
-            return m.slice();
-        },
-
-        clone: function () {
-            return transform(m);
-        },
-
-        prepend: function (t) {
-            if (t.matrix) {
-                t = t.matrix();
-            }
-            return _mmult(m, t);
-        },
-
-        append: function (t) {
-            if (t.matrix) {
-                t = t.matrix();
-            }
-            return _mmult(t, m);
-        },
-
-        translate: function (x, y) {
-            return _mmult([1, 0, 0, 0, 1, 0, x, y, 1], m);
-        },
-
-        scale: function (x, y) {
-            if (y === undefined) {
-                y = x;
-            }
-            return _mmult([x, 0, 0, 0, y, 0, 0, 0, 1], m);
-        },
-
-        skew: function (x, y) {
-            if (y === undefined) {
-                y = x;
-            }
-            var kx = Math.PI * x / 180.0;
-            var ky = Math.PI * y / 180.0;
-            return _mmult([1, Math.tan(ky), 0, -Math.tan(kx), 1, 0, 0, 0, 1], m);
-        },
-
-        rotate: function (angle) {
-            var c = Math.cos(radians(angle));
-            var s = Math.sin(radians(angle));
-            return _mmult([c, s, 0, -s, c, 0, 0, 0, 1], m);
-        },
-
-        transformPoint: function (point) {
-            var x = point.x;
-            var y = point.y;
-            return {x: x * m[0] + y * m[3] + m[6],
-                y: x * m[1] + y * m[4] + m[7]};
-        }
-    };
-}
 
-module.exports = {
-    degrees: degrees,
-    radians: radians,
-    distance: distance,
-    clamp: clamp,
-    transform: transform
+// TODO(shtylman)
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
 };
+process.umask = function() { return 0; };
 
-},{}],10:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 // rev 452
 /********************************************************************************
 *                                                                              *
@@ -12380,11 +8007,11 @@ ClipperLib.JS.PolyTreeToExPolygons = function (polytree)
 
 
 module.exports = ClipperLib;
-},{}],11:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 (function (global){
 /**
  * @license
- * lodash 3.7.0 (Custom Build) <https://lodash.com/>
+ * lodash 3.10.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern -d -o ./index.js`
  * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -12397,7 +8024,7 @@ module.exports = ClipperLib;
   var undefined;
 
   /** Used as the semantic version number. */
-  var VERSION = '3.7.0';
+  var VERSION = '3.10.1';
 
   /** Used to compose bitmasks for wrapper metadata. */
   var BIND_FLAG = 1,
@@ -12418,9 +8045,11 @@ module.exports = ClipperLib;
   var HOT_COUNT = 150,
       HOT_SPAN = 16;
 
+  /** Used as the size to enable large array optimizations. */
+  var LARGE_ARRAY_SIZE = 200;
+
   /** Used to indicate the type of lazy iteratees. */
-  var LAZY_DROP_WHILE_FLAG = 0,
-      LAZY_FILTER_FLAG = 1,
+  var LAZY_FILTER_FLAG = 1,
       LAZY_MAP_FLAG = 2;
 
   /** Used as the `TypeError` message for "Functions" methods. */
@@ -12472,16 +8101,15 @@ module.exports = ClipperLib;
       reInterpolate = /<%=([\s\S]+?)%>/g;
 
   /** Used to match property names within property paths. */
-  var reIsDeepProp = /\.|\[(?:[^[\]]+|(["'])(?:(?!\1)[^\n\\]|\\.)*?)\1\]/,
+  var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\n\\]|\\.)*?\1)\]/,
       reIsPlainProp = /^\w*$/,
       rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\n\\]|\\.)*?)\2)\]/g;
 
   /**
-   * Used to match `RegExp` [special characters](http://www.regular-expressions.info/characters.html#special).
-   * In addition to special characters the forward slash is escaped to allow for
-   * easier `eval` use and `Function` compilation.
+   * Used to match `RegExp` [syntax characters](http://ecma-international.org/ecma-262/6.0/#sec-patterns)
+   * and those outlined by [`EscapeRegExpPattern`](http://ecma-international.org/ecma-262/6.0/#sec-escaperegexppattern).
    */
-  var reRegExpChars = /[.*+?^${}()|[\]\/\\]/g,
+  var reRegExpChars = /^[:!,]|[\\^$.*+?()[\]{}|\/]|(^[0-9a-fA-Fnrtuvx])|([\n\r\u2028\u2029])/g,
       reHasRegExpChars = RegExp(reRegExpChars.source);
 
   /** Used to match [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks). */
@@ -12490,7 +8118,7 @@ module.exports = ClipperLib;
   /** Used to match backslashes in property paths. */
   var reEscapeChar = /\\(\\)?/g;
 
-  /** Used to match [ES template delimiters](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-template-literal-lexical-components). */
+  /** Used to match [ES template delimiters](http://ecma-international.org/ecma-262/6.0/#sec-template-literal-lexical-components). */
   var reEsTemplate = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
 
   /** Used to match `RegExp` flags from their coerced string values. */
@@ -12501,6 +8129,9 @@ module.exports = ClipperLib;
 
   /** Used to detect host constructors (Safari > 5). */
   var reIsHostCtor = /^\[object .+?Constructor\]$/;
+
+  /** Used to detect unsigned integer values. */
+  var reIsUint = /^\d+$/;
 
   /** Used to match latin-1 supplementary letters (excluding mathematical operators). */
   var reLatin1 = /[\xc0-\xd6\xd8-\xde\xdf-\xf6\xf8-\xff]/g;
@@ -12519,26 +8150,13 @@ module.exports = ClipperLib;
     return RegExp(upper + '+(?=' + upper + lower + ')|' + upper + '?' + lower + '|' + upper + '+|[0-9]+', 'g');
   }());
 
-  /** Used to detect and test for whitespace. */
-  var whitespace = (
-    // Basic whitespace characters.
-    ' \t\x0b\f\xa0\ufeff' +
-
-    // Line terminators.
-    '\n\r\u2028\u2029' +
-
-    // Unicode category "Zs" space separators.
-    '\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000'
-  );
-
   /** Used to assign default `context` object properties. */
   var contextProps = [
     'Array', 'ArrayBuffer', 'Date', 'Error', 'Float32Array', 'Float64Array',
     'Function', 'Int8Array', 'Int16Array', 'Int32Array', 'Math', 'Number',
-    'Object', 'RegExp', 'Set', 'String', '_', 'clearTimeout', 'document',
-    'isFinite', 'parseInt', 'setTimeout', 'TypeError', 'Uint8Array',
-    'Uint8ClampedArray', 'Uint16Array', 'Uint32Array', 'WeakMap',
-    'window'
+    'Object', 'RegExp', 'Set', 'String', '_', 'clearTimeout', 'isFinite',
+    'parseFloat', 'parseInt', 'setTimeout', 'TypeError', 'Uint8Array',
+    'Uint8ClampedArray', 'Uint16Array', 'Uint32Array', 'WeakMap'
   ];
 
   /** Used to make template sourceURLs easier to identify. */
@@ -12573,13 +8191,6 @@ module.exports = ClipperLib;
   cloneableTags[errorTag] = cloneableTags[funcTag] =
   cloneableTags[mapTag] = cloneableTags[setTag] =
   cloneableTags[weakMapTag] = false;
-
-  /** Used as an internal `_.debounce` options object by `_.throttle`. */
-  var debounceOptions = {
-    'leading': false,
-    'maxWait': 0,
-    'trailing': false
-  };
 
   /** Used to map latin-1 supplementary letters to basic latin letters. */
   var deburredLetters = {
@@ -12628,6 +8239,15 @@ module.exports = ClipperLib;
     'object': true
   };
 
+  /** Used to escape characters for inclusion in compiled regexes. */
+  var regexpEscapes = {
+    '0': 'x30', '1': 'x31', '2': 'x32', '3': 'x33', '4': 'x34',
+    '5': 'x35', '6': 'x36', '7': 'x37', '8': 'x38', '9': 'x39',
+    'A': 'x41', 'B': 'x42', 'C': 'x43', 'D': 'x44', 'E': 'x45', 'F': 'x46',
+    'a': 'x61', 'b': 'x62', 'c': 'x63', 'd': 'x64', 'e': 'x65', 'f': 'x66',
+    'n': 'x6e', 'r': 'x72', 't': 'x74', 'u': 'x75', 'v': 'x76', 'x': 'x78'
+  };
+
   /** Used to escape characters for inclusion in compiled string literals. */
   var stringEscapes = {
     '\\': '\\',
@@ -12659,7 +8279,7 @@ module.exports = ClipperLib;
   /**
    * Used as a reference to the global object.
    *
-   * The `this` value is used if it is the global object to avoid Greasemonkey's
+   * The `this` value is used if it's the global object to avoid Greasemonkey's
    * restricted `window` object, otherwise the `window` object is used.
    */
   var root = freeGlobal || ((freeWindow !== (this && this.window)) && freeWindow) || freeSelf || this;
@@ -12671,19 +8291,28 @@ module.exports = ClipperLib;
    * sorts them in ascending order without guaranteeing a stable sort.
    *
    * @private
-   * @param {*} value The value to compare to `other`.
-   * @param {*} other The value to compare to `value`.
+   * @param {*} value The value to compare.
+   * @param {*} other The other value to compare.
    * @returns {number} Returns the sort order indicator for `value`.
    */
   function baseCompareAscending(value, other) {
     if (value !== other) {
-      var valIsReflexive = value === value,
+      var valIsNull = value === null,
+          valIsUndef = value === undefined,
+          valIsReflexive = value === value;
+
+      var othIsNull = other === null,
+          othIsUndef = other === undefined,
           othIsReflexive = other === other;
 
-      if (value > other || !valIsReflexive || (value === undefined && othIsReflexive)) {
+      if ((value > other && !othIsNull) || !valIsReflexive ||
+          (valIsNull && !othIsUndef && othIsReflexive) ||
+          (valIsUndef && othIsReflexive)) {
         return 1;
       }
-      if (value < other || !othIsReflexive || (other === undefined && valIsReflexive)) {
+      if ((value < other && !valIsNull) || !othIsReflexive ||
+          (othIsNull && !valIsUndef && valIsReflexive) ||
+          (othIsUndef && valIsReflexive)) {
         return -1;
       }
     }
@@ -12751,7 +8380,7 @@ module.exports = ClipperLib;
   }
 
   /**
-   * Converts `value` to a string if it is not one. An empty string is returned
+   * Converts `value` to a string if it's not one. An empty string is returned
    * for `null` or `undefined` values.
    *
    * @private
@@ -12759,21 +8388,7 @@ module.exports = ClipperLib;
    * @returns {string} Returns the string.
    */
   function baseToString(value) {
-    if (typeof value == 'string') {
-      return value;
-    }
     return value == null ? '' : (value + '');
-  }
-
-  /**
-   * Used by `_.max` and `_.min` as the default callback for string values.
-   *
-   * @private
-   * @param {string} string The string to inspect.
-   * @returns {number} Returns the code unit of the first character of the string.
-   */
-  function charAtCallback(string) {
-    return string.charCodeAt(0);
   }
 
   /**
@@ -12814,8 +8429,8 @@ module.exports = ClipperLib;
    * sort them in ascending order.
    *
    * @private
-   * @param {Object} object The object to compare to `other`.
-   * @param {Object} other The object to compare to `object`.
+   * @param {Object} object The object to compare.
+   * @param {Object} other The other object to compare.
    * @returns {number} Returns the sort order indicator for `object`.
    */
   function compareAscending(object, other) {
@@ -12823,16 +8438,16 @@ module.exports = ClipperLib;
   }
 
   /**
-   * Used by `_.sortByOrder` to compare multiple properties of each element
-   * in a collection and stable sort them in the following order:
+   * Used by `_.sortByOrder` to compare multiple properties of a value to another
+   * and stable sort them.
    *
-   * If `orders` is unspecified, sort in ascending order for all properties.
-   * Otherwise, for each property, sort in ascending order if its corresponding value in
-   * orders is true, and descending order if false.
+   * If `orders` is unspecified, all valuess are sorted in ascending order. Otherwise,
+   * a value is sorted in ascending order if its corresponding order is "asc", and
+   * descending if "desc".
    *
    * @private
-   * @param {Object} object The object to compare to `other`.
-   * @param {Object} other The object to compare to `object`.
+   * @param {Object} object The object to compare.
+   * @param {Object} other The other object to compare.
    * @param {boolean[]} orders The order to sort by for each property.
    * @returns {number} Returns the sort order indicator for `object`.
    */
@@ -12849,7 +8464,8 @@ module.exports = ClipperLib;
         if (index >= ordersLength) {
           return result;
         }
-        return result * (orders[index] ? 1 : -1);
+        var order = orders[index];
+        return result * ((order === 'asc' || order === true) ? 1 : -1);
       }
     }
     // Fixes an `Array#sort` bug in the JS engine embedded in Adobe applications
@@ -12885,8 +8501,25 @@ module.exports = ClipperLib;
   }
 
   /**
-   * Used by `_.template` to escape characters for inclusion in compiled
-   * string literals.
+   * Used by `_.escapeRegExp` to escape characters for inclusion in compiled regexes.
+   *
+   * @private
+   * @param {string} chr The matched character to escape.
+   * @param {string} leadingChar The capture group for a leading character.
+   * @param {string} whitespaceChar The capture group for a whitespace character.
+   * @returns {string} Returns the escaped character.
+   */
+  function escapeRegExpChar(chr, leadingChar, whitespaceChar) {
+    if (leadingChar) {
+      chr = regexpEscapes[chr];
+    } else if (whitespaceChar) {
+      chr = stringEscapes[chr];
+    }
+    return '\\' + chr;
+  }
+
+  /**
+   * Used by `_.template` to escape characters for inclusion in compiled string literals.
    *
    * @private
    * @param {string} chr The matched character to escape.
@@ -13097,9 +8730,6 @@ module.exports = ClipperLib;
         objectProto = Object.prototype,
         stringProto = String.prototype;
 
-    /** Used to detect DOM support. */
-    var document = (document = context.window) && document.document;
-
     /** Used to resolve the decompiled source of functions. */
     var fnToString = Function.prototype.toString;
 
@@ -13110,74 +8740,42 @@ module.exports = ClipperLib;
     var idCounter = 0;
 
     /**
-     * Used to resolve the [`toStringTag`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.prototype.tostring)
+     * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
      * of values.
      */
     var objToString = objectProto.toString;
 
     /** Used to restore the original `_` reference in `_.noConflict`. */
-    var oldDash = context._;
+    var oldDash = root._;
 
     /** Used to detect if a method is native. */
     var reIsNative = RegExp('^' +
-      escapeRegExp(objToString)
-      .replace(/toString|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
+      fnToString.call(hasOwnProperty).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+      .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
     );
 
     /** Native method references. */
-    var ArrayBuffer = isNative(ArrayBuffer = context.ArrayBuffer) && ArrayBuffer,
-        bufferSlice = isNative(bufferSlice = ArrayBuffer && new ArrayBuffer(0).slice) && bufferSlice,
-        ceil = Math.ceil,
+    var ArrayBuffer = context.ArrayBuffer,
         clearTimeout = context.clearTimeout,
-        floor = Math.floor,
-        getOwnPropertySymbols = isNative(getOwnPropertySymbols = Object.getOwnPropertySymbols) && getOwnPropertySymbols,
-        getPrototypeOf = isNative(getPrototypeOf = Object.getPrototypeOf) && getPrototypeOf,
-        push = arrayProto.push,
-        preventExtensions = isNative(Object.preventExtensions = Object.preventExtensions) && preventExtensions,
+        parseFloat = context.parseFloat,
+        pow = Math.pow,
         propertyIsEnumerable = objectProto.propertyIsEnumerable,
-        Set = isNative(Set = context.Set) && Set,
+        Set = getNative(context, 'Set'),
         setTimeout = context.setTimeout,
         splice = arrayProto.splice,
-        Uint8Array = isNative(Uint8Array = context.Uint8Array) && Uint8Array,
-        WeakMap = isNative(WeakMap = context.WeakMap) && WeakMap;
-
-    /** Used to clone array buffers. */
-    var Float64Array = (function() {
-      // Safari 5 errors when using an array buffer to initialize a typed array
-      // where the array buffer's `byteLength` is not a multiple of the typed
-      // array's `BYTES_PER_ELEMENT`.
-      try {
-        var func = isNative(func = context.Float64Array) && func,
-            result = new func(new ArrayBuffer(10), 0, 1) && func;
-      } catch(e) {}
-      return result;
-    }());
-
-    /** Used as `baseAssign`. */
-    var nativeAssign = (function() {
-      // Avoid `Object.assign` in Firefox 34-37 which have an early implementation
-      // with a now defunct try/catch behavior. See https://bugzilla.mozilla.org/show_bug.cgi?id=1103344
-      // for more details.
-      //
-      // Use `Object.preventExtensions` on a plain object instead of simply using
-      // `Object('x')` because Chrome and IE fail to throw an error when attempting
-      // to assign values to readonly indexes of strings in strict mode.
-      var object = { '1': 0 },
-          func = preventExtensions && isNative(func = Object.assign) && func;
-
-      try { func(preventExtensions(object), 'xo'); } catch(e) {}
-      return !object[1] && func;
-    }());
+        Uint8Array = context.Uint8Array,
+        WeakMap = getNative(context, 'WeakMap');
 
     /* Native method references for those with the same name as other `lodash` methods. */
-    var nativeIsArray = isNative(nativeIsArray = Array.isArray) && nativeIsArray,
-        nativeCreate = isNative(nativeCreate = Object.create) && nativeCreate,
+    var nativeCeil = Math.ceil,
+        nativeCreate = getNative(Object, 'create'),
+        nativeFloor = Math.floor,
+        nativeIsArray = getNative(Array, 'isArray'),
         nativeIsFinite = context.isFinite,
-        nativeKeys = isNative(nativeKeys = Object.keys) && nativeKeys,
+        nativeKeys = getNative(Object, 'keys'),
         nativeMax = Math.max,
         nativeMin = Math.min,
-        nativeNow = isNative(nativeNow = Date.now) && nativeNow,
-        nativeNumIsFinite = isNative(nativeNumIsFinite = Number.isFinite) && nativeNumIsFinite,
+        nativeNow = getNative(Date, 'now'),
         nativeParseInt = context.parseInt,
         nativeRandom = Math.random;
 
@@ -13186,18 +8784,15 @@ module.exports = ClipperLib;
         POSITIVE_INFINITY = Number.POSITIVE_INFINITY;
 
     /** Used as references for the maximum length and index of an array. */
-    var MAX_ARRAY_LENGTH = Math.pow(2, 32) - 1,
-        MAX_ARRAY_INDEX =  MAX_ARRAY_LENGTH - 1,
+    var MAX_ARRAY_LENGTH = 4294967295,
+        MAX_ARRAY_INDEX = MAX_ARRAY_LENGTH - 1,
         HALF_MAX_ARRAY_LENGTH = MAX_ARRAY_LENGTH >>> 1;
 
-    /** Used as the size, in bytes, of each `Float64Array` element. */
-    var FLOAT64_BYTES_PER_ELEMENT = Float64Array ? Float64Array.BYTES_PER_ELEMENT : 0;
-
     /**
-     * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
+     * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
      * of an array-like value.
      */
-    var MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
+    var MAX_SAFE_INTEGER = 9007199254740991;
 
     /** Used to store function metadata. */
     var metaMap = WeakMap && new WeakMap;
@@ -13210,15 +8805,16 @@ module.exports = ClipperLib;
     /**
      * Creates a `lodash` object which wraps `value` to enable implicit chaining.
      * Methods that operate on and return arrays, collections, and functions can
-     * be chained together. Methods that return a boolean or single value will
-     * automatically end the chain returning the unwrapped value. Explicit chaining
-     * may be enabled using `_.chain`. The execution of chained methods is lazy,
-     * that is, execution is deferred until `_#value` is implicitly or explicitly
-     * called.
+     * be chained together. Methods that retrieve a single value or may return a
+     * primitive value will automatically end the chain returning the unwrapped
+     * value. Explicit chaining may be enabled using `_.chain`. The execution of
+     * chained methods is lazy, that is, execution is deferred until `_#value`
+     * is implicitly or explicitly called.
      *
      * Lazy evaluation allows several methods to support shortcut fusion. Shortcut
-     * fusion is an optimization that merges iteratees to avoid creating intermediate
-     * arrays and reduce the number of iteratee executions.
+     * fusion is an optimization strategy which merge iteratee calls; this can help
+     * to avoid the creation of intermediate data structures and greatly reduce the
+     * number of iteratee executions.
      *
      * Chaining is supported in custom builds as long as the `_#value` method is
      * directly or indirectly included in the build.
@@ -13241,35 +8837,37 @@ module.exports = ClipperLib;
      * The chainable wrapper methods are:
      * `after`, `ary`, `assign`, `at`, `before`, `bind`, `bindAll`, `bindKey`,
      * `callback`, `chain`, `chunk`, `commit`, `compact`, `concat`, `constant`,
-     * `countBy`, `create`, `curry`, `debounce`, `defaults`, `defer`, `delay`,
-     * `difference`, `drop`, `dropRight`, `dropRightWhile`, `dropWhile`, `fill`,
-     * `filter`, `flatten`, `flattenDeep`, `flow`, `flowRight`, `forEach`,
-     * `forEachRight`, `forIn`, `forInRight`, `forOwn`, `forOwnRight`, `functions`,
-     * `groupBy`, `indexBy`, `initial`, `intersection`, `invert`, `invoke`, `keys`,
-     * `keysIn`, `map`, `mapValues`, `matches`, `matchesProperty`, `memoize`,
-     * `merge`, `mixin`, `negate`, `omit`, `once`, `pairs`, `partial`, `partialRight`,
+     * `countBy`, `create`, `curry`, `debounce`, `defaults`, `defaultsDeep`,
+     * `defer`, `delay`, `difference`, `drop`, `dropRight`, `dropRightWhile`,
+     * `dropWhile`, `fill`, `filter`, `flatten`, `flattenDeep`, `flow`, `flowRight`,
+     * `forEach`, `forEachRight`, `forIn`, `forInRight`, `forOwn`, `forOwnRight`,
+     * `functions`, `groupBy`, `indexBy`, `initial`, `intersection`, `invert`,
+     * `invoke`, `keys`, `keysIn`, `map`, `mapKeys`, `mapValues`, `matches`,
+     * `matchesProperty`, `memoize`, `merge`, `method`, `methodOf`, `mixin`,
+     * `modArgs`, `negate`, `omit`, `once`, `pairs`, `partial`, `partialRight`,
      * `partition`, `pick`, `plant`, `pluck`, `property`, `propertyOf`, `pull`,
-     * `pullAt`, `push`, `range`, `rearg`, `reject`, `remove`, `rest`, `reverse`,
-     * `shuffle`, `slice`, `sort`, `sortBy`, `sortByAll`, `sortByOrder`, `splice`,
-     * `spread`, `take`, `takeRight`, `takeRightWhile`, `takeWhile`, `tap`,
-     * `throttle`, `thru`, `times`, `toArray`, `toPlainObject`, `transform`,
-     * `union`, `uniq`, `unshift`, `unzip`, `values`, `valuesIn`, `where`,
-     * `without`, `wrap`, `xor`, `zip`, and `zipObject`
+     * `pullAt`, `push`, `range`, `rearg`, `reject`, `remove`, `rest`, `restParam`,
+     * `reverse`, `set`, `shuffle`, `slice`, `sort`, `sortBy`, `sortByAll`,
+     * `sortByOrder`, `splice`, `spread`, `take`, `takeRight`, `takeRightWhile`,
+     * `takeWhile`, `tap`, `throttle`, `thru`, `times`, `toArray`, `toPlainObject`,
+     * `transform`, `union`, `uniq`, `unshift`, `unzip`, `unzipWith`, `values`,
+     * `valuesIn`, `where`, `without`, `wrap`, `xor`, `zip`, `zipObject`, `zipWith`
      *
      * The wrapper methods that are **not** chainable by default are:
-     * `add`, `attempt`, `camelCase`, `capitalize`, `clone`, `cloneDeep`, `deburr`,
-     * `endsWith`, `escape`, `escapeRegExp`, `every`, `find`, `findIndex`, `findKey`,
-     * `findLast`, `findLastIndex`, `findLastKey`, `findWhere`, `first`, `has`,
-     * `identity`, `includes`, `indexOf`, `inRange`, `isArguments`, `isArray`,
-     * `isBoolean`, `isDate`, `isElement`, `isEmpty`, `isEqual`, `isError`, `isFinite`
-     * `isFunction`, `isMatch`, `isNative`, `isNaN`, `isNull`, `isNumber`, `isObject`,
-     * `isPlainObject`, `isRegExp`, `isString`, `isUndefined`, `isTypedArray`,
-     * `join`, `kebabCase`, `last`, `lastIndexOf`, `max`, `min`, `noConflict`,
-     * `noop`, `now`, `pad`, `padLeft`, `padRight`, `parseInt`, `pop`, `random`,
-     * `reduce`, `reduceRight`, `repeat`, `result`, `runInContext`, `shift`, `size`,
-     * `snakeCase`, `some`, `sortedIndex`, `sortedLastIndex`, `startCase`, `startsWith`,
-     * `sum`, `template`, `trim`, `trimLeft`, `trimRight`, `trunc`, `unescape`,
-     * `uniqueId`, `value`, and `words`
+     * `add`, `attempt`, `camelCase`, `capitalize`, `ceil`, `clone`, `cloneDeep`,
+     * `deburr`, `endsWith`, `escape`, `escapeRegExp`, `every`, `find`, `findIndex`,
+     * `findKey`, `findLast`, `findLastIndex`, `findLastKey`, `findWhere`, `first`,
+     * `floor`, `get`, `gt`, `gte`, `has`, `identity`, `includes`, `indexOf`,
+     * `inRange`, `isArguments`, `isArray`, `isBoolean`, `isDate`, `isElement`,
+     * `isEmpty`, `isEqual`, `isError`, `isFinite` `isFunction`, `isMatch`,
+     * `isNative`, `isNaN`, `isNull`, `isNumber`, `isObject`, `isPlainObject`,
+     * `isRegExp`, `isString`, `isUndefined`, `isTypedArray`, `join`, `kebabCase`,
+     * `last`, `lastIndexOf`, `lt`, `lte`, `max`, `min`, `noConflict`, `noop`,
+     * `now`, `pad`, `padLeft`, `padRight`, `parseInt`, `pop`, `random`, `reduce`,
+     * `reduceRight`, `repeat`, `result`, `round`, `runInContext`, `shift`, `size`,
+     * `snakeCase`, `some`, `sortedIndex`, `sortedLastIndex`, `startCase`,
+     * `startsWith`, `sum`, `template`, `trim`, `trimLeft`, `trimRight`, `trunc`,
+     * `unescape`, `uniqueId`, `value`, and `words`
      *
      * The wrapper method `sample` will return a wrapped value when `n` is provided,
      * otherwise an unwrapped value is returned.
@@ -13344,63 +8942,6 @@ module.exports = ClipperLib;
      */
     var support = lodash.support = {};
 
-    (function(x) {
-      var Ctor = function() { this.x = x; },
-          object = { '0': x, 'length': x },
-          props = [];
-
-      Ctor.prototype = { 'valueOf': x, 'y': x };
-      for (var key in new Ctor) { props.push(key); }
-
-      /**
-       * Detect if functions can be decompiled by `Function#toString`
-       * (all but Firefox OS certified apps, older Opera mobile browsers, and
-       * the PlayStation 3; forced `false` for Windows 8 apps).
-       *
-       * @memberOf _.support
-       * @type boolean
-       */
-      support.funcDecomp = /\bthis\b/.test(function() { return this; });
-
-      /**
-       * Detect if `Function#name` is supported (all but IE).
-       *
-       * @memberOf _.support
-       * @type boolean
-       */
-      support.funcNames = typeof Function.name == 'string';
-
-      /**
-       * Detect if the DOM is supported.
-       *
-       * @memberOf _.support
-       * @type boolean
-       */
-      try {
-        support.dom = document.createDocumentFragment().nodeType === 11;
-      } catch(e) {
-        support.dom = false;
-      }
-
-      /**
-       * Detect if `arguments` object indexes are non-enumerable.
-       *
-       * In Firefox < 4, IE < 9, PhantomJS, and Safari < 5.1 `arguments` object
-       * indexes are non-enumerable. Chrome < 25 and Node.js < 0.11.0 treat
-       * `arguments` object indexes as non-enumerable and fail `hasOwnProperty`
-       * checks for indexes that exceed the number of function parameters and
-       * whose associated argument values are `0`.
-       *
-       * @memberOf _.support
-       * @type boolean
-       */
-      try {
-        support.nonEnumArgs = !propertyIsEnumerable.call(arguments, 1);
-      } catch(e) {
-        support.nonEnumArgs = true;
-      }
-    }(1, 0));
-
     /**
      * By default, the template delimiters used by lodash are like those in
      * embedded Ruby (ERB). Change the following template settings to use
@@ -13472,13 +9013,12 @@ module.exports = ClipperLib;
      */
     function LazyWrapper(value) {
       this.__wrapped__ = value;
-      this.__actions__ = null;
+      this.__actions__ = [];
       this.__dir__ = 1;
-      this.__dropCount__ = 0;
       this.__filtered__ = false;
-      this.__iteratees__ = null;
+      this.__iteratees__ = [];
       this.__takeCount__ = POSITIVE_INFINITY;
-      this.__views__ = null;
+      this.__views__ = [];
     }
 
     /**
@@ -13490,17 +9030,13 @@ module.exports = ClipperLib;
      * @returns {Object} Returns the cloned `LazyWrapper` object.
      */
     function lazyClone() {
-      var actions = this.__actions__,
-          iteratees = this.__iteratees__,
-          views = this.__views__,
-          result = new LazyWrapper(this.__wrapped__);
-
-      result.__actions__ = actions ? arrayCopy(actions) : null;
+      var result = new LazyWrapper(this.__wrapped__);
+      result.__actions__ = arrayCopy(this.__actions__);
       result.__dir__ = this.__dir__;
       result.__filtered__ = this.__filtered__;
-      result.__iteratees__ = iteratees ? arrayCopy(iteratees) : null;
+      result.__iteratees__ = arrayCopy(this.__iteratees__);
       result.__takeCount__ = this.__takeCount__;
-      result.__views__ = views ? arrayCopy(views) : null;
+      result.__views__ = arrayCopy(this.__views__);
       return result;
     }
 
@@ -13533,22 +9069,25 @@ module.exports = ClipperLib;
      * @returns {*} Returns the unwrapped value.
      */
     function lazyValue() {
-      var array = this.__wrapped__.value();
-      if (!isArray(array)) {
-        return baseWrapperValue(array, this.__actions__);
-      }
-      var dir = this.__dir__,
+      var array = this.__wrapped__.value(),
+          dir = this.__dir__,
+          isArr = isArray(array),
           isRight = dir < 0,
-          view = getView(0, array.length, this.__views__),
+          arrLength = isArr ? array.length : 0,
+          view = getView(0, arrLength, this.__views__),
           start = view.start,
           end = view.end,
           length = end - start,
           index = isRight ? end : (start - 1),
-          takeCount = nativeMin(length, this.__takeCount__),
           iteratees = this.__iteratees__,
-          iterLength = iteratees ? iteratees.length : 0,
+          iterLength = iteratees.length,
           resIndex = 0,
-          result = [];
+          takeCount = nativeMin(length, this.__takeCount__);
+
+      if (!isArr || arrLength < LARGE_ARRAY_SIZE || (arrLength == length && takeCount == length)) {
+        return baseWrapperValue((isRight && isArr) ? array.reverse() : array, this.__actions__);
+      }
+      var result = [];
 
       outer:
       while (length-- && resIndex < takeCount) {
@@ -13560,30 +9099,16 @@ module.exports = ClipperLib;
         while (++iterIndex < iterLength) {
           var data = iteratees[iterIndex],
               iteratee = data.iteratee,
-              type = data.type;
+              type = data.type,
+              computed = iteratee(value);
 
-          if (type == LAZY_DROP_WHILE_FLAG) {
-            if (data.done && (isRight ? (index > data.index) : (index < data.index))) {
-              data.count = 0;
-              data.done = false;
-            }
-            data.index = index;
-            if (!data.done) {
-              var limit = data.limit;
-              if (!(data.done = limit > -1 ? (data.count++ >= limit) : !iteratee(value))) {
-                continue outer;
-              }
-            }
-          } else {
-            var computed = iteratee(value);
-            if (type == LAZY_MAP_FLAG) {
-              value = computed;
-            } else if (!computed) {
-              if (type == LAZY_FILTER_FLAG) {
-                continue outer;
-              } else {
-                break outer;
-              }
+          if (type == LAZY_MAP_FLAG) {
+            value = computed;
+          } else if (!computed) {
+            if (type == LAZY_FILTER_FLAG) {
+              continue outer;
+            } else {
+              break outer;
             }
           }
         }
@@ -13716,6 +9241,30 @@ module.exports = ClipperLib;
     /*------------------------------------------------------------------------*/
 
     /**
+     * Creates a new array joining `array` with `other`.
+     *
+     * @private
+     * @param {Array} array The array to join.
+     * @param {Array} other The other array to join.
+     * @returns {Array} Returns the new concatenated array.
+     */
+    function arrayConcat(array, other) {
+      var index = -1,
+          length = array.length,
+          othIndex = -1,
+          othLength = other.length,
+          result = Array(length + othLength);
+
+      while (++index < length) {
+        result[index] = array[index];
+      }
+      while (++othIndex < othLength) {
+        result[index++] = other[othIndex];
+      }
+      return result;
+    }
+
+    /**
      * Copies the values of `source` to `array`.
      *
      * @private
@@ -13798,6 +9347,35 @@ module.exports = ClipperLib;
     }
 
     /**
+     * A specialized version of `baseExtremum` for arrays which invokes `iteratee`
+     * with one argument: (value).
+     *
+     * @private
+     * @param {Array} array The array to iterate over.
+     * @param {Function} iteratee The function invoked per iteration.
+     * @param {Function} comparator The function used to compare values.
+     * @param {*} exValue The initial extremum value.
+     * @returns {*} Returns the extremum value.
+     */
+    function arrayExtremum(array, iteratee, comparator, exValue) {
+      var index = -1,
+          length = array.length,
+          computed = exValue,
+          result = computed;
+
+      while (++index < length) {
+        var value = array[index],
+            current = +iteratee(value);
+
+        if (comparator(current, computed)) {
+          computed = current;
+          result = value;
+        }
+      }
+      return result;
+    }
+
+    /**
      * A specialized version of `_.filter` for arrays without support for callback
      * shorthands and `this` binding.
      *
@@ -13842,45 +9420,22 @@ module.exports = ClipperLib;
     }
 
     /**
-     * A specialized version of `_.max` for arrays without support for iteratees.
+     * Appends the elements of `values` to `array`.
      *
      * @private
-     * @param {Array} array The array to iterate over.
-     * @returns {*} Returns the maximum value.
+     * @param {Array} array The array to modify.
+     * @param {Array} values The values to append.
+     * @returns {Array} Returns `array`.
      */
-    function arrayMax(array) {
+    function arrayPush(array, values) {
       var index = -1,
-          length = array.length,
-          result = NEGATIVE_INFINITY;
+          length = values.length,
+          offset = array.length;
 
       while (++index < length) {
-        var value = array[index];
-        if (value > result) {
-          result = value;
-        }
+        array[offset + index] = values[index];
       }
-      return result;
-    }
-
-    /**
-     * A specialized version of `_.min` for arrays without support for iteratees.
-     *
-     * @private
-     * @param {Array} array The array to iterate over.
-     * @returns {*} Returns the minimum value.
-     */
-    function arrayMin(array) {
-      var index = -1,
-          length = array.length,
-          result = POSITIVE_INFINITY;
-
-      while (++index < length) {
-        var value = array[index];
-        if (value < result) {
-          result = value;
-        }
-      }
-      return result;
+      return array;
     }
 
     /**
@@ -13954,18 +9509,20 @@ module.exports = ClipperLib;
     }
 
     /**
-     * A specialized version of `_.sum` for arrays without support for iteratees.
+     * A specialized version of `_.sum` for arrays without support for callback
+     * shorthands and `this` binding..
      *
      * @private
      * @param {Array} array The array to iterate over.
+     * @param {Function} iteratee The function invoked per iteration.
      * @returns {number} Returns the sum.
      */
-    function arraySum(array) {
+    function arraySum(array, iteratee) {
       var length = array.length,
           result = 0;
 
       while (length--) {
-        result += +array[length] || 0;
+        result += +iteratee(array[length]) || 0;
       }
       return result;
     }
@@ -14013,10 +9570,8 @@ module.exports = ClipperLib;
      * @returns {Object} Returns `object`.
      */
     function assignWith(object, source, customizer) {
-      var props = keys(source);
-      push.apply(props, getSymbols(source));
-
       var index = -1,
+          props = keys(source),
           length = props.length;
 
       while (++index < length) {
@@ -14041,11 +9596,11 @@ module.exports = ClipperLib;
      * @param {Object} source The source object.
      * @returns {Object} Returns `object`.
      */
-    var baseAssign = nativeAssign || function(object, source) {
+    function baseAssign(object, source) {
       return source == null
         ? object
-        : baseCopy(source, getSymbols(source), baseCopy(source, keys(source), object));
-    };
+        : baseCopy(source, keys(source), object);
+    }
 
     /**
      * The base implementation of `_.at` without support for string collections
@@ -14058,8 +9613,9 @@ module.exports = ClipperLib;
      */
     function baseAt(collection, props) {
       var index = -1,
-          length = collection.length,
-          isArr = isLength(length),
+          isNil = collection == null,
+          isArr = !isNil && isArrayLike(collection),
+          length = isArr ? collection.length : 0,
           propsLength = props.length,
           result = Array(propsLength);
 
@@ -14068,7 +9624,7 @@ module.exports = ClipperLib;
         if (isArr) {
           result[index] = isIndex(key, length) ? collection[key] : undefined;
         } else {
-          result[index] = collection[key];
+          result[index] = isNil ? undefined : collection[key];
         }
       }
       return result;
@@ -14170,7 +9726,7 @@ module.exports = ClipperLib;
             : (object ? value : {});
         }
       }
-      // Check for circular references and return corresponding clone.
+      // Check for circular references and return its corresponding clone.
       stackA || (stackA = []);
       stackB || (stackB = []);
 
@@ -14200,14 +9756,14 @@ module.exports = ClipperLib;
      * @returns {Object} Returns the new object.
      */
     var baseCreate = (function() {
-      function Object() {}
+      function object() {}
       return function(prototype) {
         if (isObject(prototype)) {
-          Object.prototype = prototype;
-          var result = new Object;
-          Object.prototype = null;
+          object.prototype = prototype;
+          var result = new object;
+          object.prototype = undefined;
         }
-        return result || context.Object();
+        return result || {};
       };
     }());
 
@@ -14247,7 +9803,7 @@ module.exports = ClipperLib;
       var index = -1,
           indexOf = getIndexOf(),
           isCommon = indexOf == baseIndexOf,
-          cache = (isCommon && values.length >= 200) ? createCache(values) : null,
+          cache = (isCommon && values.length >= LARGE_ARRAY_SIZE) ? createCache(values) : null,
           valuesLength = values.length;
 
       if (cache) {
@@ -14312,6 +9868,32 @@ module.exports = ClipperLib;
       baseEach(collection, function(value, index, collection) {
         result = !!predicate(value, index, collection);
         return result;
+      });
+      return result;
+    }
+
+    /**
+     * Gets the extremum value of `collection` invoking `iteratee` for each value
+     * in `collection` to generate the criterion by which the value is ranked.
+     * The `iteratee` is invoked with three arguments: (value, index|key, collection).
+     *
+     * @private
+     * @param {Array|Object|string} collection The collection to iterate over.
+     * @param {Function} iteratee The function invoked per iteration.
+     * @param {Function} comparator The function used to compare values.
+     * @param {*} exValue The initial extremum value.
+     * @returns {*} Returns the extremum value.
+     */
+    function baseExtremum(collection, iteratee, comparator, exValue) {
+      var computed = exValue,
+          result = computed;
+
+      baseEach(collection, function(value, index, collection) {
+        var current = +iteratee(value, index, collection);
+        if (comparator(current, computed) || (current === exValue && current === result)) {
+          computed = current;
+          result = value;
+        }
       });
       return result;
     }
@@ -14395,33 +9977,29 @@ module.exports = ClipperLib;
      *
      * @private
      * @param {Array} array The array to flatten.
-     * @param {boolean} isDeep Specify a deep flatten.
-     * @param {boolean} isStrict Restrict flattening to arrays and `arguments` objects.
+     * @param {boolean} [isDeep] Specify a deep flatten.
+     * @param {boolean} [isStrict] Restrict flattening to arrays-like objects.
+     * @param {Array} [result=[]] The initial result value.
      * @returns {Array} Returns the new flattened array.
      */
-    function baseFlatten(array, isDeep, isStrict) {
+    function baseFlatten(array, isDeep, isStrict, result) {
+      result || (result = []);
+
       var index = -1,
-          length = array.length,
-          resIndex = -1,
-          result = [];
+          length = array.length;
 
       while (++index < length) {
         var value = array[index];
-
-        if (isObjectLike(value) && isLength(value.length) && (isArray(value) || isArguments(value))) {
+        if (isObjectLike(value) && isArrayLike(value) &&
+            (isStrict || isArray(value) || isArguments(value))) {
           if (isDeep) {
             // Recursively flatten arrays (susceptible to call stack limits).
-            value = baseFlatten(value, isDeep, isStrict);
-          }
-          var valIndex = -1,
-              valLength = value.length;
-
-          result.length += valLength;
-          while (++valIndex < valLength) {
-            result[++resIndex] = value[valIndex];
+            baseFlatten(value, isDeep, isStrict, result);
+          } else {
+            arrayPush(result, value);
           }
         } else if (!isStrict) {
-          result[++resIndex] = value;
+          result[result.length] = value;
         }
       }
       return result;
@@ -14533,13 +10111,13 @@ module.exports = ClipperLib;
       if (pathKey !== undefined && pathKey in toObject(object)) {
         path = [pathKey];
       }
-      var index = -1,
+      var index = 0,
           length = path.length;
 
-      while (object != null && ++index < length) {
-        var result = object = object[path[index]];
+      while (object != null && index < length) {
+        object = object[path[index++]];
       }
-      return result;
+      return (index && index == length) ? object : undefined;
     }
 
     /**
@@ -14556,18 +10134,10 @@ module.exports = ClipperLib;
      * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
      */
     function baseIsEqual(value, other, customizer, isLoose, stackA, stackB) {
-      // Exit early for identical values.
       if (value === other) {
-        // Treat `+0` vs. `-0` as not equal.
-        return value !== 0 || (1 / value == 1 / other);
+        return true;
       }
-      var valType = typeof value,
-          othType = typeof other;
-
-      // Exit early for unlike primitive values.
-      if ((valType != 'function' && valType != 'object' && othType != 'function' && othType != 'object') ||
-          value == null || other == null) {
-        // Return `false` unless both values are `NaN`.
+      if (value == null || other == null || (!isObject(value) && !isObjectLike(other))) {
         return value !== value && other !== other;
       }
       return baseIsEqualDeep(value, other, baseIsEqual, customizer, isLoose, stackA, stackB);
@@ -14618,11 +10188,11 @@ module.exports = ClipperLib;
         return equalByTag(object, other, objTag);
       }
       if (!isLoose) {
-        var valWrapped = objIsObj && hasOwnProperty.call(object, '__wrapped__'),
-            othWrapped = othIsObj && hasOwnProperty.call(other, '__wrapped__');
+        var objIsWrapped = objIsObj && hasOwnProperty.call(object, '__wrapped__'),
+            othIsWrapped = othIsObj && hasOwnProperty.call(other, '__wrapped__');
 
-        if (valWrapped || othWrapped) {
-          return equalFunc(valWrapped ? object.value() : object, othWrapped ? other.value() : other, customizer, isLoose, stackA, stackB);
+        if (objIsWrapped || othIsWrapped) {
+          return equalFunc(objIsWrapped ? object.value() : object, othIsWrapped ? other.value() : other, customizer, isLoose, stackA, stackB);
         }
       }
       if (!isSameTag) {
@@ -14657,41 +10227,43 @@ module.exports = ClipperLib;
      *
      * @private
      * @param {Object} object The object to inspect.
-     * @param {Array} props The source property names to match.
-     * @param {Array} values The source values to match.
-     * @param {Array} strictCompareFlags Strict comparison flags for source values.
+     * @param {Array} matchData The propery names, values, and compare flags to match.
      * @param {Function} [customizer] The function to customize comparing objects.
      * @returns {boolean} Returns `true` if `object` is a match, else `false`.
      */
-    function baseIsMatch(object, props, values, strictCompareFlags, customizer) {
-      var index = -1,
-          length = props.length,
+    function baseIsMatch(object, matchData, customizer) {
+      var index = matchData.length,
+          length = index,
           noCustomizer = !customizer;
 
-      while (++index < length) {
-        if ((noCustomizer && strictCompareFlags[index])
-              ? values[index] !== object[props[index]]
-              : !(props[index] in object)
+      if (object == null) {
+        return !length;
+      }
+      object = toObject(object);
+      while (index--) {
+        var data = matchData[index];
+        if ((noCustomizer && data[2])
+              ? data[1] !== object[data[0]]
+              : !(data[0] in object)
             ) {
           return false;
         }
       }
-      index = -1;
       while (++index < length) {
-        var key = props[index],
+        data = matchData[index];
+        var key = data[0],
             objValue = object[key],
-            srcValue = values[index];
+            srcValue = data[1];
 
-        if (noCustomizer && strictCompareFlags[index]) {
-          var result = objValue !== undefined || (key in object);
-        } else {
-          result = customizer ? customizer(objValue, srcValue, key) : undefined;
-          if (result === undefined) {
-            result = baseIsEqual(srcValue, objValue, customizer, true);
+        if (noCustomizer && data[2]) {
+          if (objValue === undefined && !(key in object)) {
+            return false;
           }
-        }
-        if (!result) {
-          return false;
+        } else {
+          var result = customizer ? customizer(objValue, srcValue, key) : undefined;
+          if (!(result === undefined ? baseIsEqual(srcValue, objValue, customizer, true) : result)) {
+            return false;
+          }
         }
       }
       return true;
@@ -14708,8 +10280,7 @@ module.exports = ClipperLib;
      */
     function baseMap(collection, iteratee) {
       var index = -1,
-          length = getLength(collection),
-          result = isLength(length) ? Array(length) : [];
+          result = isArrayLike(collection) ? Array(collection.length) : [];
 
       baseEach(collection, function(value, key, collection) {
         result[++index] = iteratee(value, key, collection);
@@ -14725,50 +10296,34 @@ module.exports = ClipperLib;
      * @returns {Function} Returns the new function.
      */
     function baseMatches(source) {
-      var props = keys(source),
-          length = props.length;
+      var matchData = getMatchData(source);
+      if (matchData.length == 1 && matchData[0][2]) {
+        var key = matchData[0][0],
+            value = matchData[0][1];
 
-      if (!length) {
-        return constant(true);
-      }
-      if (length == 1) {
-        var key = props[0],
-            value = source[key];
-
-        if (isStrictComparable(value)) {
-          return function(object) {
-            if (object == null) {
-              return false;
-            }
-            return object[key] === value && (value !== undefined || (key in toObject(object)));
-          };
-        }
-      }
-      var values = Array(length),
-          strictCompareFlags = Array(length);
-
-      while (length--) {
-        value = source[props[length]];
-        values[length] = value;
-        strictCompareFlags[length] = isStrictComparable(value);
+        return function(object) {
+          if (object == null) {
+            return false;
+          }
+          return object[key] === value && (value !== undefined || (key in toObject(object)));
+        };
       }
       return function(object) {
-        return object != null && baseIsMatch(toObject(object), props, values, strictCompareFlags);
+        return baseIsMatch(object, matchData);
       };
     }
 
     /**
-     * The base implementation of `_.matchesProperty` which does not which does
-     * not clone `value`.
+     * The base implementation of `_.matchesProperty` which does not clone `srcValue`.
      *
      * @private
      * @param {string} path The path of the property to get.
-     * @param {*} value The value to compare.
+     * @param {*} srcValue The value to compare.
      * @returns {Function} Returns the new function.
      */
-    function baseMatchesProperty(path, value) {
+    function baseMatchesProperty(path, srcValue) {
       var isArr = isArray(path),
-          isCommon = isKey(path) && isStrictComparable(value),
+          isCommon = isKey(path) && isStrictComparable(srcValue),
           pathKey = (path + '');
 
       path = toPath(path);
@@ -14786,9 +10341,9 @@ module.exports = ClipperLib;
           key = last(path);
           object = toObject(object);
         }
-        return object[key] === value
-          ? (value !== undefined || (key in object))
-          : baseIsEqual(value, object[key], null, true);
+        return object[key] === srcValue
+          ? (srcValue !== undefined || (key in object))
+          : baseIsEqual(srcValue, object[key], undefined, true);
       };
     }
 
@@ -14799,7 +10354,7 @@ module.exports = ClipperLib;
      * @private
      * @param {Object} object The destination object.
      * @param {Object} source The source object.
-     * @param {Function} [customizer] The function to customize merging properties.
+     * @param {Function} [customizer] The function to customize merged values.
      * @param {Array} [stackA=[]] Tracks traversed source objects.
      * @param {Array} [stackB=[]] Associates values with source counterparts.
      * @returns {Object} Returns `object`.
@@ -14808,11 +10363,9 @@ module.exports = ClipperLib;
       if (!isObject(object)) {
         return object;
       }
-      var isSrcArr = isLength(source.length) && (isArray(source) || isTypedArray(source));
-      if (!isSrcArr) {
-        var props = keys(source);
-        push.apply(props, getSymbols(source));
-      }
+      var isSrcArr = isArrayLike(source) && (isArray(source) || isTypedArray(source)),
+          props = isSrcArr ? undefined : keys(source);
+
       arrayEach(props || source, function(srcValue, key) {
         if (props) {
           key = srcValue;
@@ -14831,7 +10384,7 @@ module.exports = ClipperLib;
           if (isCommon) {
             result = srcValue;
           }
-          if ((isSrcArr || result !== undefined) &&
+          if ((result !== undefined || (isSrcArr && !(key in object))) &&
               (isCommon || (result === result ? (result !== value) : (value === value)))) {
             object[key] = result;
           }
@@ -14850,7 +10403,7 @@ module.exports = ClipperLib;
      * @param {Object} source The source object.
      * @param {string} key The key of the value to merge.
      * @param {Function} mergeFunc The function to merge values.
-     * @param {Function} [customizer] The function to customize merging properties.
+     * @param {Function} [customizer] The function to customize merged values.
      * @param {Array} [stackA=[]] Tracks traversed source objects.
      * @param {Array} [stackB=[]] Associates values with source counterparts.
      * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
@@ -14871,10 +10424,10 @@ module.exports = ClipperLib;
 
       if (isCommon) {
         result = srcValue;
-        if (isLength(srcValue.length) && (isArray(srcValue) || isTypedArray(srcValue))) {
+        if (isArrayLike(srcValue) && (isArray(srcValue) || isTypedArray(srcValue))) {
           result = isArray(value)
             ? value
-            : (getLength(value) ? arrayCopy(value) : []);
+            : (isArrayLike(value) ? arrayCopy(value) : []);
         }
         else if (isPlainObject(srcValue) || isArguments(srcValue)) {
           result = isArguments(value)
@@ -14936,9 +10489,9 @@ module.exports = ClipperLib;
      * @returns {Array} Returns `array`.
      */
     function basePullAt(array, indexes) {
-      var length = indexes.length;
+      var length = array ? indexes.length : 0;
       while (length--) {
-        var index = parseFloat(indexes[length]);
+        var index = indexes[length];
         if (index != previous && isIndex(index)) {
           var previous = index;
           splice.call(array, index, 1);
@@ -14957,7 +10510,7 @@ module.exports = ClipperLib;
      * @returns {number} Returns the random number.
      */
     function baseRandom(min, max) {
-      return min + floor(nativeRandom() * (max - min + 1));
+      return min + nativeFloor(nativeRandom() * (max - min + 1));
     }
 
     /**
@@ -15123,7 +10676,7 @@ module.exports = ClipperLib;
           indexOf = getIndexOf(),
           length = array.length,
           isCommon = indexOf == baseIndexOf,
-          isLarge = isCommon && length >= 200,
+          isLarge = isCommon && length >= LARGE_ARRAY_SIZE,
           seen = isLarge ? createCache() : null,
           result = [];
 
@@ -15222,11 +10775,8 @@ module.exports = ClipperLib;
           length = actions.length;
 
       while (++index < length) {
-        var args = [result],
-            action = actions[index];
-
-        push.apply(args, action.args);
-        result = action.func.apply(action.thisArg, args);
+        var action = actions[index];
+        result = action.func.apply(action.thisArg, arrayPush([result], action.args));
       }
       return result;
     }
@@ -15251,7 +10801,7 @@ module.exports = ClipperLib;
           var mid = (low + high) >>> 1,
               computed = array[mid];
 
-          if (retHighest ? (computed <= value) : (computed < value)) {
+          if ((retHighest ? (computed <= value) : (computed < value)) && computed !== null) {
             low = mid + 1;
           } else {
             high = mid;
@@ -15281,17 +10831,23 @@ module.exports = ClipperLib;
       var low = 0,
           high = array ? array.length : 0,
           valIsNaN = value !== value,
+          valIsNull = value === null,
           valIsUndef = value === undefined;
 
       while (low < high) {
-        var mid = floor((low + high) / 2),
+        var mid = nativeFloor((low + high) / 2),
             computed = iteratee(array[mid]),
+            isDef = computed !== undefined,
             isReflexive = computed === computed;
 
         if (valIsNaN) {
           var setLow = isReflexive || retHighest;
+        } else if (valIsNull) {
+          setLow = isReflexive && isDef && (retHighest || computed != null);
         } else if (valIsUndef) {
-          setLow = isReflexive && (retHighest || computed !== undefined);
+          setLow = isReflexive && (retHighest || isDef);
+        } else if (computed == null) {
+          setLow = false;
         } else {
           setLow = retHighest ? (computed <= value) : (computed < value);
         }
@@ -15348,26 +10904,11 @@ module.exports = ClipperLib;
      * @returns {ArrayBuffer} Returns the cloned array buffer.
      */
     function bufferClone(buffer) {
-      return bufferSlice.call(buffer, 0);
-    }
-    if (!bufferSlice) {
-      // PhantomJS has `ArrayBuffer` and `Uint8Array` but not `Float64Array`.
-      bufferClone = !(ArrayBuffer && Uint8Array) ? constant(null) : function(buffer) {
-        var byteLength = buffer.byteLength,
-            floatLength = Float64Array ? floor(byteLength / FLOAT64_BYTES_PER_ELEMENT) : 0,
-            offset = floatLength * FLOAT64_BYTES_PER_ELEMENT,
-            result = new ArrayBuffer(byteLength);
+      var result = new ArrayBuffer(buffer.byteLength),
+          view = new Uint8Array(result);
 
-        if (floatLength) {
-          var view = new Float64Array(result, 0, floatLength);
-          view.set(new Float64Array(buffer, 0, floatLength));
-        }
-        if (byteLength != offset) {
-          view = new Uint8Array(result, offset);
-          view.set(new Uint8Array(buffer, offset));
-        }
-        return result;
-      };
+      view.set(new Uint8Array(buffer));
+      return result;
     }
 
     /**
@@ -15386,7 +10927,7 @@ module.exports = ClipperLib;
           argsLength = nativeMax(args.length - holdersLength, 0),
           leftIndex = -1,
           leftLength = partials.length,
-          result = Array(argsLength + leftLength);
+          result = Array(leftLength + argsLength);
 
       while (++leftIndex < leftLength) {
         result[leftIndex] = partials[leftIndex];
@@ -15422,23 +10963,18 @@ module.exports = ClipperLib;
       while (++argsIndex < argsLength) {
         result[argsIndex] = args[argsIndex];
       }
-      var pad = argsIndex;
+      var offset = argsIndex;
       while (++rightIndex < rightLength) {
-        result[pad + rightIndex] = partials[rightIndex];
+        result[offset + rightIndex] = partials[rightIndex];
       }
       while (++holdersIndex < holdersLength) {
-        result[pad + holders[holdersIndex]] = args[argsIndex++];
+        result[offset + holders[holdersIndex]] = args[argsIndex++];
       }
       return result;
     }
 
     /**
-     * Creates a function that aggregates a collection, creating an accumulator
-     * object composed from the results of running each element in the collection
-     * through an iteratee.
-     *
-     * **Note:** This function is used to create `_.countBy`, `_.groupBy`, `_.indexBy`,
-     * and `_.partition`.
+     * Creates a `_.countBy`, `_.groupBy`, `_.indexBy`, or `_.partition` function.
      *
      * @private
      * @param {Function} setter The function to set keys and values of the accumulator object.
@@ -15468,10 +11004,7 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Creates a function that assigns properties of source object(s) to a given
-     * destination object.
-     *
-     * **Note:** This function is used to create `_.assign`, `_.defaults`, and `_.merge`.
+     * Creates a `_.assign`, `_.defaults`, or `_.merge` function.
      *
      * @private
      * @param {Function} assigner The function to assign values.
@@ -15481,19 +11014,19 @@ module.exports = ClipperLib;
       return restParam(function(object, sources) {
         var index = -1,
             length = object == null ? 0 : sources.length,
-            customizer = length > 2 && sources[length - 2],
-            guard = length > 2 && sources[2],
-            thisArg = length > 1 && sources[length - 1];
+            customizer = length > 2 ? sources[length - 2] : undefined,
+            guard = length > 2 ? sources[2] : undefined,
+            thisArg = length > 1 ? sources[length - 1] : undefined;
 
         if (typeof customizer == 'function') {
           customizer = bindCallback(customizer, thisArg, 5);
           length -= 2;
         } else {
-          customizer = typeof thisArg == 'function' ? thisArg : null;
+          customizer = typeof thisArg == 'function' ? thisArg : undefined;
           length -= (customizer ? 1 : 0);
         }
         if (guard && isIterateeCall(sources[0], sources[1], guard)) {
-          customizer = length < 3 ? null : customizer;
+          customizer = length < 3 ? undefined : customizer;
           length = 1;
         }
         while (++index < length) {
@@ -15582,9 +11115,9 @@ module.exports = ClipperLib;
      * @param {Array} [values] The values to cache.
      * @returns {null|Object} Returns the new cache object if `Set` is supported, else `null`.
      */
-    var createCache = !(nativeCreate && Set) ? constant(null) : function(values) {
-      return new SetCache(values);
-    };
+    function createCache(values) {
+      return (nativeCreate && Set) ? new SetCache(values) : null;
+    }
 
     /**
      * Creates a function that produces compound words out of the words in a
@@ -15618,8 +11151,22 @@ module.exports = ClipperLib;
      */
     function createCtorWrapper(Ctor) {
       return function() {
+        // Use a `switch` statement to work with class constructors.
+        // See http://ecma-international.org/ecma-262/6.0/#sec-ecmascript-function-objects-call-thisargument-argumentslist
+        // for more details.
+        var args = arguments;
+        switch (args.length) {
+          case 0: return new Ctor;
+          case 1: return new Ctor(args[0]);
+          case 2: return new Ctor(args[0], args[1]);
+          case 3: return new Ctor(args[0], args[1], args[2]);
+          case 4: return new Ctor(args[0], args[1], args[2], args[3]);
+          case 5: return new Ctor(args[0], args[1], args[2], args[3], args[4]);
+          case 6: return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5]);
+          case 7: return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        }
         var thisBinding = baseCreate(Ctor.prototype),
-            result = Ctor.apply(thisBinding, arguments);
+            result = Ctor.apply(thisBinding, args);
 
         // Mimic the constructor's `return` behavior.
         // See https://es5.github.io/#x13.2.2 for more details.
@@ -15637,9 +11184,9 @@ module.exports = ClipperLib;
     function createCurry(flag) {
       function curryFunc(func, arity, guard) {
         if (guard && isIterateeCall(func, arity, guard)) {
-          arity = null;
+          arity = undefined;
         }
-        var result = createWrapper(func, flag, null, null, null, null, null, arity);
+        var result = createWrapper(func, flag, undefined, undefined, undefined, undefined, undefined, arity);
         result.placeholder = curryFunc.placeholder;
         return result;
       }
@@ -15647,35 +11194,46 @@ module.exports = ClipperLib;
     }
 
     /**
+     * Creates a `_.defaults` or `_.defaultsDeep` function.
+     *
+     * @private
+     * @param {Function} assigner The function to assign values.
+     * @param {Function} customizer The function to customize assigned values.
+     * @returns {Function} Returns the new defaults function.
+     */
+    function createDefaults(assigner, customizer) {
+      return restParam(function(args) {
+        var object = args[0];
+        if (object == null) {
+          return object;
+        }
+        args.push(customizer);
+        return assigner.apply(undefined, args);
+      });
+    }
+
+    /**
      * Creates a `_.max` or `_.min` function.
      *
      * @private
-     * @param {Function} arrayFunc The function to get the extremum value from an array.
-     * @param {boolean} [isMin] Specify returning the minimum, instead of the maximum,
-     *  extremum value.
+     * @param {Function} comparator The function used to compare values.
+     * @param {*} exValue The initial extremum value.
      * @returns {Function} Returns the new extremum function.
      */
-    function createExtremum(arrayFunc, isMin) {
+    function createExtremum(comparator, exValue) {
       return function(collection, iteratee, thisArg) {
         if (thisArg && isIterateeCall(collection, iteratee, thisArg)) {
-          iteratee = null;
+          iteratee = undefined;
         }
-        var func = getCallback(),
-            noIteratee = iteratee == null;
-
-        if (!(func === baseCallback && noIteratee)) {
-          noIteratee = false;
-          iteratee = func(iteratee, thisArg, 3);
-        }
-        if (noIteratee) {
-          var isArr = isArray(collection);
-          if (!isArr && isString(collection)) {
-            iteratee = charAtCallback;
-          } else {
-            return arrayFunc(isArr ? collection : toIterable(collection));
+        iteratee = getCallback(iteratee, thisArg, 3);
+        if (iteratee.length == 1) {
+          collection = isArray(collection) ? collection : toIterable(collection);
+          var result = arrayExtremum(collection, iteratee, comparator, exValue);
+          if (!(collection.length && result === exValue)) {
+            return result;
           }
         }
-        return extremumBy(collection, iteratee, isMin);
+        return baseExtremum(collection, iteratee, comparator, exValue);
       };
     }
 
@@ -15695,7 +11253,7 @@ module.exports = ClipperLib;
           return index > -1 ? collection[index] : undefined;
         }
         return baseFind(collection, predicate, eachFunc);
-      }
+      };
     }
 
     /**
@@ -15738,11 +11296,8 @@ module.exports = ClipperLib;
      */
     function createFlow(fromRight) {
       return function() {
-        var length = arguments.length;
-        if (!length) {
-          return function() { return arguments[0]; };
-        }
         var wrapper,
+            length = arguments.length,
             index = fromRight ? length : -1,
             leftIndex = 0,
             funcs = Array(length);
@@ -15752,28 +11307,32 @@ module.exports = ClipperLib;
           if (typeof func != 'function') {
             throw new TypeError(FUNC_ERROR_TEXT);
           }
-          var funcName = wrapper ? '' : getFuncName(func);
-          wrapper = funcName == 'wrapper' ? new LodashWrapper([]) : wrapper;
+          if (!wrapper && LodashWrapper.prototype.thru && getFuncName(func) == 'wrapper') {
+            wrapper = new LodashWrapper([], true);
+          }
         }
         index = wrapper ? -1 : length;
         while (++index < length) {
           func = funcs[index];
-          funcName = getFuncName(func);
 
-          var data = funcName == 'wrapper' ? getData(func) : null;
-          if (data && isLaziable(data[0])) {
+          var funcName = getFuncName(func),
+              data = funcName == 'wrapper' ? getData(func) : undefined;
+
+          if (data && isLaziable(data[0]) && data[1] == (ARY_FLAG | CURRY_FLAG | PARTIAL_FLAG | REARG_FLAG) && !data[4].length && data[9] == 1) {
             wrapper = wrapper[getFuncName(data[0])].apply(wrapper, data[3]);
           } else {
             wrapper = (func.length == 1 && isLaziable(func)) ? wrapper[funcName]() : wrapper.thru(func);
           }
         }
         return function() {
-          var args = arguments;
-          if (wrapper && args.length == 1 && isArray(args[0])) {
-            return wrapper.plant(args[0]).value();
+          var args = arguments,
+              value = args[0];
+
+          if (wrapper && args.length == 1 && isArray(value) && value.length >= LARGE_ARRAY_SIZE) {
+            return wrapper.plant(value).value();
           }
           var index = 0,
-              result = funcs[index].apply(this, args);
+              result = length ? funcs[index].apply(this, args) : value;
 
           while (++index < length) {
             result = funcs[index].call(this, result);
@@ -15832,6 +11391,28 @@ module.exports = ClipperLib;
     }
 
     /**
+     * Creates a function for `_.mapKeys` or `_.mapValues`.
+     *
+     * @private
+     * @param {boolean} [isMapKeys] Specify mapping keys instead of values.
+     * @returns {Function} Returns the new map function.
+     */
+    function createObjectMapper(isMapKeys) {
+      return function(object, iteratee, thisArg) {
+        var result = {};
+        iteratee = getCallback(iteratee, thisArg, 3);
+
+        baseForOwn(object, function(value, key, object) {
+          var mapped = iteratee(value, key, object);
+          key = isMapKeys ? mapped : key;
+          value = isMapKeys ? value : mapped;
+          result[key] = value;
+        });
+        return result;
+      };
+    }
+
+    /**
      * Creates a function for `_.padLeft` or `_.padRight`.
      *
      * @private
@@ -15841,7 +11422,7 @@ module.exports = ClipperLib;
     function createPadDir(fromRight) {
       return function(string, length, chars) {
         string = baseToString(string);
-        return string && ((fromRight ? string : '') + createPadding(string, length, chars) + (fromRight ? '' : string));
+        return (fromRight ? string : '') + createPadding(string, length, chars) + (fromRight ? '' : string);
       };
     }
 
@@ -15855,7 +11436,7 @@ module.exports = ClipperLib;
     function createPartial(flag) {
       var partialFunc = restParam(function(func, partials) {
         var holders = replaceHolders(partials, partialFunc.placeholder);
-        return createWrapper(func, flag, null, partials, holders);
+        return createWrapper(func, flag, undefined, partials, holders);
       });
       return partialFunc;
     }
@@ -15900,10 +11481,8 @@ module.exports = ClipperLib;
           isBindKey = bitmask & BIND_KEY_FLAG,
           isCurry = bitmask & CURRY_FLAG,
           isCurryBound = bitmask & CURRY_BOUND_FLAG,
-          isCurryRight = bitmask & CURRY_RIGHT_FLAG;
-
-      var Ctor = !isBindKey && createCtorWrapper(func),
-          key = func;
+          isCurryRight = bitmask & CURRY_RIGHT_FLAG,
+          Ctor = isBindKey ? undefined : createCtorWrapper(func);
 
       function wrapper() {
         // Avoid `arguments` object use disqualifying optimizations by
@@ -15927,12 +11506,12 @@ module.exports = ClipperLib;
 
           length -= argsHolders.length;
           if (length < arity) {
-            var newArgPos = argPos ? arrayCopy(argPos) : null,
+            var newArgPos = argPos ? arrayCopy(argPos) : undefined,
                 newArity = nativeMax(arity - length, 0),
-                newsHolders = isCurry ? argsHolders : null,
-                newHoldersRight = isCurry ? null : argsHolders,
-                newPartials = isCurry ? args : null,
-                newPartialsRight = isCurry ? null : args;
+                newsHolders = isCurry ? argsHolders : undefined,
+                newHoldersRight = isCurry ? undefined : argsHolders,
+                newPartials = isCurry ? args : undefined,
+                newPartialsRight = isCurry ? undefined : args;
 
             bitmask |= (isCurry ? PARTIAL_FLAG : PARTIAL_RIGHT_FLAG);
             bitmask &= ~(isCurry ? PARTIAL_RIGHT_FLAG : PARTIAL_FLAG);
@@ -15950,17 +11529,18 @@ module.exports = ClipperLib;
             return result;
           }
         }
-        var thisBinding = isBind ? thisArg : this;
-        if (isBindKey) {
-          func = thisBinding[key];
-        }
+        var thisBinding = isBind ? thisArg : this,
+            fn = isBindKey ? thisBinding[func] : func;
+
         if (argPos) {
           args = reorder(args, argPos);
         }
         if (isAry && ary < args.length) {
           args.length = ary;
         }
-        var fn = (this && this !== root && this instanceof wrapper) ? (Ctor || createCtorWrapper(func)) : func;
+        if (this && this !== root && this instanceof wrapper) {
+          fn = Ctor || createCtorWrapper(func);
+        }
         return fn.apply(thisBinding, args);
       }
       return wrapper;
@@ -15985,7 +11565,7 @@ module.exports = ClipperLib;
       }
       var padLength = length - strLength;
       chars = chars == null ? ' ' : (chars + '');
-      return repeat(chars, ceil(padLength / chars.length)).slice(0, padLength);
+      return repeat(chars, nativeCeil(padLength / chars.length)).slice(0, padLength);
     }
 
     /**
@@ -16011,7 +11591,7 @@ module.exports = ClipperLib;
             argsLength = arguments.length,
             leftIndex = -1,
             leftLength = partials.length,
-            args = Array(argsLength + leftLength);
+            args = Array(leftLength + argsLength);
 
         while (++leftIndex < leftLength) {
           args[leftIndex] = partials[leftIndex];
@@ -16026,6 +11606,25 @@ module.exports = ClipperLib;
     }
 
     /**
+     * Creates a `_.ceil`, `_.floor`, or `_.round` function.
+     *
+     * @private
+     * @param {string} methodName The name of the `Math` method to use when rounding.
+     * @returns {Function} Returns the new round function.
+     */
+    function createRound(methodName) {
+      var func = Math[methodName];
+      return function(number, precision) {
+        precision = precision === undefined ? 0 : (+precision || 0);
+        if (precision) {
+          precision = pow(10, precision);
+          return func(number * precision) / precision;
+        }
+        return func(number);
+      };
+    }
+
+    /**
      * Creates a `_.sortedIndex` or `_.sortedLastIndex` function.
      *
      * @private
@@ -16034,10 +11633,10 @@ module.exports = ClipperLib;
      */
     function createSortedIndex(retHighest) {
       return function(array, value, iteratee, thisArg) {
-        var func = getCallback(iteratee);
-        return (func === baseCallback && iteratee == null)
+        var callback = getCallback(iteratee);
+        return (iteratee == null && callback === baseCallback)
           ? binaryIndex(array, value, retHighest)
-          : binaryIndexBy(array, value, func(iteratee, thisArg, 1), retHighest);
+          : binaryIndexBy(array, value, callback(iteratee, thisArg, 1), retHighest);
       };
     }
 
@@ -16074,16 +11673,16 @@ module.exports = ClipperLib;
       var length = partials ? partials.length : 0;
       if (!length) {
         bitmask &= ~(PARTIAL_FLAG | PARTIAL_RIGHT_FLAG);
-        partials = holders = null;
+        partials = holders = undefined;
       }
       length -= (holders ? holders.length : 0);
       if (bitmask & PARTIAL_RIGHT_FLAG) {
         var partialsRight = partials,
             holdersRight = holders;
 
-        partials = holders = null;
+        partials = holders = undefined;
       }
-      var data = isBindKey ? null : getData(func),
+      var data = isBindKey ? undefined : getData(func),
           newData = [func, bitmask, thisArg, partials, holders, partialsRight, holdersRight, argPos, ary, arity];
 
       if (data) {
@@ -16123,40 +11722,35 @@ module.exports = ClipperLib;
     function equalArrays(array, other, equalFunc, customizer, isLoose, stackA, stackB) {
       var index = -1,
           arrLength = array.length,
-          othLength = other.length,
-          result = true;
+          othLength = other.length;
 
       if (arrLength != othLength && !(isLoose && othLength > arrLength)) {
         return false;
       }
-      // Deep compare the contents, ignoring non-numeric properties.
-      while (result && ++index < arrLength) {
+      // Ignore non-index properties.
+      while (++index < arrLength) {
         var arrValue = array[index],
-            othValue = other[index];
+            othValue = other[index],
+            result = customizer ? customizer(isLoose ? othValue : arrValue, isLoose ? arrValue : othValue, index) : undefined;
 
-        result = undefined;
-        if (customizer) {
-          result = isLoose
-            ? customizer(othValue, arrValue, index)
-            : customizer(arrValue, othValue, index);
-        }
-        if (result === undefined) {
-          // Recursively compare arrays (susceptible to call stack limits).
-          if (isLoose) {
-            var othIndex = othLength;
-            while (othIndex--) {
-              othValue = other[othIndex];
-              result = (arrValue && arrValue === othValue) || equalFunc(arrValue, othValue, customizer, isLoose, stackA, stackB);
-              if (result) {
-                break;
-              }
-            }
-          } else {
-            result = (arrValue && arrValue === othValue) || equalFunc(arrValue, othValue, customizer, isLoose, stackA, stackB);
+        if (result !== undefined) {
+          if (result) {
+            continue;
           }
+          return false;
+        }
+        // Recursively compare arrays (susceptible to call stack limits).
+        if (isLoose) {
+          if (!arraySome(other, function(othValue) {
+                return arrValue === othValue || equalFunc(arrValue, othValue, customizer, isLoose, stackA, stackB);
+              })) {
+            return false;
+          }
+        } else if (!(arrValue === othValue || equalFunc(arrValue, othValue, customizer, isLoose, stackA, stackB))) {
+          return false;
         }
       }
-      return !!result;
+      return true;
     }
 
     /**
@@ -16167,7 +11761,7 @@ module.exports = ClipperLib;
      * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
      *
      * @private
-     * @param {Object} value The object to compare.
+     * @param {Object} object The object to compare.
      * @param {Object} other The other object to compare.
      * @param {string} tag The `toStringTag` of the objects to compare.
      * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
@@ -16187,8 +11781,7 @@ module.exports = ClipperLib;
           // Treat `NaN` vs. `NaN` as equal.
           return (object != +object)
             ? other != +other
-            // But, treat `-0` vs. `+0` as not equal.
-            : (object == 0 ? ((1 / object) == (1 / other)) : object == +other);
+            : object == +other;
 
         case regexpTag:
         case stringTag:
@@ -16222,29 +11815,22 @@ module.exports = ClipperLib;
       if (objLength != othLength && !isLoose) {
         return false;
       }
-      var skipCtor = isLoose,
-          index = -1;
-
-      while (++index < objLength) {
-        var key = objProps[index],
-            result = isLoose ? key in other : hasOwnProperty.call(other, key);
-
-        if (result) {
-          var objValue = object[key],
-              othValue = other[key];
-
-          result = undefined;
-          if (customizer) {
-            result = isLoose
-              ? customizer(othValue, objValue, key)
-              : customizer(objValue, othValue, key);
-          }
-          if (result === undefined) {
-            // Recursively compare objects (susceptible to call stack limits).
-            result = (objValue && objValue === othValue) || equalFunc(objValue, othValue, customizer, isLoose, stackA, stackB);
-          }
+      var index = objLength;
+      while (index--) {
+        var key = objProps[index];
+        if (!(isLoose ? key in other : hasOwnProperty.call(other, key))) {
+          return false;
         }
-        if (!result) {
+      }
+      var skipCtor = isLoose;
+      while (++index < objLength) {
+        key = objProps[index];
+        var objValue = object[key],
+            othValue = other[key],
+            result = customizer ? customizer(isLoose ? othValue : objValue, isLoose? objValue : othValue, key) : undefined;
+
+        // Recursively compare objects (susceptible to call stack limits).
+        if (!(result === undefined ? equalFunc(objValue, othValue, customizer, isLoose, stackA, stackB) : result)) {
           return false;
         }
         skipCtor || (skipCtor = key == 'constructor');
@@ -16262,34 +11848,6 @@ module.exports = ClipperLib;
         }
       }
       return true;
-    }
-
-    /**
-     * Gets the extremum value of `collection` invoking `iteratee` for each value
-     * in `collection` to generate the criterion by which the value is ranked.
-     * The `iteratee` is invoked with three arguments: (value, index, collection).
-     *
-     * @private
-     * @param {Array|Object|string} collection The collection to iterate over.
-     * @param {Function} iteratee The function invoked per iteration.
-     * @param {boolean} [isMin] Specify returning the minimum, instead of the
-     *  maximum, extremum value.
-     * @returns {*} Returns the extremum value.
-     */
-    function extremumBy(collection, iteratee, isMin) {
-      var exValue = isMin ? POSITIVE_INFINITY : NEGATIVE_INFINITY,
-          computed = exValue,
-          result = computed;
-
-      baseEach(collection, function(value, index, collection) {
-        var current = iteratee(value, index, collection);
-        if ((isMin ? (current < computed) : (current > computed)) ||
-            (current === exValue && current === result)) {
-          computed = current;
-          result = value;
-        }
-      });
-      return result;
     }
 
     /**
@@ -16325,29 +11883,20 @@ module.exports = ClipperLib;
      * @param {Function} func The function to query.
      * @returns {string} Returns the function name.
      */
-    var getFuncName = (function() {
-      if (!support.funcNames) {
-        return constant('');
-      }
-      if (constant.name == 'constant') {
-        return baseProperty('name');
-      }
-      return function(func) {
-        var result = func.name,
-            array = realNames[result],
-            length = array ? array.length : 0;
+    function getFuncName(func) {
+      var result = func.name,
+          array = realNames[result],
+          length = array ? array.length : 0;
 
-        while (length--) {
-          var data = array[length],
-              otherFunc = data.func;
-
-          if (otherFunc == null || otherFunc == func) {
-            return data.name;
-          }
+      while (length--) {
+        var data = array[length],
+            otherFunc = data.func;
+        if (otherFunc == null || otherFunc == func) {
+          return data.name;
         }
-        return result;
-      };
-    }());
+      }
+      return result;
+    }
 
     /**
      * Gets the appropriate "indexOf" function. If the `_.indexOf` method is
@@ -16368,7 +11917,7 @@ module.exports = ClipperLib;
      * Gets the "length" property value of `object`.
      *
      * **Note:** This function is used to avoid a [JIT bug](https://bugs.webkit.org/show_bug.cgi?id=142792)
-     * in Safari on iOS 8.1 ARM64.
+     * that affects Safari on at least iOS 8.1-8.3 ARM64.
      *
      * @private
      * @param {Object} object The object to query.
@@ -16377,15 +11926,34 @@ module.exports = ClipperLib;
     var getLength = baseProperty('length');
 
     /**
-     * Creates an array of the own symbols of `object`.
+     * Gets the propery names, values, and compare flags of `object`.
      *
      * @private
      * @param {Object} object The object to query.
-     * @returns {Array} Returns the array of symbols.
+     * @returns {Array} Returns the match data of `object`.
      */
-    var getSymbols = !getOwnPropertySymbols ? constant([]) : function(object) {
-      return getOwnPropertySymbols(toObject(object));
-    };
+    function getMatchData(object) {
+      var result = pairs(object),
+          length = result.length;
+
+      while (length--) {
+        result[length][2] = isStrictComparable(result[length][1]);
+      }
+      return result;
+    }
+
+    /**
+     * Gets the native function at `key` of `object`.
+     *
+     * @private
+     * @param {Object} object The object to query.
+     * @param {string} key The key of the method to get.
+     * @returns {*} Returns the function if it's native, else `undefined`.
+     */
+    function getNative(object, key) {
+      var value = object == null ? undefined : object[key];
+      return isNative(value) ? value : undefined;
+    }
 
     /**
      * Gets the view, applying any `transforms` to the `start` and `end` positions.
@@ -16393,13 +11961,13 @@ module.exports = ClipperLib;
      * @private
      * @param {number} start The start of the view.
      * @param {number} end The end of the view.
-     * @param {Array} [transforms] The transformations to apply to the view.
+     * @param {Array} transforms The transformations to apply to the view.
      * @returns {Object} Returns an object containing the `start` and `end`
      *  positions of the view.
      */
     function getView(start, end, transforms) {
       var index = -1,
-          length = transforms ? transforms.length : 0;
+          length = transforms.length;
 
       while (++index < length) {
         var data = transforms[index],
@@ -16508,6 +12076,17 @@ module.exports = ClipperLib;
     }
 
     /**
+     * Checks if `value` is array-like.
+     *
+     * @private
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+     */
+    function isArrayLike(value) {
+      return value != null && isLength(getLength(value));
+    }
+
+    /**
      * Checks if `value` is a valid array-like index.
      *
      * @private
@@ -16516,7 +12095,7 @@ module.exports = ClipperLib;
      * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
      */
     function isIndex(value, length) {
-      value = +value;
+      value = (typeof value == 'number' || reIsUint.test(value)) ? +value : -1;
       length = length == null ? MAX_SAFE_INTEGER : length;
       return value > -1 && value % 1 == 0 && value < length;
     }
@@ -16535,13 +12114,9 @@ module.exports = ClipperLib;
         return false;
       }
       var type = typeof index;
-      if (type == 'number') {
-        var length = getLength(object),
-            prereq = isLength(length) && isIndex(index, length);
-      } else {
-        prereq = type == 'string' && index in object;
-      }
-      if (prereq) {
+      if (type == 'number'
+          ? (isArrayLike(object) && isIndex(index, object.length))
+          : (type == 'string' && index in object)) {
         var other = object[index];
         return value === value ? (value === other) : (other !== other);
       }
@@ -16577,13 +12152,21 @@ module.exports = ClipperLib;
      */
     function isLaziable(func) {
       var funcName = getFuncName(func);
-      return !!funcName && func === lodash[funcName] && funcName in LazyWrapper.prototype;
+      if (!(funcName in LazyWrapper.prototype)) {
+        return false;
+      }
+      var other = lodash[funcName];
+      if (func === other) {
+        return true;
+      }
+      var data = getData(other);
+      return !!data && func === data[0];
     }
 
     /**
      * Checks if `value` is a valid array-like length.
      *
-     * **Note:** This function is based on [`ToLength`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength).
+     * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
      *
      * @private
      * @param {*} value The value to check.
@@ -16602,7 +12185,7 @@ module.exports = ClipperLib;
      *  equality comparisons, else `false`.
      */
     function isStrictComparable(value) {
-      return value === value && (value === 0 ? ((1 / value) > 0) : !isObject(value));
+      return value === value && !isObject(value);
     }
 
     /**
@@ -16676,7 +12259,19 @@ module.exports = ClipperLib;
     }
 
     /**
-     * A specialized version of `_.pick` that picks `object` properties specified
+     * Used by `_.defaultsDeep` to customize its `_.merge` use.
+     *
+     * @private
+     * @param {*} objectValue The destination object property value.
+     * @param {*} sourceValue The source object property value.
+     * @returns {*} Returns the value to assign to the destination object.
+     */
+    function mergeDefaults(objectValue, sourceValue) {
+      return objectValue === undefined ? sourceValue : merge(objectValue, sourceValue, mergeDefaults);
+    }
+
+    /**
+     * A specialized version of `_.pick` which picks `object` properties specified
      * by `props`.
      *
      * @private
@@ -16701,7 +12296,7 @@ module.exports = ClipperLib;
     }
 
     /**
-     * A specialized version of `_.pick` that picks `object` properties `predicate`
+     * A specialized version of `_.pick` which picks `object` properties `predicate`
      * returns truthy for.
      *
      * @private
@@ -16775,38 +12370,6 @@ module.exports = ClipperLib;
     }());
 
     /**
-     * A fallback implementation of `_.isPlainObject` which checks if `value`
-     * is an object created by the `Object` constructor or has a `[[Prototype]]`
-     * of `null`.
-     *
-     * @private
-     * @param {*} value The value to check.
-     * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
-     */
-    function shimIsPlainObject(value) {
-      var Ctor,
-          support = lodash.support;
-
-      // Exit early for non `Object` objects.
-      if (!(isObjectLike(value) && objToString.call(value) == objectTag) ||
-          (!hasOwnProperty.call(value, 'constructor') &&
-            (Ctor = value.constructor, typeof Ctor == 'function' && !(Ctor instanceof Ctor)))) {
-        return false;
-      }
-      // IE < 9 iterates inherited properties before own properties. If the first
-      // iterated property is an object's own property then there are no inherited
-      // enumerable properties.
-      var result;
-      // In most environments an object's own properties are iterated before
-      // its inherited properties. If the last iterated property is an object's
-      // own property then there are no inherited enumerable properties.
-      baseForIn(value, function(subValue, key) {
-        result = key;
-      });
-      return result === undefined || hasOwnProperty.call(value, result);
-    }
-
-    /**
      * A fallback implementation of `Object.keys` which creates an array of the
      * own enumerable property names of `object`.
      *
@@ -16817,11 +12380,10 @@ module.exports = ClipperLib;
     function shimKeys(object) {
       var props = keysIn(object),
           propsLength = props.length,
-          length = propsLength && object.length,
-          support = lodash.support;
+          length = propsLength && object.length;
 
-      var allowIndexes = length && isLength(length) &&
-        (isArray(object) || (support.nonEnumArgs && isArguments(object)));
+      var allowIndexes = !!length && isLength(length) &&
+        (isArray(object) || isArguments(object));
 
       var index = -1,
           result = [];
@@ -16836,7 +12398,7 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Converts `value` to an array-like object if it is not one.
+     * Converts `value` to an array-like object if it's not one.
      *
      * @private
      * @param {*} value The value to process.
@@ -16846,14 +12408,14 @@ module.exports = ClipperLib;
       if (value == null) {
         return [];
       }
-      if (!isLength(getLength(value))) {
+      if (!isArrayLike(value)) {
         return values(value);
       }
       return isObject(value) ? value : Object(value);
     }
 
     /**
-     * Converts `value` to an object if it is not one.
+     * Converts `value` to an object if it's not one.
      *
      * @private
      * @param {*} value The value to process.
@@ -16864,7 +12426,7 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Converts `value` to property path array if it is not one.
+     * Converts `value` to property path array if it's not one.
      *
      * @private
      * @param {*} value The value to process.
@@ -16920,12 +12482,12 @@ module.exports = ClipperLib;
       if (guard ? isIterateeCall(array, size, guard) : size == null) {
         size = 1;
       } else {
-        size = nativeMax(+size || 1, 1);
+        size = nativeMax(nativeFloor(size) || 1, 1);
       }
       var index = 0,
           length = array ? array.length : 0,
           resIndex = -1,
-          result = Array(ceil(length / size));
+          result = Array(nativeCeil(length / size));
 
       while (index < length) {
         result[++resIndex] = baseSlice(array, index, (index += size));
@@ -16963,12 +12525,9 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Creates an array excluding all values of the provided arrays using
-     * `SameValueZero` for equality comparisons.
-     *
-     * **Note:** [`SameValueZero`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero)
-     * comparisons are like strict equality comparisons, e.g. `===`, except that
-     * `NaN` matches `NaN`.
+     * Creates an array of unique `array` values not included in the other
+     * provided arrays using [`SameValueZero`](http://ecma-international.org/ecma-262/6.0/#sec-samevaluezero)
+     * for equality comparisons.
      *
      * @static
      * @memberOf _
@@ -16982,7 +12541,7 @@ module.exports = ClipperLib;
      * // => [1, 3]
      */
     var difference = restParam(function(array, values) {
-      return (isArray(array) || isArguments(array))
+      return (isObjectLike(array) && isArrayLike(array))
         ? baseDifference(array, baseFlatten(values, false, true))
         : [];
     });
@@ -17377,13 +12936,10 @@ module.exports = ClipperLib;
 
     /**
      * Gets the index at which the first occurrence of `value` is found in `array`
-     * using `SameValueZero` for equality comparisons. If `fromIndex` is negative,
-     * it is used as the offset from the end of `array`. If `array` is sorted
-     * providing `true` for `fromIndex` performs a faster binary search.
-     *
-     * **Note:** [`SameValueZero`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero)
-     * comparisons are like strict equality comparisons, e.g. `===`, except that
-     * `NaN` matches `NaN`.
+     * using [`SameValueZero`](http://ecma-international.org/ecma-262/6.0/#sec-samevaluezero)
+     * for equality comparisons. If `fromIndex` is negative, it is used as the offset
+     * from the end of `array`. If `array` is sorted providing `true` for `fromIndex`
+     * performs a faster binary search.
      *
      * @static
      * @memberOf _
@@ -17414,10 +12970,9 @@ module.exports = ClipperLib;
       if (typeof fromIndex == 'number') {
         fromIndex = fromIndex < 0 ? nativeMax(length + fromIndex, 0) : fromIndex;
       } else if (fromIndex) {
-        var index = binaryIndex(array, value),
-            other = array[index];
-
-        if (value === value ? (value === other) : (other !== other)) {
+        var index = binaryIndex(array, value);
+        if (index < length &&
+            (value === value ? (value === array[index]) : (array[index] !== array[index]))) {
           return index;
         }
         return -1;
@@ -17443,12 +12998,9 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Creates an array of unique values in all provided arrays using `SameValueZero`
+     * Creates an array of unique values that are included in all of the provided
+     * arrays using [`SameValueZero`](http://ecma-international.org/ecma-262/6.0/#sec-samevaluezero)
      * for equality comparisons.
-     *
-     * **Note:** [`SameValueZero`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero)
-     * comparisons are like strict equality comparisons, e.g. `===`, except that
-     * `NaN` matches `NaN`.
      *
      * @static
      * @memberOf _
@@ -17459,27 +13011,19 @@ module.exports = ClipperLib;
      * _.intersection([1, 2], [4, 2], [2, 1]);
      * // => [2]
      */
-    function intersection() {
-      var args = [],
-          argsIndex = -1,
-          argsLength = arguments.length,
-          caches = [],
+    var intersection = restParam(function(arrays) {
+      var othLength = arrays.length,
+          othIndex = othLength,
+          caches = Array(length),
           indexOf = getIndexOf(),
           isCommon = indexOf == baseIndexOf,
           result = [];
 
-      while (++argsIndex < argsLength) {
-        var value = arguments[argsIndex];
-        if (isArray(value) || isArguments(value)) {
-          args.push(value);
-          caches.push((isCommon && value.length >= 120) ? createCache(argsIndex && value) : null);
-        }
+      while (othIndex--) {
+        var value = arrays[othIndex] = isArrayLike(value = arrays[othIndex]) ? value : [];
+        caches[othIndex] = (isCommon && value.length >= 120) ? createCache(othIndex && value) : null;
       }
-      argsLength = args.length;
-      if (argsLength < 2) {
-        return result;
-      }
-      var array = args[0],
+      var array = arrays[0],
           index = -1,
           length = array ? array.length : 0,
           seen = caches[0];
@@ -17488,10 +13032,10 @@ module.exports = ClipperLib;
       while (++index < length) {
         value = array[index];
         if ((seen ? cacheIndexOf(seen, value) : indexOf(result, value, 0)) < 0) {
-          argsIndex = argsLength;
-          while (--argsIndex) {
-            var cache = caches[argsIndex];
-            if ((cache ? cacheIndexOf(cache, value) : indexOf(args[argsIndex], value, 0)) < 0) {
+          var othIndex = othLength;
+          while (--othIndex) {
+            var cache = caches[othIndex];
+            if ((cache ? cacheIndexOf(cache, value) : indexOf(arrays[othIndex], value, 0)) < 0) {
               continue outer;
             }
           }
@@ -17502,7 +13046,7 @@ module.exports = ClipperLib;
         }
       }
       return result;
-    }
+    });
 
     /**
      * Gets the last element of `array`.
@@ -17575,14 +13119,11 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Removes all provided values from `array` using `SameValueZero` for equality
-     * comparisons.
+     * Removes all provided values from `array` using
+     * [`SameValueZero`](http://ecma-international.org/ecma-262/6.0/#sec-samevaluezero)
+     * for equality comparisons.
      *
-     * **Notes:**
-     *  - Unlike `_.without`, this method mutates `array`
-     *  - [`SameValueZero`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero)
-     *    comparisons are like strict equality comparisons, e.g. `===`, except
-     *    that `NaN` matches `NaN`
+     * **Note:** Unlike `_.without`, this method mutates `array`.
      *
      * @static
      * @memberOf _
@@ -17646,7 +13187,6 @@ module.exports = ClipperLib;
      * // => [10, 20]
      */
     var pullAt = restParam(function(array, indexes) {
-      array || (array = []);
       indexes = baseFlatten(indexes);
 
       var result = baseAt(array, indexes);
@@ -18012,12 +13552,9 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Creates an array of unique values, in order, of the provided arrays using
-     * `SameValueZero` for equality comparisons.
-     *
-     * **Note:** [`SameValueZero`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero)
-     * comparisons are like strict equality comparisons, e.g. `===`, except that
-     * `NaN` matches `NaN`.
+     * Creates an array of unique values, in order, from all of the provided arrays
+     * using [`SameValueZero`](http://ecma-international.org/ecma-262/6.0/#sec-samevaluezero)
+     * for equality comparisons.
      *
      * @static
      * @memberOf _
@@ -18034,8 +13571,9 @@ module.exports = ClipperLib;
     });
 
     /**
-     * Creates a duplicate-free version of an array, using `SameValueZero` for
-     * equality comparisons, in which only the first occurence of each element
+     * Creates a duplicate-free version of an array, using
+     * [`SameValueZero`](http://ecma-international.org/ecma-262/6.0/#sec-samevaluezero)
+     * for equality comparisons, in which only the first occurence of each element
      * is kept. Providing `true` for `isSorted` performs a faster search algorithm
      * for sorted arrays. If an iteratee function is provided it is invoked for
      * each element in the array to generate the criterion by which uniqueness
@@ -18052,10 +13590,6 @@ module.exports = ClipperLib;
      * If an object is provided for `iteratee` the created `_.matches` style
      * callback returns `true` for elements that have the properties of the given
      * object, else `false`.
-     *
-     * **Note:** [`SameValueZero`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero)
-     * comparisons are like strict equality comparisons, e.g. `===`, except that
-     * `NaN` matches `NaN`.
      *
      * @static
      * @memberOf _
@@ -18092,12 +13626,12 @@ module.exports = ClipperLib;
       }
       if (isSorted != null && typeof isSorted != 'boolean') {
         thisArg = iteratee;
-        iteratee = isIterateeCall(array, isSorted, thisArg) ? null : isSorted;
+        iteratee = isIterateeCall(array, isSorted, thisArg) ? undefined : isSorted;
         isSorted = false;
       }
-      var func = getCallback();
-      if (!(func === baseCallback && iteratee == null)) {
-        iteratee = func(iteratee, thisArg, 3);
+      var callback = getCallback();
+      if (!(iteratee == null && callback === baseCallback)) {
+        iteratee = callback(iteratee, thisArg, 3);
       }
       return (isSorted && getIndexOf() == baseIndexOf)
         ? sortedUniq(array, iteratee)
@@ -18106,7 +13640,7 @@ module.exports = ClipperLib;
 
     /**
      * This method is like `_.zip` except that it accepts an array of grouped
-     * elements and creates an array regrouping the elements to their pre-`_.zip`
+     * elements and creates an array regrouping the elements to their pre-zip
      * configuration.
      *
      * @static
@@ -18123,10 +13657,19 @@ module.exports = ClipperLib;
      * // => [['fred', 'barney'], [30, 40], [true, false]]
      */
     function unzip(array) {
+      if (!(array && array.length)) {
+        return [];
+      }
       var index = -1,
-          length = (array && array.length && arrayMax(arrayMap(array, getLength))) >>> 0,
-          result = Array(length);
+          length = 0;
 
+      array = arrayFilter(array, function(group) {
+        if (isArrayLike(group)) {
+          length = nativeMax(group.length, length);
+          return true;
+        }
+      });
+      var result = Array(length);
       while (++index < length) {
         result[index] = arrayMap(array, baseProperty(index));
       }
@@ -18134,12 +13677,44 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Creates an array excluding all provided values using `SameValueZero` for
-     * equality comparisons.
+     * This method is like `_.unzip` except that it accepts an iteratee to specify
+     * how regrouped values should be combined. The `iteratee` is bound to `thisArg`
+     * and invoked with four arguments: (accumulator, value, index, group).
      *
-     * **Note:** [`SameValueZero`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero)
-     * comparisons are like strict equality comparisons, e.g. `===`, except that
-     * `NaN` matches `NaN`.
+     * @static
+     * @memberOf _
+     * @category Array
+     * @param {Array} array The array of grouped elements to process.
+     * @param {Function} [iteratee] The function to combine regrouped values.
+     * @param {*} [thisArg] The `this` binding of `iteratee`.
+     * @returns {Array} Returns the new array of regrouped elements.
+     * @example
+     *
+     * var zipped = _.zip([1, 2], [10, 20], [100, 200]);
+     * // => [[1, 10, 100], [2, 20, 200]]
+     *
+     * _.unzipWith(zipped, _.add);
+     * // => [3, 30, 300]
+     */
+    function unzipWith(array, iteratee, thisArg) {
+      var length = array ? array.length : 0;
+      if (!length) {
+        return [];
+      }
+      var result = unzip(array);
+      if (iteratee == null) {
+        return result;
+      }
+      iteratee = bindCallback(iteratee, thisArg, 4);
+      return arrayMap(result, function(group) {
+        return arrayReduce(group, iteratee, undefined, true);
+      });
+    }
+
+    /**
+     * Creates an array excluding all provided values using
+     * [`SameValueZero`](http://ecma-international.org/ecma-262/6.0/#sec-samevaluezero)
+     * for equality comparisons.
      *
      * @static
      * @memberOf _
@@ -18153,13 +13728,13 @@ module.exports = ClipperLib;
      * // => [3]
      */
     var without = restParam(function(array, values) {
-      return (isArray(array) || isArguments(array))
+      return isArrayLike(array)
         ? baseDifference(array, values)
         : [];
     });
 
     /**
-     * Creates an array that is the [symmetric difference](https://en.wikipedia.org/wiki/Symmetric_difference)
+     * Creates an array of unique values that is the [symmetric difference](https://en.wikipedia.org/wiki/Symmetric_difference)
      * of the provided arrays.
      *
      * @static
@@ -18178,9 +13753,9 @@ module.exports = ClipperLib;
 
       while (++index < length) {
         var array = arguments[index];
-        if (isArray(array) || isArguments(array)) {
+        if (isArrayLike(array)) {
           var result = result
-            ? baseDifference(result, array).concat(baseDifference(array, result))
+            ? arrayPush(baseDifference(result, array), baseDifference(array, result))
             : array;
         }
       }
@@ -18243,6 +13818,38 @@ module.exports = ClipperLib;
       }
       return result;
     }
+
+    /**
+     * This method is like `_.zip` except that it accepts an iteratee to specify
+     * how grouped values should be combined. The `iteratee` is bound to `thisArg`
+     * and invoked with four arguments: (accumulator, value, index, group).
+     *
+     * @static
+     * @memberOf _
+     * @category Array
+     * @param {...Array} [arrays] The arrays to process.
+     * @param {Function} [iteratee] The function to combine grouped values.
+     * @param {*} [thisArg] The `this` binding of `iteratee`.
+     * @returns {Array} Returns the new array of grouped elements.
+     * @example
+     *
+     * _.zipWith([1, 2], [10, 20], [100, 200], _.add);
+     * // => [111, 222]
+     */
+    var zipWith = restParam(function(arrays) {
+      var length = arrays.length,
+          iteratee = length > 2 ? arrays[length - 2] : undefined,
+          thisArg = length > 1 ? arrays[length - 1] : undefined;
+
+      if (length > 2 && typeof iteratee == 'function') {
+        length -= 2;
+      } else {
+        iteratee = (length > 1 && typeof thisArg == 'function') ? (--length, thisArg) : undefined;
+        thisArg = undefined;
+      }
+      arrays.length = length;
+      return unzipWith(arrays, iteratee, thisArg);
+    });
 
     /*------------------------------------------------------------------------*/
 
@@ -18370,16 +13977,16 @@ module.exports = ClipperLib;
      * @example
      *
      * var array = [1, 2];
-     * var wrapper = _(array).push(3);
+     * var wrapped = _(array).push(3);
      *
      * console.log(array);
      * // => [1, 2]
      *
-     * wrapper = wrapper.commit();
+     * wrapped = wrapped.commit();
      * console.log(array);
      * // => [1, 2, 3]
      *
-     * wrapper.last();
+     * wrapped.last();
      * // => 3
      *
      * console.log(array);
@@ -18388,6 +13995,33 @@ module.exports = ClipperLib;
     function wrapperCommit() {
       return new LodashWrapper(this.value(), this.__chain__);
     }
+
+    /**
+     * Creates a new array joining a wrapped array with any additional arrays
+     * and/or values.
+     *
+     * @name concat
+     * @memberOf _
+     * @category Chain
+     * @param {...*} [values] The values to concatenate.
+     * @returns {Array} Returns the new concatenated array.
+     * @example
+     *
+     * var array = [1];
+     * var wrapped = _(array).concat(2, [3], [[4]]);
+     *
+     * console.log(wrapped.value());
+     * // => [1, 2, 3, [4]]
+     *
+     * console.log(array);
+     * // => [1]
+     */
+    var wrapperConcat = restParam(function(values) {
+      values = baseFlatten(values);
+      return this.thru(function(array) {
+        return arrayConcat(isArray(array) ? array : [toObject(array)], values);
+      });
+    });
 
     /**
      * Creates a clone of the chained sequence planting `value` as the wrapped value.
@@ -18399,17 +14033,17 @@ module.exports = ClipperLib;
      * @example
      *
      * var array = [1, 2];
-     * var wrapper = _(array).map(function(value) {
+     * var wrapped = _(array).map(function(value) {
      *   return Math.pow(value, 2);
      * });
      *
      * var other = [3, 4];
-     * var otherWrapper = wrapper.plant(other);
+     * var otherWrapped = wrapped.plant(other);
      *
-     * otherWrapper.value();
+     * otherWrapped.value();
      * // => [9, 16]
      *
-     * wrapper.value();
+     * wrapped.value();
      * // => [1, 4]
      */
     function wrapperPlant(value) {
@@ -18452,15 +14086,20 @@ module.exports = ClipperLib;
      */
     function wrapperReverse() {
       var value = this.__wrapped__;
+
+      var interceptor = function(value) {
+        return (wrapped && wrapped.__dir__ < 0) ? value : value.reverse();
+      };
       if (value instanceof LazyWrapper) {
+        var wrapped = value;
         if (this.__actions__.length) {
-          value = new LazyWrapper(this);
+          wrapped = new LazyWrapper(this);
         }
-        return new LodashWrapper(value.reverse(), this.__chain__);
+        wrapped = wrapped.reverse();
+        wrapped.__actions__.push({ 'func': thru, 'args': [interceptor], 'thisArg': undefined });
+        return new LodashWrapper(wrapped, this.__chain__);
       }
-      return this.thru(function(value) {
-        return value.reverse();
-      });
+      return this.thru(interceptor);
     }
 
     /**
@@ -18519,10 +14158,6 @@ module.exports = ClipperLib;
      * // => ['barney', 'pebbles']
      */
     var at = restParam(function(collection, props) {
-      var length = collection ? getLength(collection) : 0;
-      if (isLength(length)) {
-        collection = toIterable(collection);
-      }
       return baseAt(collection, baseFlatten(props));
     });
 
@@ -18622,7 +14257,7 @@ module.exports = ClipperLib;
     function every(collection, predicate, thisArg) {
       var func = isArray(collection) ? arrayEvery : baseEvery;
       if (thisArg && isIterateeCall(collection, predicate, thisArg)) {
-        predicate = null;
+        predicate = undefined;
       }
       if (typeof predicate != 'function' || thisArg !== undefined) {
         predicate = getCallback(predicate, thisArg, 3);
@@ -18895,13 +14530,10 @@ module.exports = ClipperLib;
     });
 
     /**
-     * Checks if `value` is in `collection` using `SameValueZero` for equality
-     * comparisons. If `fromIndex` is negative, it is used as the offset from
-     * the end of `collection`.
-     *
-     * **Note:** [`SameValueZero`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-samevaluezero)
-     * comparisons are like strict equality comparisons, e.g. `===`, except that
-     * `NaN` matches `NaN`.
+     * Checks if `value` is in `collection` using
+     * [`SameValueZero`](http://ecma-international.org/ecma-262/6.0/#sec-samevaluezero)
+     * for equality comparisons. If `fromIndex` is negative, it is used as the offset
+     * from the end of `collection`.
      *
      * @static
      * @memberOf _
@@ -18932,17 +14564,14 @@ module.exports = ClipperLib;
         collection = values(collection);
         length = collection.length;
       }
-      if (!length) {
-        return false;
-      }
       if (typeof fromIndex != 'number' || (guard && isIterateeCall(target, fromIndex, guard))) {
         fromIndex = 0;
       } else {
         fromIndex = fromIndex < 0 ? nativeMax(length + fromIndex, 0) : (fromIndex || 0);
       }
       return (typeof collection == 'string' || !isArray(collection) && isString(collection))
-        ? (fromIndex < length && collection.indexOf(target, fromIndex) > -1)
-        : (getIndexOf(collection, target, fromIndex) > -1);
+        ? (fromIndex <= length && collection.indexOf(target, fromIndex) > -1)
+        : (!!length && getIndexOf(collection, target, fromIndex) > -1);
     }
 
     /**
@@ -18996,7 +14625,7 @@ module.exports = ClipperLib;
     });
 
     /**
-     * Invokes the method at `path` on each element in `collection`, returning
+     * Invokes the method at `path` of each element in `collection`, returning
      * an array of the results of each invoked method. Any additional arguments
      * are provided to each invoked method. If `methodName` is a function it is
      * invoked for, and `this` bound to, each element in `collection`.
@@ -19021,11 +14650,10 @@ module.exports = ClipperLib;
       var index = -1,
           isFunc = typeof path == 'function',
           isProp = isKey(path),
-          length = getLength(collection),
-          result = isLength(length) ? Array(length) : [];
+          result = isArrayLike(collection) ? Array(collection.length) : [];
 
       baseEach(collection, function(value) {
-        var func = isFunc ? path : (isProp && value != null && value[path]);
+        var func = isFunc ? path : ((isProp && value != null) ? value[path] : undefined);
         result[++index] = func ? func.apply(value, args) : invokePath(value, path, args);
       });
       return result;
@@ -19047,14 +14675,15 @@ module.exports = ClipperLib;
      * callback returns `true` for elements that have the properties of the given
      * object, else `false`.
      *
-     * Many lodash methods are guarded to work as interatees for methods like
+     * Many lodash methods are guarded to work as iteratees for methods like
      * `_.every`, `_.filter`, `_.map`, `_.mapValues`, `_.reject`, and `_.some`.
      *
      * The guarded methods are:
-     * `ary`, `callback`, `chunk`, `clone`, `create`, `curry`, `curryRight`, `drop`,
-     * `dropRight`, `every`, `fill`, `flatten`, `invert`, `max`, `min`, `parseInt`,
-     * `slice`, `sortBy`, `take`, `takeRight`, `template`, `trim`, `trimLeft`,
-     * `trimRight`, `trunc`, `random`, `range`, `sample`, `some`, `uniq`, and `words`
+     * `ary`, `callback`, `chunk`, `clone`, `create`, `curry`, `curryRight`,
+     * `drop`, `dropRight`, `every`, `fill`, `flatten`, `invert`, `max`, `min`,
+     * `parseInt`, `slice`, `sortBy`, `take`, `takeRight`, `template`, `trim`,
+     * `trimLeft`, `trimRight`, `trunc`, `random`, `range`, `sample`, `some`,
+     * `sum`, `uniq`, and `words`
      *
      * @static
      * @memberOf _
@@ -19190,11 +14819,12 @@ module.exports = ClipperLib;
      * value. The `iteratee` is bound to `thisArg` and invoked with four arguments:
      * (accumulator, value, index|key, collection).
      *
-     * Many lodash methods are guarded to work as interatees for methods like
+     * Many lodash methods are guarded to work as iteratees for methods like
      * `_.reduce`, `_.reduceRight`, and `_.transform`.
      *
      * The guarded methods are:
-     * `assign`, `defaults`, `includes`, `merge`, `sortByAll`, and `sortByOrder`
+     * `assign`, `defaults`, `defaultsDeep`, `includes`, `merge`, `sortByAll`,
+     * and `sortByOrder`
      *
      * @static
      * @memberOf _
@@ -19242,22 +14872,11 @@ module.exports = ClipperLib;
      * }, []);
      * // => [4, 5, 2, 3, 0, 1]
      */
-    var reduceRight =  createReduce(arrayReduceRight, baseEachRight);
+    var reduceRight = createReduce(arrayReduceRight, baseEachRight);
 
     /**
      * The opposite of `_.filter`; this method returns the elements of `collection`
      * that `predicate` does **not** return truthy for.
-     *
-     * If a property name is provided for `predicate` the created `_.property`
-     * style callback returns the property value of the given element.
-     *
-     * If a value is also provided for `thisArg` the created `_.matchesProperty`
-     * style callback returns `true` for elements that have a matching property
-     * value, else `false`.
-     *
-     * If an object is provided for `predicate` the created `_.matches` style
-     * callback returns `true` for elements that have the properties of the given
-     * object, else `false`.
      *
      * @static
      * @memberOf _
@@ -19323,8 +14942,20 @@ module.exports = ClipperLib;
         var length = collection.length;
         return length > 0 ? collection[baseRandom(0, length - 1)] : undefined;
       }
-      var result = shuffle(collection);
-      result.length = nativeMin(n < 0 ? 0 : (+n || 0), result.length);
+      var index = -1,
+          result = toArray(collection),
+          length = result.length,
+          lastIndex = length - 1;
+
+      n = nativeMin(n < 0 ? 0 : (+n || 0), length);
+      while (++index < n) {
+        var rand = baseRandom(index, lastIndex),
+            value = result[rand];
+
+        result[rand] = result[index];
+        result[index] = value;
+      }
+      result.length = n;
       return result;
     }
 
@@ -19343,20 +14974,7 @@ module.exports = ClipperLib;
      * // => [4, 1, 3, 2]
      */
     function shuffle(collection) {
-      collection = toIterable(collection);
-
-      var index = -1,
-          length = collection.length,
-          result = Array(length);
-
-      while (++index < length) {
-        var rand = baseRandom(0, index);
-        if (index != rand) {
-          result[index] = result[rand];
-        }
-        result[rand] = collection[index];
-      }
-      return result;
+      return sample(collection, POSITIVE_INFINITY);
     }
 
     /**
@@ -19436,7 +15054,7 @@ module.exports = ClipperLib;
     function some(collection, predicate, thisArg) {
       var func = isArray(collection) ? arraySome : baseSome;
       if (thisArg && isIterateeCall(collection, predicate, thisArg)) {
-        predicate = null;
+        predicate = undefined;
       }
       if (typeof predicate != 'function' || thisArg !== undefined) {
         predicate = getCallback(predicate, thisArg, 3);
@@ -19497,7 +15115,7 @@ module.exports = ClipperLib;
         return [];
       }
       if (thisArg && isIterateeCall(collection, iteratee, thisArg)) {
-        iteratee = null;
+        iteratee = undefined;
       }
       var index = -1;
       iteratee = getCallback(iteratee, thisArg, 3);
@@ -19556,9 +15174,9 @@ module.exports = ClipperLib;
 
     /**
      * This method is like `_.sortByAll` except that it allows specifying the
-     * sort orders of the iteratees to sort by. A truthy value in `orders` will
-     * sort the corresponding property name in ascending order while a falsey
-     * value will sort it in descending order.
+     * sort orders of the iteratees to sort by. If `orders` is unspecified, all
+     * values are sorted in ascending order. Otherwise, a value is sorted in
+     * ascending order if its corresponding order is "asc", and descending if "desc".
      *
      * If a property name is provided for an iteratee the created `_.property`
      * style callback returns the property value of the given element.
@@ -19572,7 +15190,7 @@ module.exports = ClipperLib;
      * @category Collection
      * @param {Array|Object|string} collection The collection to iterate over.
      * @param {Function[]|Object[]|string[]} iteratees The iteratees to sort by.
-     * @param {boolean[]} orders The sort orders of `iteratees`.
+     * @param {boolean[]} [orders] The sort orders of `iteratees`.
      * @param- {Object} [guard] Enables use as a callback for functions like `_.reduce`.
      * @returns {Array} Returns the new sorted array.
      * @example
@@ -19585,7 +15203,7 @@ module.exports = ClipperLib;
      * ];
      *
      * // sort by `user` in ascending order and by `age` in descending order
-     * _.map(_.sortByOrder(users, ['user', 'age'], [true, false]), _.values);
+     * _.map(_.sortByOrder(users, ['user', 'age'], ['asc', 'desc']), _.values);
      * // => [['barney', 36], ['barney', 34], ['fred', 48], ['fred', 42]]
      */
     function sortByOrder(collection, iteratees, orders, guard) {
@@ -19593,7 +15211,7 @@ module.exports = ClipperLib;
         return [];
       }
       if (guard && isIterateeCall(iteratees, orders, guard)) {
-        orders = null;
+        orders = undefined;
       }
       if (!isArray(iteratees)) {
         iteratees = iteratees == null ? [] : [iteratees];
@@ -19718,10 +15336,10 @@ module.exports = ClipperLib;
      */
     function ary(func, n, guard) {
       if (guard && isIterateeCall(func, n, guard)) {
-        n = null;
+        n = undefined;
       }
       n = (func && n == null) ? func.length : nativeMax(+n || 0, 0);
-      return createWrapper(func, ARY_FLAG, null, null, null, null, n);
+      return createWrapper(func, ARY_FLAG, undefined, undefined, undefined, undefined, n);
     }
 
     /**
@@ -19756,7 +15374,7 @@ module.exports = ClipperLib;
           result = func.apply(this, arguments);
         }
         if (n <= 1) {
-          func = null;
+          func = undefined;
         }
         return result;
       };
@@ -19982,12 +15600,13 @@ module.exports = ClipperLib;
     var curryRight = createCurry(CURRY_RIGHT_FLAG);
 
     /**
-     * Creates a function that delays invoking `func` until after `wait` milliseconds
-     * have elapsed since the last time it was invoked. The created function comes
-     * with a `cancel` method to cancel delayed invocations. Provide an options
-     * object to indicate that `func` should be invoked on the leading and/or
-     * trailing edge of the `wait` timeout. Subsequent calls to the debounced
-     * function return the result of the last `func` invocation.
+     * Creates a debounced function that delays invoking `func` until after `wait`
+     * milliseconds have elapsed since the last time the debounced function was
+     * invoked. The debounced function comes with a `cancel` method to cancel
+     * delayed invocations. Provide an options object to indicate that `func`
+     * should be invoked on the leading and/or trailing edge of the `wait` timeout.
+     * Subsequent calls to the debounced function return the result of the last
+     * `func` invocation.
      *
      * **Note:** If `leading` and `trailing` options are `true`, `func` is invoked
      * on the trailing edge of the timeout only if the the debounced function is
@@ -20063,9 +15682,9 @@ module.exports = ClipperLib;
         var leading = true;
         trailing = false;
       } else if (isObject(options)) {
-        leading = options.leading;
+        leading = !!options.leading;
         maxWait = 'maxWait' in options && nativeMax(+options.maxWait || 0, wait);
-        trailing = 'trailing' in options ? options.trailing : trailing;
+        trailing = 'trailing' in options ? !!options.trailing : trailing;
       }
 
       function cancel() {
@@ -20075,41 +15694,35 @@ module.exports = ClipperLib;
         if (maxTimeoutId) {
           clearTimeout(maxTimeoutId);
         }
+        lastCalled = 0;
         maxTimeoutId = timeoutId = trailingCall = undefined;
+      }
+
+      function complete(isCalled, id) {
+        if (id) {
+          clearTimeout(id);
+        }
+        maxTimeoutId = timeoutId = trailingCall = undefined;
+        if (isCalled) {
+          lastCalled = now();
+          result = func.apply(thisArg, args);
+          if (!timeoutId && !maxTimeoutId) {
+            args = thisArg = undefined;
+          }
+        }
       }
 
       function delayed() {
         var remaining = wait - (now() - stamp);
         if (remaining <= 0 || remaining > wait) {
-          if (maxTimeoutId) {
-            clearTimeout(maxTimeoutId);
-          }
-          var isCalled = trailingCall;
-          maxTimeoutId = timeoutId = trailingCall = undefined;
-          if (isCalled) {
-            lastCalled = now();
-            result = func.apply(thisArg, args);
-            if (!timeoutId && !maxTimeoutId) {
-              args = thisArg = null;
-            }
-          }
+          complete(trailingCall, maxTimeoutId);
         } else {
           timeoutId = setTimeout(delayed, remaining);
         }
       }
 
       function maxDelayed() {
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        maxTimeoutId = timeoutId = trailingCall = undefined;
-        if (trailing || (maxWait !== wait)) {
-          lastCalled = now();
-          result = func.apply(thisArg, args);
-          if (!timeoutId && !maxTimeoutId) {
-            args = thisArg = null;
-          }
-        }
+        complete(trailing, timeoutId);
       }
 
       function debounced() {
@@ -20149,7 +15762,7 @@ module.exports = ClipperLib;
           result = func.apply(thisArg, args);
         }
         if (isCalled && !timeoutId && !maxTimeoutId) {
-          args = thisArg = null;
+          args = thisArg = undefined;
         }
         return result;
       }
@@ -20254,7 +15867,7 @@ module.exports = ClipperLib;
      *
      * **Note:** The cache is exposed as the `cache` property on the memoized
      * function. Its creation may be customized by replacing the `_.memoize.Cache`
-     * constructor with one whose instances implement the [`Map`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-properties-of-the-map-prototype-object)
+     * constructor with one whose instances implement the [`Map`](http://ecma-international.org/ecma-262/6.0/#sec-properties-of-the-map-prototype-object)
      * method interface of `get`, `has`, and `set`.
      *
      * @static
@@ -20301,19 +15914,65 @@ module.exports = ClipperLib;
       }
       var memoized = function() {
         var args = arguments,
-            cache = memoized.cache,
-            key = resolver ? resolver.apply(this, args) : args[0];
+            key = resolver ? resolver.apply(this, args) : args[0],
+            cache = memoized.cache;
 
         if (cache.has(key)) {
           return cache.get(key);
         }
         var result = func.apply(this, args);
-        cache.set(key, result);
+        memoized.cache = cache.set(key, result);
         return result;
       };
       memoized.cache = new memoize.Cache;
       return memoized;
     }
+
+    /**
+     * Creates a function that runs each argument through a corresponding
+     * transform function.
+     *
+     * @static
+     * @memberOf _
+     * @category Function
+     * @param {Function} func The function to wrap.
+     * @param {...(Function|Function[])} [transforms] The functions to transform
+     * arguments, specified as individual functions or arrays of functions.
+     * @returns {Function} Returns the new function.
+     * @example
+     *
+     * function doubled(n) {
+     *   return n * 2;
+     * }
+     *
+     * function square(n) {
+     *   return n * n;
+     * }
+     *
+     * var modded = _.modArgs(function(x, y) {
+     *   return [x, y];
+     * }, square, doubled);
+     *
+     * modded(1, 2);
+     * // => [1, 4]
+     *
+     * modded(5, 10);
+     * // => [25, 20]
+     */
+    var modArgs = restParam(function(func, transforms) {
+      transforms = baseFlatten(transforms);
+      if (typeof func != 'function' || !arrayEvery(transforms, baseIsFunction)) {
+        throw new TypeError(FUNC_ERROR_TEXT);
+      }
+      var length = transforms.length;
+      return restParam(function(args) {
+        var index = nativeMin(args.length, length);
+        while (index--) {
+          args[index] = transforms[index](args[index]);
+        }
+        return func.apply(this, args);
+      });
+    });
 
     /**
      * Creates a function that negates the result of the predicate `func`. The
@@ -20460,7 +16119,7 @@ module.exports = ClipperLib;
      * // => [3, 6, 9]
      */
     var rearg = restParam(function(func, indexes) {
-      return createWrapper(func, REARG_FLAG, null, null, null, baseFlatten(indexes));
+      return createWrapper(func, REARG_FLAG, undefined, undefined, undefined, baseFlatten(indexes));
     });
 
     /**
@@ -20555,12 +16214,12 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Creates a function that only invokes `func` at most once per every `wait`
-     * milliseconds. The created function comes with a `cancel` method to cancel
-     * delayed invocations. Provide an options object to indicate that `func`
-     * should be invoked on the leading and/or trailing edge of the `wait` timeout.
-     * Subsequent calls to the throttled function return the result of the last
-     * `func` call.
+     * Creates a throttled function that only invokes `func` at most once per
+     * every `wait` milliseconds. The throttled function comes with a `cancel`
+     * method to cancel delayed invocations. Provide an options object to indicate
+     * that `func` should be invoked on the leading and/or trailing edge of the
+     * `wait` timeout. Subsequent calls to the throttled function return the
+     * result of the last `func` call.
      *
      * **Note:** If `leading` and `trailing` options are `true`, `func` is invoked
      * on the trailing edge of the timeout only if the the throttled function is
@@ -20606,10 +16265,7 @@ module.exports = ClipperLib;
         leading = 'leading' in options ? !!options.leading : leading;
         trailing = 'trailing' in options ? !!options.trailing : trailing;
       }
-      debounceOptions.leading = leading;
-      debounceOptions.maxWait = +wait;
-      debounceOptions.trailing = trailing;
-      return debounce(func, wait, debounceOptions);
+      return debounce(func, wait, { 'leading': leading, 'maxWait': +wait, 'trailing': trailing });
     }
 
     /**
@@ -20635,7 +16291,7 @@ module.exports = ClipperLib;
      */
     function wrap(value, wrapper) {
       wrapper = wrapper == null ? identity : wrapper;
-      return createWrapper(wrapper, PARTIAL_FLAG, null, [value], []);
+      return createWrapper(wrapper, PARTIAL_FLAG, undefined, [value], []);
     }
 
     /*------------------------------------------------------------------------*/
@@ -20700,8 +16356,9 @@ module.exports = ClipperLib;
         customizer = isDeep;
         isDeep = false;
       }
-      customizer = typeof customizer == 'function' && bindCallback(customizer, thisArg, 1);
-      return baseClone(value, isDeep, customizer);
+      return typeof customizer == 'function'
+        ? baseClone(value, isDeep, bindCallback(customizer, thisArg, 1))
+        : baseClone(value, isDeep);
     }
 
     /**
@@ -20750,8 +16407,57 @@ module.exports = ClipperLib;
      * // => 20
      */
     function cloneDeep(value, customizer, thisArg) {
-      customizer = typeof customizer == 'function' && bindCallback(customizer, thisArg, 1);
-      return baseClone(value, true, customizer);
+      return typeof customizer == 'function'
+        ? baseClone(value, true, bindCallback(customizer, thisArg, 1))
+        : baseClone(value, true);
+    }
+
+    /**
+     * Checks if `value` is greater than `other`.
+     *
+     * @static
+     * @memberOf _
+     * @category Lang
+     * @param {*} value The value to compare.
+     * @param {*} other The other value to compare.
+     * @returns {boolean} Returns `true` if `value` is greater than `other`, else `false`.
+     * @example
+     *
+     * _.gt(3, 1);
+     * // => true
+     *
+     * _.gt(3, 3);
+     * // => false
+     *
+     * _.gt(1, 3);
+     * // => false
+     */
+    function gt(value, other) {
+      return value > other;
+    }
+
+    /**
+     * Checks if `value` is greater than or equal to `other`.
+     *
+     * @static
+     * @memberOf _
+     * @category Lang
+     * @param {*} value The value to compare.
+     * @param {*} other The other value to compare.
+     * @returns {boolean} Returns `true` if `value` is greater than or equal to `other`, else `false`.
+     * @example
+     *
+     * _.gte(3, 1);
+     * // => true
+     *
+     * _.gte(3, 3);
+     * // => true
+     *
+     * _.gte(1, 3);
+     * // => false
+     */
+    function gte(value, other) {
+      return value >= other;
     }
 
     /**
@@ -20771,8 +16477,8 @@ module.exports = ClipperLib;
      * // => false
      */
     function isArguments(value) {
-      var length = isObjectLike(value) ? value.length : undefined;
-      return isLength(length) && objToString.call(value) == argsTag;
+      return isObjectLike(value) && isArrayLike(value) &&
+        hasOwnProperty.call(value, 'callee') && !propertyIsEnumerable.call(value, 'callee');
     }
 
     /**
@@ -20852,14 +16558,7 @@ module.exports = ClipperLib;
      * // => false
      */
     function isElement(value) {
-      return !!value && value.nodeType === 1 && isObjectLike(value) &&
-        (objToString.call(value).indexOf('Element') > -1);
-    }
-    // Fallback for environments without DOM support.
-    if (!support.dom) {
-      isElement = function(value) {
-        return !!value && value.nodeType === 1 && isObjectLike(value) && !isPlainObject(value);
-      };
+      return !!value && value.nodeType === 1 && isObjectLike(value) && !isPlainObject(value);
     }
 
     /**
@@ -20893,10 +16592,9 @@ module.exports = ClipperLib;
       if (value == null) {
         return true;
       }
-      var length = getLength(value);
-      if (isLength(length) && (isArray(value) || isString(value) || isArguments(value) ||
+      if (isArrayLike(value) && (isArray(value) || isString(value) || isArguments(value) ||
           (isObjectLike(value) && isFunction(value.splice)))) {
-        return !length;
+        return !value.length;
       }
       return !keys(value).length;
     }
@@ -20916,6 +16614,7 @@ module.exports = ClipperLib;
      *
      * @static
      * @memberOf _
+     * @alias eq
      * @category Lang
      * @param {*} value The value to compare.
      * @param {*} other The other value to compare.
@@ -20945,12 +16644,9 @@ module.exports = ClipperLib;
      * // => true
      */
     function isEqual(value, other, customizer, thisArg) {
-      customizer = typeof customizer == 'function' && bindCallback(customizer, thisArg, 3);
-      if (!customizer && isStrictComparable(value) && isStrictComparable(other)) {
-        return value === other;
-      }
+      customizer = typeof customizer == 'function' ? bindCallback(customizer, thisArg, 3) : undefined;
       var result = customizer ? customizer(value, other) : undefined;
-      return result === undefined ? baseIsEqual(value, other, customizer) : !!result;
+      return  result === undefined ? baseIsEqual(value, other, customizer) : !!result;
     }
 
     /**
@@ -20977,7 +16673,7 @@ module.exports = ClipperLib;
     /**
      * Checks if `value` is a finite primitive number.
      *
-     * **Note:** This method is based on [`Number.isFinite`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.isfinite).
+     * **Note:** This method is based on [`Number.isFinite`](http://ecma-international.org/ecma-262/6.0/#sec-number.isfinite).
      *
      * @static
      * @memberOf _
@@ -21001,9 +16697,9 @@ module.exports = ClipperLib;
      * _.isFinite(Infinity);
      * // => false
      */
-    var isFinite = nativeNumIsFinite || function(value) {
+    function isFinite(value) {
       return typeof value == 'number' && nativeIsFinite(value);
-    };
+    }
 
     /**
      * Checks if `value` is classified as a `Function` object.
@@ -21021,12 +16717,12 @@ module.exports = ClipperLib;
      * _.isFunction(/abc/);
      * // => false
      */
-    var isFunction = !(baseIsFunction(/x/) || (Uint8Array && !baseIsFunction(Uint8Array))) ? baseIsFunction : function(value) {
+    function isFunction(value) {
       // The use of `Object#toString` avoids issues with the `typeof` operator
       // in older versions of Chrome and Safari which return 'function' for regexes
       // and Safari 8 equivalents which return 'object' for typed array constructors.
-      return objToString.call(value) == funcTag;
-    };
+      return isObject(value) && objToString.call(value) == funcTag;
+    }
 
     /**
      * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
@@ -21052,7 +16748,7 @@ module.exports = ClipperLib;
       // Avoid a V8 JIT bug in Chrome 19-20.
       // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
       var type = typeof value;
-      return type == 'function' || (!!value && type == 'object');
+      return !!value && (type == 'object' || type == 'function');
     }
 
     /**
@@ -21095,33 +16791,8 @@ module.exports = ClipperLib;
      * // => true
      */
     function isMatch(object, source, customizer, thisArg) {
-      var props = keys(source),
-          length = props.length;
-
-      if (!length) {
-        return true;
-      }
-      if (object == null) {
-        return false;
-      }
-      customizer = typeof customizer == 'function' && bindCallback(customizer, thisArg, 3);
-      object = toObject(object);
-      if (!customizer && length == 1) {
-        var key = props[0],
-            value = source[key];
-
-        if (isStrictComparable(value)) {
-          return value === object[key] && (value !== undefined || (key in object));
-        }
-      }
-      var values = Array(length),
-          strictCompareFlags = Array(length);
-
-      while (length--) {
-        value = values[length] = source[props[length]];
-        strictCompareFlags[length] = isStrictComparable(value);
-      }
-      return baseIsMatch(object, props, values, strictCompareFlags, customizer);
+      customizer = typeof customizer == 'function' ? bindCallback(customizer, thisArg, 3) : undefined;
+      return baseIsMatch(object, getMatchData(source), customizer);
     }
 
     /**
@@ -21175,7 +16846,7 @@ module.exports = ClipperLib;
       if (value == null) {
         return false;
       }
-      if (objToString.call(value) == funcTag) {
+      if (isFunction(value)) {
         return reIsNative.test(fnToString.call(value));
       }
       return isObjectLike(value) && reIsHostCtor.test(value);
@@ -21257,17 +16928,26 @@ module.exports = ClipperLib;
      * _.isPlainObject(Object.create(null));
      * // => true
      */
-    var isPlainObject = !getPrototypeOf ? shimIsPlainObject : function(value) {
-      if (!(value && objToString.call(value) == objectTag)) {
+    function isPlainObject(value) {
+      var Ctor;
+
+      // Exit early for non `Object` objects.
+      if (!(isObjectLike(value) && objToString.call(value) == objectTag && !isArguments(value)) ||
+          (!hasOwnProperty.call(value, 'constructor') && (Ctor = value.constructor, typeof Ctor == 'function' && !(Ctor instanceof Ctor)))) {
         return false;
       }
-      var valueOf = value.valueOf,
-          objProto = isNative(valueOf) && (objProto = getPrototypeOf(valueOf)) && getPrototypeOf(objProto);
-
-      return objProto
-        ? (value == objProto || getPrototypeOf(value) == objProto)
-        : shimIsPlainObject(value);
-    };
+      // IE < 9 iterates inherited properties before own properties. If the first
+      // iterated property is an object's own property then there are no inherited
+      // enumerable properties.
+      var result;
+      // In most environments an object's own properties are iterated before
+      // its inherited properties. If the last iterated property is an object's
+      // own property then there are no inherited enumerable properties.
+      baseForIn(value, function(subValue, key) {
+        result = key;
+      });
+      return result === undefined || hasOwnProperty.call(value, result);
+    }
 
     /**
      * Checks if `value` is classified as a `RegExp` object.
@@ -21286,7 +16966,7 @@ module.exports = ClipperLib;
      * // => false
      */
     function isRegExp(value) {
-      return (isObjectLike(value) && objToString.call(value) == regexpTag) || false;
+      return isObject(value) && objToString.call(value) == regexpTag;
     }
 
     /**
@@ -21350,6 +17030,54 @@ module.exports = ClipperLib;
     }
 
     /**
+     * Checks if `value` is less than `other`.
+     *
+     * @static
+     * @memberOf _
+     * @category Lang
+     * @param {*} value The value to compare.
+     * @param {*} other The other value to compare.
+     * @returns {boolean} Returns `true` if `value` is less than `other`, else `false`.
+     * @example
+     *
+     * _.lt(1, 3);
+     * // => true
+     *
+     * _.lt(3, 3);
+     * // => false
+     *
+     * _.lt(3, 1);
+     * // => false
+     */
+    function lt(value, other) {
+      return value < other;
+    }
+
+    /**
+     * Checks if `value` is less than or equal to `other`.
+     *
+     * @static
+     * @memberOf _
+     * @category Lang
+     * @param {*} value The value to compare.
+     * @param {*} other The other value to compare.
+     * @returns {boolean} Returns `true` if `value` is less than or equal to `other`, else `false`.
+     * @example
+     *
+     * _.lte(1, 3);
+     * // => true
+     *
+     * _.lte(3, 3);
+     * // => true
+     *
+     * _.lte(3, 1);
+     * // => false
+     */
+    function lte(value, other) {
+      return value <= other;
+    }
+
+    /**
      * Converts `value` to an array.
      *
      * @static
@@ -21405,6 +17133,56 @@ module.exports = ClipperLib;
     /*------------------------------------------------------------------------*/
 
     /**
+     * Recursively merges own enumerable properties of the source object(s), that
+     * don't resolve to `undefined` into the destination object. Subsequent sources
+     * overwrite property assignments of previous sources. If `customizer` is
+     * provided it is invoked to produce the merged values of the destination and
+     * source properties. If `customizer` returns `undefined` merging is handled
+     * by the method instead. The `customizer` is bound to `thisArg` and invoked
+     * with five arguments: (objectValue, sourceValue, key, object, source).
+     *
+     * @static
+     * @memberOf _
+     * @category Object
+     * @param {Object} object The destination object.
+     * @param {...Object} [sources] The source objects.
+     * @param {Function} [customizer] The function to customize assigned values.
+     * @param {*} [thisArg] The `this` binding of `customizer`.
+     * @returns {Object} Returns `object`.
+     * @example
+     *
+     * var users = {
+     *   'data': [{ 'user': 'barney' }, { 'user': 'fred' }]
+     * };
+     *
+     * var ages = {
+     *   'data': [{ 'age': 36 }, { 'age': 40 }]
+     * };
+     *
+     * _.merge(users, ages);
+     * // => { 'data': [{ 'user': 'barney', 'age': 36 }, { 'user': 'fred', 'age': 40 }] }
+     *
+     * // using a customizer callback
+     * var object = {
+     *   'fruits': ['apple'],
+     *   'vegetables': ['beet']
+     * };
+     *
+     * var other = {
+     *   'fruits': ['banana'],
+     *   'vegetables': ['carrot']
+     * };
+     *
+     * _.merge(object, other, function(a, b) {
+     *   if (_.isArray(a)) {
+     *     return a.concat(b);
+     *   }
+     * });
+     * // => { 'fruits': ['apple', 'banana'], 'vegetables': ['beet', 'carrot'] }
+     */
+    var merge = createAssigner(baseMerge);
+
+    /**
      * Assigns own enumerable properties of source object(s) to the destination
      * object. Subsequent sources overwrite property assignments of previous sources.
      * If `customizer` is provided it is invoked to produce the assigned values.
@@ -21412,8 +17190,7 @@ module.exports = ClipperLib;
      * (objectValue, sourceValue, key, object, source).
      *
      * **Note:** This method mutates `object` and is based on
-     * [`Object.assign`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.assign).
-     *
+     * [`Object.assign`](http://ecma-international.org/ecma-262/6.0/#sec-object.assign).
      *
      * @static
      * @memberOf _
@@ -21480,7 +17257,7 @@ module.exports = ClipperLib;
     function create(prototype, properties, guard) {
       var result = baseCreate(prototype);
       if (guard && isIterateeCall(prototype, properties, guard)) {
-        properties = null;
+        properties = undefined;
       }
       return properties ? baseAssign(result, properties) : result;
     }
@@ -21503,14 +17280,27 @@ module.exports = ClipperLib;
      * _.defaults({ 'user': 'barney' }, { 'age': 36 }, { 'user': 'fred' });
      * // => { 'user': 'barney', 'age': 36 }
      */
-    var defaults = restParam(function(args) {
-      var object = args[0];
-      if (object == null) {
-        return object;
-      }
-      args.push(assignDefaults);
-      return assign.apply(undefined, args);
-    });
+    var defaults = createDefaults(assign, assignDefaults);
+
+    /**
+     * This method is like `_.defaults` except that it recursively assigns
+     * default properties.
+     *
+     * **Note:** This method mutates `object`.
+     *
+     * @static
+     * @memberOf _
+     * @category Object
+     * @param {Object} object The destination object.
+     * @param {...Object} [sources] The source objects.
+     * @returns {Object} Returns `object`.
+     * @example
+     *
+     * _.defaultsDeep({ 'user': { 'name': 'barney' } }, { 'user': { 'name': 'fred', 'age': 36 } });
+     * // => { 'user': { 'name': 'barney', 'age': 36 } }
+     *
+     */
+    var defaultsDeep = createDefaults(merge, mergeDefaults);
 
     /**
      * This method is like `_.find` except that it returns the key of the first
@@ -21744,7 +17534,7 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Gets the property value of `path` on `object`. If the resolved value is
+     * Gets the property value at `path` of `object`. If the resolved value is
      * `undefined` the `defaultValue` is used in its place.
      *
      * @static
@@ -21802,10 +17592,14 @@ module.exports = ClipperLib;
       if (!result && !isKey(path)) {
         path = toPath(path);
         object = path.length == 1 ? object : baseGet(object, baseSlice(path, 0, -1));
+        if (object == null) {
+          return false;
+        }
         path = last(path);
-        result = object != null && hasOwnProperty.call(object, path);
+        result = hasOwnProperty.call(object, path);
       }
-      return result;
+      return result || (isLength(object.length) && isIndex(path, object.length) &&
+        (isArray(object) || isArguments(object)));
     }
 
     /**
@@ -21833,7 +17627,7 @@ module.exports = ClipperLib;
      */
     function invert(object, multiValue, guard) {
       if (guard && isIterateeCall(object, multiValue, guard)) {
-        multiValue = null;
+        multiValue = undefined;
       }
       var index = -1,
           props = keys(object),
@@ -21862,7 +17656,7 @@ module.exports = ClipperLib;
      * Creates an array of the own enumerable property names of `object`.
      *
      * **Note:** Non-object values are coerced to objects. See the
-     * [ES spec](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.keys)
+     * [ES spec](http://ecma-international.org/ecma-262/6.0/#sec-object.keys)
      * for more details.
      *
      * @static
@@ -21886,12 +17680,9 @@ module.exports = ClipperLib;
      * // => ['0', '1']
      */
     var keys = !nativeKeys ? shimKeys : function(object) {
-      if (object) {
-        var Ctor = object.constructor,
-            length = object.length;
-      }
+      var Ctor = object == null ? undefined : object.constructor;
       if ((typeof Ctor == 'function' && Ctor.prototype === object) ||
-          (typeof object != 'function' && isLength(length))) {
+          (typeof object != 'function' && isArrayLike(object))) {
         return shimKeys(object);
       }
       return isObject(object) ? nativeKeys(object) : [];
@@ -21928,7 +17719,7 @@ module.exports = ClipperLib;
       }
       var length = object.length;
       length = (length && isLength(length) &&
-        (isArray(object) || (support.nonEnumArgs && isArguments(object))) && length) || 0;
+        (isArray(object) || isArguments(object)) && length) || 0;
 
       var Ctor = object.constructor,
           index = -1,
@@ -21947,6 +17738,28 @@ module.exports = ClipperLib;
       }
       return result;
     }
+
+    /**
+     * The opposite of `_.mapValues`; this method creates an object with the
+     * same values as `object` and keys generated by running each own enumerable
+     * property of `object` through `iteratee`.
+     *
+     * @static
+     * @memberOf _
+     * @category Object
+     * @param {Object} object The object to iterate over.
+     * @param {Function|Object|string} [iteratee=_.identity] The function invoked
+     *  per iteration.
+     * @param {*} [thisArg] The `this` binding of `iteratee`.
+     * @returns {Object} Returns the new mapped object.
+     * @example
+     *
+     * _.mapKeys({ 'a': 1, 'b': 2 }, function(value, key) {
+     *   return key + value;
+     * });
+     * // => { 'a1': 1, 'b2': 2 }
+     */
+    var mapKeys = createObjectMapper(true);
 
     /**
      * Creates an object with the same keys as `object` and values generated by
@@ -21989,74 +17802,11 @@ module.exports = ClipperLib;
      * _.mapValues(users, 'age');
      * // => { 'fred': 40, 'pebbles': 1 } (iteration order is not guaranteed)
      */
-    function mapValues(object, iteratee, thisArg) {
-      var result = {};
-      iteratee = getCallback(iteratee, thisArg, 3);
-
-      baseForOwn(object, function(value, key, object) {
-        result[key] = iteratee(value, key, object);
-      });
-      return result;
-    }
-
-    /**
-     * Recursively merges own enumerable properties of the source object(s), that
-     * don't resolve to `undefined` into the destination object. Subsequent sources
-     * overwrite property assignments of previous sources. If `customizer` is
-     * provided it is invoked to produce the merged values of the destination and
-     * source properties. If `customizer` returns `undefined` merging is handled
-     * by the method instead. The `customizer` is bound to `thisArg` and invoked
-     * with five arguments: (objectValue, sourceValue, key, object, source).
-     *
-     * @static
-     * @memberOf _
-     * @category Object
-     * @param {Object} object The destination object.
-     * @param {...Object} [sources] The source objects.
-     * @param {Function} [customizer] The function to customize assigned values.
-     * @param {*} [thisArg] The `this` binding of `customizer`.
-     * @returns {Object} Returns `object`.
-     * @example
-     *
-     * var users = {
-     *   'data': [{ 'user': 'barney' }, { 'user': 'fred' }]
-     * };
-     *
-     * var ages = {
-     *   'data': [{ 'age': 36 }, { 'age': 40 }]
-     * };
-     *
-     * _.merge(users, ages);
-     * // => { 'data': [{ 'user': 'barney', 'age': 36 }, { 'user': 'fred', 'age': 40 }] }
-     *
-     * // using a customizer callback
-     * var object = {
-     *   'fruits': ['apple'],
-     *   'vegetables': ['beet']
-     * };
-     *
-     * var other = {
-     *   'fruits': ['banana'],
-     *   'vegetables': ['carrot']
-     * };
-     *
-     * _.merge(object, other, function(a, b) {
-     *   if (_.isArray(a)) {
-     *     return a.concat(b);
-     *   }
-     * });
-     * // => { 'fruits': ['apple', 'banana'], 'vegetables': ['beet', 'carrot'] }
-     */
-    var merge = createAssigner(baseMerge);
+    var mapValues = createObjectMapper();
 
     /**
      * The opposite of `_.pick`; this method creates an object composed of the
      * own and inherited enumerable properties of `object` that are not omitted.
-     * Property names may be specified as individual arguments or as arrays of
-     * property names. If `predicate` is provided it is invoked for each property
-     * of `object` omitting the properties `predicate` returns truthy for. The
-     * predicate is bound to `thisArg` and invoked with three arguments:
-     * (value, key, object).
      *
      * @static
      * @memberOf _
@@ -22106,6 +17856,8 @@ module.exports = ClipperLib;
      * // => [['barney', 36], ['fred', 40]] (iteration order is not guaranteed)
      */
     function pairs(object) {
+      object = toObject(object);
+
       var index = -1,
           props = keys(object),
           length = props.length,
@@ -22226,13 +17978,13 @@ module.exports = ClipperLib;
 
       var index = -1,
           length = path.length,
-          endIndex = length - 1,
+          lastIndex = length - 1,
           nested = object;
 
       while (nested != null && ++index < length) {
         var key = path[index];
         if (isObject(nested)) {
-          if (index == endIndex) {
+          if (index == lastIndex) {
             nested[key] = value;
           } else if (nested[key] == null) {
             nested[key] = isIndex(path[index + 1]) ? [] : {};
@@ -22282,7 +18034,7 @@ module.exports = ClipperLib;
           if (isArr) {
             accumulator = isArray(object) ? new Ctor : [];
           } else {
-            accumulator = baseCreate(isFunction(Ctor) && Ctor.prototype);
+            accumulator = baseCreate(isFunction(Ctor) ? Ctor.prototype : undefined);
           }
         } else {
           accumulator = {};
@@ -22385,7 +18137,7 @@ module.exports = ClipperLib;
      */
     function inRange(value, start, end) {
       start = +start || 0;
-      if (typeof end === 'undefined') {
+      if (end === undefined) {
         end = start;
         start = 0;
       } else {
@@ -22423,7 +18175,7 @@ module.exports = ClipperLib;
      */
     function random(min, max, floating) {
       if (floating && isIterateeCall(min, max, floating)) {
-        max = floating = null;
+        max = floating = undefined;
       }
       var noMin = min == null,
           noMax = max == null;
@@ -22561,7 +18313,7 @@ module.exports = ClipperLib;
      * use a third-party library like [_he_](https://mths.be/he).
      *
      * Though the ">" character is escaped for symmetry, characters like
-     * ">" and "/" don't require escaping in HTML and have no special meaning
+     * ">" and "/" don't need escaping in HTML and have no special meaning
      * unless they're part of a tag or unquoted attribute value.
      * See [Mathias Bynens's article](https://mathiasbynens.be/notes/ambiguous-ampersands)
      * (under "semi-related fun fact") for more details.
@@ -22610,8 +18362,8 @@ module.exports = ClipperLib;
     function escapeRegExp(string) {
       string = baseToString(string);
       return (string && reHasRegExpChars.test(string))
-        ? string.replace(reRegExpChars, '\\$&')
-        : string;
+        ? string.replace(reRegExpChars, escapeRegExpChar)
+        : (string || '(?:)');
     }
 
     /**
@@ -22638,7 +18390,7 @@ module.exports = ClipperLib;
     });
 
     /**
-     * Pads `string` on the left and right sides if it is shorter than `length`.
+     * Pads `string` on the left and right sides if it's shorter than `length`.
      * Padding characters are truncated if they can't be evenly divided by `length`.
      *
      * @static
@@ -22668,15 +18420,15 @@ module.exports = ClipperLib;
         return string;
       }
       var mid = (length - strLength) / 2,
-          leftLength = floor(mid),
-          rightLength = ceil(mid);
+          leftLength = nativeFloor(mid),
+          rightLength = nativeCeil(mid);
 
       chars = createPadding('', rightLength, chars);
       return chars.slice(0, leftLength) + string + chars;
     }
 
     /**
-     * Pads `string` on the left side if it is shorter than `length`. Padding
+     * Pads `string` on the left side if it's shorter than `length`. Padding
      * characters are truncated if they exceed `length`.
      *
      * @static
@@ -22700,7 +18452,7 @@ module.exports = ClipperLib;
     var padLeft = createPadDir();
 
     /**
-     * Pads `string` on the right side if it is shorter than `length`. Padding
+     * Pads `string` on the right side if it's shorter than `length`. Padding
      * characters are truncated if they exceed `length`.
      *
      * @static
@@ -22747,25 +18499,16 @@ module.exports = ClipperLib;
      * // => [6, 8, 10]
      */
     function parseInt(string, radix, guard) {
-      if (guard && isIterateeCall(string, radix, guard)) {
+      // Firefox < 21 and Opera < 15 follow ES3 for `parseInt`.
+      // Chrome fails to trim leading <BOM> whitespace characters.
+      // See https://code.google.com/p/v8/issues/detail?id=3109 for more details.
+      if (guard ? isIterateeCall(string, radix, guard) : radix == null) {
         radix = 0;
+      } else if (radix) {
+        radix = +radix;
       }
-      return nativeParseInt(string, radix);
-    }
-    // Fallback for environments with pre-ES5 implementations.
-    if (nativeParseInt(whitespace + '08') != 8) {
-      parseInt = function(string, radix, guard) {
-        // Firefox < 21 and Opera < 15 follow ES3 for `parseInt`.
-        // Chrome fails to trim leading <BOM> whitespace characters.
-        // See https://code.google.com/p/v8/issues/detail?id=3109 for more details.
-        if (guard ? isIterateeCall(string, radix, guard) : radix == null) {
-          radix = 0;
-        } else if (radix) {
-          radix = +radix;
-        }
-        string = trim(string);
-        return nativeParseInt(string, radix || (reHasHexPrefix.test(string) ? 16 : 10));
-      };
+      string = trim(string);
+      return nativeParseInt(string, radix || (reHasHexPrefix.test(string) ? 16 : 10));
     }
 
     /**
@@ -22801,7 +18544,7 @@ module.exports = ClipperLib;
         if (n % 2) {
           result += string;
         }
-        n = floor(n / 2);
+        n = nativeFloor(n / 2);
         string += string;
       } while (n);
 
@@ -22986,7 +18729,7 @@ module.exports = ClipperLib;
       var settings = lodash.templateSettings;
 
       if (otherOptions && isIterateeCall(string, options, otherOptions)) {
-        options = otherOptions = null;
+        options = otherOptions = undefined;
       }
       string = baseToString(string);
       options = assignWith(baseAssign({}, otherOptions || options), settings, assignOwnDefaults);
@@ -23181,7 +18924,7 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Truncates `string` if it is longer than the given maximum string length.
+     * Truncates `string` if it's longer than the given maximum string length.
      * The last characters of the truncated string are replaced with the omission
      * string which defaults to "...".
      *
@@ -23222,7 +18965,7 @@ module.exports = ClipperLib;
      */
     function trunc(string, options, guard) {
       if (guard && isIterateeCall(string, options, guard)) {
-        options = null;
+        options = undefined;
       }
       var length = DEFAULT_TRUNC_LENGTH,
           omission = DEFAULT_TRUNC_OMISSION;
@@ -23317,7 +19060,7 @@ module.exports = ClipperLib;
      */
     function words(string, pattern, guard) {
       if (guard && isIterateeCall(string, pattern, guard)) {
-        pattern = null;
+        pattern = undefined;
       }
       string = baseToString(string);
       return string.match(pattern || reWords) || [];
@@ -23393,9 +19136,11 @@ module.exports = ClipperLib;
      */
     function callback(func, thisArg, guard) {
       if (guard && isIterateeCall(func, thisArg, guard)) {
-        thisArg = null;
+        thisArg = undefined;
       }
-      return baseCallback(func, thisArg);
+      return isObjectLike(func)
+        ? matches(func)
+        : baseCallback(func, thisArg);
     }
 
     /**
@@ -23440,7 +19185,7 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Creates a function which performs a deep comparison between a given object
+     * Creates a function that performs a deep comparison between a given object
      * and `source`, returning `true` if the given object has equivalent property
      * values, else `false`.
      *
@@ -23469,7 +19214,7 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Creates a function which compares the property value of `path` on a given
+     * Creates a function that compares the property value of `path` on a given
      * object to `value`.
      *
      * **Note:** This method supports comparing arrays, booleans, `Date` objects,
@@ -23480,7 +19225,7 @@ module.exports = ClipperLib;
      * @memberOf _
      * @category Utility
      * @param {Array|string} path The path of the property to get.
-     * @param {*} value The value to compare.
+     * @param {*} srcValue The value to match.
      * @returns {Function} Returns the new function.
      * @example
      *
@@ -23492,17 +19237,19 @@ module.exports = ClipperLib;
      * _.find(users, _.matchesProperty('user', 'fred'));
      * // => { 'user': 'fred' }
      */
-    function matchesProperty(path, value) {
-      return baseMatchesProperty(path, baseClone(value, true));
+    function matchesProperty(path, srcValue) {
+      return baseMatchesProperty(path, baseClone(srcValue, true));
     }
 
     /**
-     * Creates a function which invokes the method at `path` on a given object.
+     * Creates a function that invokes the method at `path` on a given object.
+     * Any additional arguments are provided to the invoked method.
      *
      * @static
      * @memberOf _
      * @category Utility
      * @param {Array|string} path The path of the method to invoke.
+     * @param {...*} [args] The arguments to invoke the method with.
      * @returns {Function} Returns the new function.
      * @example
      *
@@ -23520,17 +19267,19 @@ module.exports = ClipperLib;
     var method = restParam(function(path, args) {
       return function(object) {
         return invokePath(object, path, args);
-      }
+      };
     });
 
     /**
-     * The opposite of `_.method`; this method creates a function which invokes
-     * the method at a given path on `object`.
+     * The opposite of `_.method`; this method creates a function that invokes
+     * the method at a given path on `object`. Any additional arguments are
+     * provided to the invoked method.
      *
      * @static
      * @memberOf _
      * @category Utility
      * @param {Object} object The object to query.
+     * @param {...*} [args] The arguments to invoke the method with.
      * @returns {Function} Returns the new function.
      * @example
      *
@@ -23574,9 +19323,6 @@ module.exports = ClipperLib;
      *   });
      * }
      *
-     * // use `_.runInContext` to avoid conflicts (esp. in Node.js)
-     * var _ = require('lodash').runInContext();
-     *
      * _.mixin({ 'vowels': vowels });
      * _.vowels('fred');
      * // => ['e']
@@ -23591,8 +19337,8 @@ module.exports = ClipperLib;
     function mixin(object, source, options) {
       if (options == null) {
         var isObj = isObject(source),
-            props = isObj && keys(source),
-            methodNames = props && props.length && baseFunctions(source, props);
+            props = isObj ? keys(source) : undefined,
+            methodNames = (props && props.length) ? baseFunctions(source, props) : undefined;
 
         if (!(methodNames ? methodNames.length : isObj)) {
           methodNames = false;
@@ -23631,9 +19377,7 @@ module.exports = ClipperLib;
                 result.__chain__ = chainAll;
                 return result;
               }
-              var args = [this.value()];
-              push.apply(args, arguments);
-              return func.apply(object, args);
+              return func.apply(object, arrayPush([this.value()], arguments));
             };
           }(func));
         }
@@ -23654,12 +19398,12 @@ module.exports = ClipperLib;
      * var lodash = _.noConflict();
      */
     function noConflict() {
-      context._ = oldDash;
+      root._ = oldDash;
       return this;
     }
 
     /**
-     * A no-operation function which returns `undefined` regardless of the
+     * A no-operation function that returns `undefined` regardless of the
      * arguments it receives.
      *
      * @static
@@ -23677,7 +19421,7 @@ module.exports = ClipperLib;
     }
 
     /**
-     * Creates a function which returns the property value at `path` on a
+     * Creates a function that returns the property value at `path` on a
      * given object.
      *
      * @static
@@ -23703,7 +19447,7 @@ module.exports = ClipperLib;
     }
 
     /**
-     * The opposite of `_.property`; this method creates a function which returns
+     * The opposite of `_.property`; this method creates a function that returns
      * the property value at a given path on `object`.
      *
      * @static
@@ -23763,7 +19507,7 @@ module.exports = ClipperLib;
      */
     function range(start, end, step) {
       if (step && isIterateeCall(start, end, step)) {
-        end = step = null;
+        end = step = undefined;
       }
       start = +start || 0;
       step = step == null ? 1 : (+step || 0);
@@ -23777,7 +19521,7 @@ module.exports = ClipperLib;
       // Use `Array(length)` so engines like Chakra and V8 avoid slower modes.
       // See https://youtu.be/XAqIpGU8ZZk#t=17m25s for more details.
       var index = -1,
-          length = nativeMax(ceil((end - start) / (step || 1)), 0),
+          length = nativeMax(nativeCeil((end - start) / (step || 1)), 0),
           result = Array(length);
 
       while (++index < length) {
@@ -23815,7 +19559,7 @@ module.exports = ClipperLib;
      * // => also invokes `mage.castSpell(n)` three times
      */
     function times(n, iteratee, thisArg) {
-      n = floor(n);
+      n = nativeFloor(n);
 
       // Exit early to avoid a JSC JIT bug in Safari 8
       // where `Array(0)` is treated as `Array(1)`.
@@ -23878,6 +19622,50 @@ module.exports = ClipperLib;
     }
 
     /**
+     * Calculates `n` rounded up to `precision`.
+     *
+     * @static
+     * @memberOf _
+     * @category Math
+     * @param {number} n The number to round up.
+     * @param {number} [precision=0] The precision to round up to.
+     * @returns {number} Returns the rounded up number.
+     * @example
+     *
+     * _.ceil(4.006);
+     * // => 5
+     *
+     * _.ceil(6.004, 2);
+     * // => 6.01
+     *
+     * _.ceil(6040, -2);
+     * // => 6100
+     */
+    var ceil = createRound('ceil');
+
+    /**
+     * Calculates `n` rounded down to `precision`.
+     *
+     * @static
+     * @memberOf _
+     * @category Math
+     * @param {number} n The number to round down.
+     * @param {number} [precision=0] The precision to round down to.
+     * @returns {number} Returns the rounded down number.
+     * @example
+     *
+     * _.floor(4.006);
+     * // => 4
+     *
+     * _.floor(0.046, 2);
+     * // => 0.04
+     *
+     * _.floor(4060, -2);
+     * // => 4000
+     */
+    var floor = createRound('floor');
+
+    /**
      * Gets the maximum value of `collection`. If `collection` is empty or falsey
      * `-Infinity` is returned. If an iteratee function is provided it is invoked
      * for each value in `collection` to generate the criterion by which the value
@@ -23924,7 +19712,7 @@ module.exports = ClipperLib;
      * _.max(users, 'age');
      * // => { 'user': 'fred', 'age': 40 }
      */
-    var max = createExtremum(arrayMax);
+    var max = createExtremum(gt, NEGATIVE_INFINITY);
 
     /**
      * Gets the minimum value of `collection`. If `collection` is empty or falsey
@@ -23973,7 +19761,29 @@ module.exports = ClipperLib;
      * _.min(users, 'age');
      * // => { 'user': 'barney', 'age': 36 }
      */
-    var min = createExtremum(arrayMin, true);
+    var min = createExtremum(lt, POSITIVE_INFINITY);
+
+    /**
+     * Calculates `n` rounded to `precision`.
+     *
+     * @static
+     * @memberOf _
+     * @category Math
+     * @param {number} n The number to round.
+     * @param {number} [precision=0] The precision to round to.
+     * @returns {number} Returns the rounded number.
+     * @example
+     *
+     * _.round(4.006);
+     * // => 4
+     *
+     * _.round(4.006, 2);
+     * // => 4.01
+     *
+     * _.round(4060, -2);
+     * // => 4100
+     */
+    var round = createRound('round');
 
     /**
      * Gets the sum of the values in `collection`.
@@ -24009,17 +19819,11 @@ module.exports = ClipperLib;
      */
     function sum(collection, iteratee, thisArg) {
       if (thisArg && isIterateeCall(collection, iteratee, thisArg)) {
-        iteratee = null;
+        iteratee = undefined;
       }
-      var func = getCallback(),
-          noIteratee = iteratee == null;
-
-      if (!(func === baseCallback && noIteratee)) {
-        noIteratee = false;
-        iteratee = func(iteratee, thisArg, 3);
-      }
-      return noIteratee
-        ? arraySum(isArray(collection) ? collection : toIterable(collection))
+      iteratee = getCallback(iteratee, thisArg, 3);
+      return iteratee.length == 1
+        ? arraySum(isArray(collection) ? collection : toIterable(collection), iteratee)
         : baseSum(collection, iteratee);
     }
 
@@ -24066,6 +19870,7 @@ module.exports = ClipperLib;
     lodash.curryRight = curryRight;
     lodash.debounce = debounce;
     lodash.defaults = defaults;
+    lodash.defaultsDeep = defaultsDeep;
     lodash.defer = defer;
     lodash.delay = delay;
     lodash.difference = difference;
@@ -24095,6 +19900,7 @@ module.exports = ClipperLib;
     lodash.keys = keys;
     lodash.keysIn = keysIn;
     lodash.map = map;
+    lodash.mapKeys = mapKeys;
     lodash.mapValues = mapValues;
     lodash.matches = matches;
     lodash.matchesProperty = matchesProperty;
@@ -24103,6 +19909,7 @@ module.exports = ClipperLib;
     lodash.method = method;
     lodash.methodOf = methodOf;
     lodash.mixin = mixin;
+    lodash.modArgs = modArgs;
     lodash.negate = negate;
     lodash.omit = omit;
     lodash.once = once;
@@ -24143,6 +19950,7 @@ module.exports = ClipperLib;
     lodash.union = union;
     lodash.uniq = uniq;
     lodash.unzip = unzip;
+    lodash.unzipWith = unzipWith;
     lodash.values = values;
     lodash.valuesIn = valuesIn;
     lodash.where = where;
@@ -24151,6 +19959,7 @@ module.exports = ClipperLib;
     lodash.xor = xor;
     lodash.zip = zip;
     lodash.zipObject = zipObject;
+    lodash.zipWith = zipWith;
 
     // Add aliases.
     lodash.backflow = flowRight;
@@ -24176,6 +19985,7 @@ module.exports = ClipperLib;
     lodash.attempt = attempt;
     lodash.camelCase = camelCase;
     lodash.capitalize = capitalize;
+    lodash.ceil = ceil;
     lodash.clone = clone;
     lodash.cloneDeep = cloneDeep;
     lodash.deburr = deburr;
@@ -24191,7 +20001,10 @@ module.exports = ClipperLib;
     lodash.findLastKey = findLastKey;
     lodash.findWhere = findWhere;
     lodash.first = first;
+    lodash.floor = floor;
     lodash.get = get;
+    lodash.gt = gt;
+    lodash.gte = gte;
     lodash.has = has;
     lodash.identity = identity;
     lodash.includes = includes;
@@ -24221,6 +20034,8 @@ module.exports = ClipperLib;
     lodash.kebabCase = kebabCase;
     lodash.last = last;
     lodash.lastIndexOf = lastIndexOf;
+    lodash.lt = lt;
+    lodash.lte = lte;
     lodash.max = max;
     lodash.min = min;
     lodash.noConflict = noConflict;
@@ -24235,6 +20050,7 @@ module.exports = ClipperLib;
     lodash.reduceRight = reduceRight;
     lodash.repeat = repeat;
     lodash.result = result;
+    lodash.round = round;
     lodash.runInContext = runInContext;
     lodash.size = size;
     lodash.snakeCase = snakeCase;
@@ -24257,6 +20073,7 @@ module.exports = ClipperLib;
     lodash.all = every;
     lodash.any = some;
     lodash.contains = includes;
+    lodash.eq = isEqual;
     lodash.detect = find;
     lodash.foldl = reduce;
     lodash.foldr = reduceRight;
@@ -24304,48 +20121,20 @@ module.exports = ClipperLib;
       lodash[methodName].placeholder = lodash;
     });
 
-    // Add `LazyWrapper` methods that accept an `iteratee` value.
-    arrayEach(['dropWhile', 'filter', 'map', 'takeWhile'], function(methodName, type) {
-      var isFilter = type != LAZY_MAP_FLAG,
-          isDropWhile = type == LAZY_DROP_WHILE_FLAG;
-
-      LazyWrapper.prototype[methodName] = function(iteratee, thisArg) {
-        var filtered = this.__filtered__,
-            result = (filtered && isDropWhile) ? new LazyWrapper(this) : this.clone(),
-            iteratees = result.__iteratees__ || (result.__iteratees__ = []);
-
-        iteratees.push({
-          'done': false,
-          'count': 0,
-          'index': 0,
-          'iteratee': getCallback(iteratee, thisArg, 1),
-          'limit': -1,
-          'type': type
-        });
-
-        result.__filtered__ = filtered || isFilter;
-        return result;
-      };
-    });
-
     // Add `LazyWrapper` methods for `_.drop` and `_.take` variants.
     arrayEach(['drop', 'take'], function(methodName, index) {
-      var whileName = methodName + 'While';
-
       LazyWrapper.prototype[methodName] = function(n) {
-        var filtered = this.__filtered__,
-            result = (filtered && !index) ? this.dropWhile() : this.clone();
+        var filtered = this.__filtered__;
+        if (filtered && !index) {
+          return new LazyWrapper(this);
+        }
+        n = n == null ? 1 : nativeMax(nativeFloor(n) || 0, 0);
 
-        n = n == null ? 1 : nativeMax(floor(n) || 0, 0);
+        var result = this.clone();
         if (filtered) {
-          if (index) {
-            result.__takeCount__ = nativeMin(result.__takeCount__, n);
-          } else {
-            last(result.__iteratees__).limit = n;
-          }
+          result.__takeCount__ = nativeMin(result.__takeCount__, n);
         } else {
-          var views = result.__views__ || (result.__views__ = []);
-          views.push({ 'size': n, 'type': methodName + (result.__dir__ < 0 ? 'Right' : '') });
+          result.__views__.push({ 'size': n, 'type': methodName + (result.__dir__ < 0 ? 'Right' : '') });
         }
         return result;
       };
@@ -24353,9 +20142,18 @@ module.exports = ClipperLib;
       LazyWrapper.prototype[methodName + 'Right'] = function(n) {
         return this.reverse()[methodName](n).reverse();
       };
+    });
 
-      LazyWrapper.prototype[methodName + 'RightWhile'] = function(predicate, thisArg) {
-        return this.reverse()[whileName](predicate, thisArg).reverse();
+    // Add `LazyWrapper` methods that accept an `iteratee` value.
+    arrayEach(['filter', 'map', 'takeWhile'], function(methodName, index) {
+      var type = index + 1,
+          isFilter = type != LAZY_MAP_FLAG;
+
+      LazyWrapper.prototype[methodName] = function(iteratee, thisArg) {
+        var result = this.clone();
+        result.__iteratees__.push({ 'iteratee': getCallback(iteratee, thisArg, 1), 'type': type });
+        result.__filtered__ = result.__filtered__ || isFilter;
+        return result;
       };
     });
 
@@ -24373,7 +20171,7 @@ module.exports = ClipperLib;
       var dropName = 'drop' + (index ? '' : 'Right');
 
       LazyWrapper.prototype[methodName] = function() {
-        return this[dropName](1);
+        return this.__filtered__ ? new LazyWrapper(this) : this[dropName](1);
       };
     });
 
@@ -24400,8 +20198,16 @@ module.exports = ClipperLib;
 
     LazyWrapper.prototype.slice = function(start, end) {
       start = start == null ? 0 : (+start || 0);
-      var result = start < 0 ? this.takeRight(-start) : this.drop(start);
 
+      var result = this;
+      if (result.__filtered__ && (start > 0 || end < 0)) {
+        return new LazyWrapper(result);
+      }
+      if (start < 0) {
+        result = result.takeRight(-start);
+      } else if (start) {
+        result = result.drop(start);
+      }
       if (end !== undefined) {
         end = (+end || 0);
         result = end < 0 ? result.dropRight(-end) : result.take(end - start);
@@ -24409,22 +20215,25 @@ module.exports = ClipperLib;
       return result;
     };
 
+    LazyWrapper.prototype.takeRightWhile = function(predicate, thisArg) {
+      return this.reverse().takeWhile(predicate, thisArg).reverse();
+    };
+
     LazyWrapper.prototype.toArray = function() {
-      return this.drop(0);
+      return this.take(POSITIVE_INFINITY);
     };
 
     // Add `LazyWrapper` methods to `lodash.prototype`.
     baseForOwn(LazyWrapper.prototype, function(func, methodName) {
-      var lodashFunc = lodash[methodName];
+      var checkIteratee = /^(?:filter|map|reject)|While$/.test(methodName),
+          retUnwrapped = /^(?:first|last)$/.test(methodName),
+          lodashFunc = lodash[retUnwrapped ? ('take' + (methodName == 'last' ? 'Right' : '')) : methodName];
+
       if (!lodashFunc) {
         return;
       }
-      var checkIteratee = /^(?:filter|map|reject)|While$/.test(methodName),
-          retUnwrapped = /^(?:first|last)$/.test(methodName);
-
       lodash.prototype[methodName] = function() {
-        var args = arguments,
-            length = args.length,
+        var args = retUnwrapped ? [1] : arguments,
             chainAll = this.__chain__,
             value = this.__wrapped__,
             isHybrid = !!this.__actions__.length,
@@ -24433,28 +20242,30 @@ module.exports = ClipperLib;
             useLazy = isLazy || isArray(value);
 
         if (useLazy && checkIteratee && typeof iteratee == 'function' && iteratee.length != 1) {
-          // avoid lazy use if the iteratee has a "length" value other than `1`
+          // Avoid lazy use if the iteratee has a "length" value other than `1`.
           isLazy = useLazy = false;
         }
-        var onlyLazy = isLazy && !isHybrid;
-        if (retUnwrapped && !chainAll) {
-          return onlyLazy
-            ? func.call(value)
-            : lodashFunc.call(lodash, this.value());
-        }
         var interceptor = function(value) {
-          var otherArgs = [value];
-          push.apply(otherArgs, args);
-          return lodashFunc.apply(lodash, otherArgs);
+          return (retUnwrapped && chainAll)
+            ? lodashFunc(value, 1)[0]
+            : lodashFunc.apply(undefined, arrayPush([value], args));
         };
-        if (useLazy) {
-          var wrapper = onlyLazy ? value : new LazyWrapper(this),
-              result = func.apply(wrapper, args);
 
-          if (!retUnwrapped && (isHybrid || result.__actions__)) {
-            var actions = result.__actions__ || (result.__actions__ = []);
-            actions.push({ 'func': thru, 'args': [interceptor], 'thisArg': lodash });
+        var action = { 'func': thru, 'args': [interceptor], 'thisArg': undefined },
+            onlyLazy = isLazy && !isHybrid;
+
+        if (retUnwrapped && !chainAll) {
+          if (onlyLazy) {
+            value = value.clone();
+            value.__actions__.push(action);
+            return func.call(value);
           }
+          return lodashFunc.call(undefined, this.value())[0];
+        }
+        if (!retUnwrapped && useLazy) {
+          value = onlyLazy ? value : new LazyWrapper(this);
+          var result = func.apply(value, args);
+          result.__actions__.push(action);
           return new LodashWrapper(result, chainAll);
         }
         return this.thru(interceptor);
@@ -24462,7 +20273,7 @@ module.exports = ClipperLib;
     });
 
     // Add `Array` and `String` methods to `lodash.prototype`.
-    arrayEach(['concat', 'join', 'pop', 'push', 'replace', 'shift', 'sort', 'splice', 'split', 'unshift'], function(methodName) {
+    arrayEach(['join', 'pop', 'push', 'replace', 'shift', 'sort', 'splice', 'split', 'unshift'], function(methodName) {
       var func = (/^(?:replace|split)$/.test(methodName) ? stringProto : arrayProto)[methodName],
           chainName = /^(?:push|sort|unshift)$/.test(methodName) ? 'tap' : 'thru',
           retUnwrapped = /^(?:join|pop|replace|shift)$/.test(methodName);
@@ -24489,7 +20300,7 @@ module.exports = ClipperLib;
       }
     });
 
-    realNames[createHybridWrapper(null, BIND_KEY_FLAG).name] = [{ 'name': 'wrapper', 'func': null }];
+    realNames[createHybridWrapper(undefined, BIND_KEY_FLAG).name] = [{ 'name': 'wrapper', 'func': undefined }];
 
     // Add functions to the lazy wrapper.
     LazyWrapper.prototype.clone = lazyClone;
@@ -24499,6 +20310,7 @@ module.exports = ClipperLib;
     // Add chaining functions to the `lodash` wrapper.
     lodash.prototype.chain = wrapperChain;
     lodash.prototype.commit = wrapperCommit;
+    lodash.prototype.concat = wrapperConcat;
     lodash.prototype.plant = wrapperPlant;
     lodash.prototype.reverse = wrapperReverse;
     lodash.prototype.toString = wrapperToString;
@@ -24538,7 +20350,7 @@ module.exports = ClipperLib;
     if (moduleExports) {
       (freeModule.exports = _)._ = _;
     }
-    // Export for Narwhal or Rhino -require.
+    // Export for Rhino with CommonJS support.
     else {
       freeExports._ = _;
     }
@@ -24550,7 +20362,331 @@ module.exports = ClipperLib;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],12:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
+/*
+
+StackBlur - a fast almost Gaussian Blur For Canvas
+
+Version: 	0.5
+Author:		Mario Klingemann
+Contact: 	mario@quasimondo.com
+Website:	http://www.quasimondo.com/StackBlurForCanvas
+Twitter:	@quasimondo
+
+In case you find this class useful - especially in commercial projects -
+I am not totally unhappy for a small donation to my PayPal account
+mario@quasimondo.de
+
+Or support me on flattr: 
+https://flattr.com/thing/72791/StackBlur-a-fast-almost-Gaussian-Blur-Effect-for-CanvasJavascript
+
+Copyright (c) 2010 Mario Klingemann
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+var mul_table = [
+        512,512,456,512,328,456,335,512,405,328,271,456,388,335,292,512,
+        454,405,364,328,298,271,496,456,420,388,360,335,312,292,273,512,
+        482,454,428,405,383,364,345,328,312,298,284,271,259,496,475,456,
+        437,420,404,388,374,360,347,335,323,312,302,292,282,273,265,512,
+        497,482,468,454,441,428,417,405,394,383,373,364,354,345,337,328,
+        320,312,305,298,291,284,278,271,265,259,507,496,485,475,465,456,
+        446,437,428,420,412,404,396,388,381,374,367,360,354,347,341,335,
+        329,323,318,312,307,302,297,292,287,282,278,273,269,265,261,512,
+        505,497,489,482,475,468,461,454,447,441,435,428,422,417,411,405,
+        399,394,389,383,378,373,368,364,359,354,350,345,341,337,332,328,
+        324,320,316,312,309,305,301,298,294,291,287,284,281,278,274,271,
+        268,265,262,259,257,507,501,496,491,485,480,475,470,465,460,456,
+        451,446,442,437,433,428,424,420,416,412,408,404,400,396,392,388,
+        385,381,377,374,370,367,363,360,357,354,350,347,344,341,338,335,
+        332,329,326,323,320,318,315,312,310,307,304,302,299,297,294,292,
+        289,287,285,282,280,278,275,273,271,269,267,265,263,261,259];
+        
+   
+var shg_table = [
+	     9, 11, 12, 13, 13, 14, 14, 15, 15, 15, 15, 16, 16, 16, 16, 17, 
+		17, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 
+		19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 20, 20, 20,
+		20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 21,
+		21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
+		21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 22, 22, 22, 22, 22, 22, 
+		22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
+		22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 23, 
+		23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+		23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+		23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 
+		23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 
+		24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+		24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+		24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+		24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24 ];
+
+function blur( pixels, width, height, radius )
+{
+	if ( isNaN(radius) || radius < 1 ) return;
+	radius |= 0;
+
+	var x, y, i, p, yp, yi, yw, r_sum, g_sum, b_sum, a_sum, 
+	r_out_sum, g_out_sum, b_out_sum, a_out_sum,
+	r_in_sum, g_in_sum, b_in_sum, a_in_sum, 
+	pr, pg, pb, pa, rbs;
+			
+	var div = radius + radius + 1;
+	var w4 = width << 2;
+	var widthMinus1  = width - 1;
+	var heightMinus1 = height - 1;
+	var radiusPlus1  = radius + 1;
+	var sumFactor = radiusPlus1 * ( radiusPlus1 + 1 ) / 2;
+	
+	var stackStart = new BlurStack();
+	var stack = stackStart;
+	for ( i = 1; i < div; i++ )
+	{
+		stack = stack.next = new BlurStack();
+		if ( i == radiusPlus1 ) var stackEnd = stack;
+	}
+	stack.next = stackStart;
+	var stackIn = null;
+	var stackOut = null;
+	
+	yw = yi = 0;
+	
+	var mul_sum = mul_table[radius];
+	var shg_sum = shg_table[radius];
+	
+	for ( y = 0; y < height; y++ )
+	{
+		r_in_sum = g_in_sum = b_in_sum = a_in_sum = r_sum = g_sum = b_sum = a_sum = 0;
+		
+		r_out_sum = radiusPlus1 * ( pr = pixels[yi] );
+		g_out_sum = radiusPlus1 * ( pg = pixels[yi+1] );
+		b_out_sum = radiusPlus1 * ( pb = pixels[yi+2] );
+		a_out_sum = radiusPlus1 * ( pa = pixels[yi+3] );
+		
+		r_sum += sumFactor * pr;
+		g_sum += sumFactor * pg;
+		b_sum += sumFactor * pb;
+		a_sum += sumFactor * pa;
+		
+		stack = stackStart;
+		
+		for( i = 0; i < radiusPlus1; i++ )
+		{
+			stack.r = pr;
+			stack.g = pg;
+			stack.b = pb;
+			stack.a = pa;
+			stack = stack.next;
+		}
+		
+		for( i = 1; i < radiusPlus1; i++ )
+		{
+			p = yi + (( widthMinus1 < i ? widthMinus1 : i ) << 2 );
+			r_sum += ( stack.r = ( pr = pixels[p])) * ( rbs = radiusPlus1 - i );
+			g_sum += ( stack.g = ( pg = pixels[p+1])) * rbs;
+			b_sum += ( stack.b = ( pb = pixels[p+2])) * rbs;
+			a_sum += ( stack.a = ( pa = pixels[p+3])) * rbs;
+			
+			r_in_sum += pr;
+			g_in_sum += pg;
+			b_in_sum += pb;
+			a_in_sum += pa;
+			
+			stack = stack.next;
+		}
+		
+		
+		stackIn = stackStart;
+		stackOut = stackEnd;
+		for ( x = 0; x < width; x++ )
+		{
+			pixels[yi+3] = pa = (a_sum * mul_sum) >> shg_sum;
+			if ( pa != 0 )
+			{
+				pa = 255 / pa;
+				pixels[yi]   = ((r_sum * mul_sum) >> shg_sum) * pa;
+				pixels[yi+1] = ((g_sum * mul_sum) >> shg_sum) * pa;
+				pixels[yi+2] = ((b_sum * mul_sum) >> shg_sum) * pa;
+			} else {
+				pixels[yi] = pixels[yi+1] = pixels[yi+2] = 0;
+			}
+			
+			r_sum -= r_out_sum;
+			g_sum -= g_out_sum;
+			b_sum -= b_out_sum;
+			a_sum -= a_out_sum;
+			
+			r_out_sum -= stackIn.r;
+			g_out_sum -= stackIn.g;
+			b_out_sum -= stackIn.b;
+			a_out_sum -= stackIn.a;
+			
+			p =  ( yw + ( ( p = x + radius + 1 ) < widthMinus1 ? p : widthMinus1 ) ) << 2;
+			
+			r_in_sum += ( stackIn.r = pixels[p]);
+			g_in_sum += ( stackIn.g = pixels[p+1]);
+			b_in_sum += ( stackIn.b = pixels[p+2]);
+			a_in_sum += ( stackIn.a = pixels[p+3]);
+			
+			r_sum += r_in_sum;
+			g_sum += g_in_sum;
+			b_sum += b_in_sum;
+			a_sum += a_in_sum;
+			
+			stackIn = stackIn.next;
+			
+			r_out_sum += ( pr = stackOut.r );
+			g_out_sum += ( pg = stackOut.g );
+			b_out_sum += ( pb = stackOut.b );
+			a_out_sum += ( pa = stackOut.a );
+			
+			r_in_sum -= pr;
+			g_in_sum -= pg;
+			b_in_sum -= pb;
+			a_in_sum -= pa;
+			
+			stackOut = stackOut.next;
+
+			yi += 4;
+		}
+		yw += width;
+	}
+
+	
+	for ( x = 0; x < width; x++ )
+	{
+		g_in_sum = b_in_sum = a_in_sum = r_in_sum = g_sum = b_sum = a_sum = r_sum = 0;
+		
+		yi = x << 2;
+		r_out_sum = radiusPlus1 * ( pr = pixels[yi]);
+		g_out_sum = radiusPlus1 * ( pg = pixels[yi+1]);
+		b_out_sum = radiusPlus1 * ( pb = pixels[yi+2]);
+		a_out_sum = radiusPlus1 * ( pa = pixels[yi+3]);
+		
+		r_sum += sumFactor * pr;
+		g_sum += sumFactor * pg;
+		b_sum += sumFactor * pb;
+		a_sum += sumFactor * pa;
+		
+		stack = stackStart;
+		
+		for( i = 0; i < radiusPlus1; i++ )
+		{
+			stack.r = pr;
+			stack.g = pg;
+			stack.b = pb;
+			stack.a = pa;
+			stack = stack.next;
+		}
+		
+		yp = width;
+		
+		for( i = 1; i <= radius; i++ )
+		{
+			yi = ( yp + x ) << 2;
+			
+			r_sum += ( stack.r = ( pr = pixels[yi])) * ( rbs = radiusPlus1 - i );
+			g_sum += ( stack.g = ( pg = pixels[yi+1])) * rbs;
+			b_sum += ( stack.b = ( pb = pixels[yi+2])) * rbs;
+			a_sum += ( stack.a = ( pa = pixels[yi+3])) * rbs;
+		   
+			r_in_sum += pr;
+			g_in_sum += pg;
+			b_in_sum += pb;
+			a_in_sum += pa;
+			
+			stack = stack.next;
+		
+			if( i < heightMinus1 )
+			{
+				yp += width;
+			}
+		}
+		
+		yi = x;
+		stackIn = stackStart;
+		stackOut = stackEnd;
+		for ( y = 0; y < height; y++ )
+		{
+			p = yi << 2;
+			pixels[p+3] = pa = (a_sum * mul_sum) >> shg_sum;
+			if ( pa > 0 )
+			{
+				pa = 255 / pa;
+				pixels[p]   = ((r_sum * mul_sum) >> shg_sum ) * pa;
+				pixels[p+1] = ((g_sum * mul_sum) >> shg_sum ) * pa;
+				pixels[p+2] = ((b_sum * mul_sum) >> shg_sum ) * pa;
+			} else {
+				pixels[p] = pixels[p+1] = pixels[p+2] = 0;
+			}
+			
+			r_sum -= r_out_sum;
+			g_sum -= g_out_sum;
+			b_sum -= b_out_sum;
+			a_sum -= a_out_sum;
+		   
+			r_out_sum -= stackIn.r;
+			g_out_sum -= stackIn.g;
+			b_out_sum -= stackIn.b;
+			a_out_sum -= stackIn.a;
+			
+			p = ( x + (( ( p = y + radiusPlus1) < heightMinus1 ? p : heightMinus1 ) * width )) << 2;
+			
+			r_sum += ( r_in_sum += ( stackIn.r = pixels[p]));
+			g_sum += ( g_in_sum += ( stackIn.g = pixels[p+1]));
+			b_sum += ( b_in_sum += ( stackIn.b = pixels[p+2]));
+			a_sum += ( a_in_sum += ( stackIn.a = pixels[p+3]));
+		   
+			stackIn = stackIn.next;
+			
+			r_out_sum += ( pr = stackOut.r );
+			g_out_sum += ( pg = stackOut.g );
+			b_out_sum += ( pb = stackOut.b );
+			a_out_sum += ( pa = stackOut.a );
+			
+			r_in_sum -= pr;
+			g_in_sum -= pg;
+			b_in_sum -= pb;
+			a_in_sum -= pa;
+			
+			stackOut = stackOut.next;
+			
+			yi += width;
+		}
+	}
+}
+
+function BlurStack()
+{
+	this.r = 0;
+	this.g = 0;
+	this.b = 0;
+	this.a = 0;
+	this.next = null;
+}
+
+module.exports = blur;
+},{}],6:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -24807,7 +20943,7 @@ if(typeof require == 'function'){
 	exports.DOMParser = DOMParser;
 }
 
-},{"./dom":13,"./sax":14}],13:[function(require,module,exports){
+},{"./dom":7,"./sax":8}],7:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -25947,7 +22083,7 @@ if(typeof require == 'function'){
 	exports.XMLSerializer = XMLSerializer;
 }
 
-},{}],14:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -26533,7 +22669,6333 @@ if(typeof require == 'function'){
 }
 
 
-},{}],15:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
+'use strict';
+
+var _ = require('lodash');
+var vg = require('./libraries/vg/vg');
+var img = require('./libraries/img/img');
+
+var g = {};
+
+// Commands
+function importCommands(module) {
+    for (var k in module) {
+        g[k] = module[k];
+    }
+}
+
+for (var k in vg) {
+    g[k] = vg[k];
+}
+delete g['delete'];
+
+for (var k in img) {
+    g[k] = img[k];
+}
+
+importCommands(require('./libraries/math'));
+importCommands(require('./libraries/string'));
+importCommands(require('./libraries/list'));
+importCommands(require('./libraries/data'));
+importCommands(require('./libraries/image'));
+importCommands(require('./libraries/graphics'));
+importCommands(require('./libraries/easing'));
+
+g.importSVG = function (svgString) {
+    return g.svg.parseString(svgString);
+};
+
+g.importImage = function (image) {
+    var layer = g.Layer.fromImage(image);
+    return new g.Img(layer.toCanvas());
+};
+
+g.importText = function (string) {
+    return string ? String(string) : '';
+};
+
+g.importCSV = function (csvString, delimiter) {
+    // Split the row, taking quotes into account.
+    function splitRow(s, delimiter) {
+        var row = [], c, col = '', i, inString = false;
+        s = s.trim();
+        for (i = 0; i < s.length; i += 1) {
+            c = s[i];
+            if (c === '"') {
+                if (s[i+1] === '"') {
+                    col += '"';
+                    i += 1;
+                } else {
+                    inString = !inString;
+                }
+            } else if (c === delimiter) {
+                if (!inString) {
+                    row.push(col);
+                    col = '';
+                } else {
+                    col += c;
+                }
+            } else {
+                col += c;
+            }
+        }
+        row.push(col);
+        return row;
+    }
+
+    var rows, header;
+    delimiter = delimiter || ',';
+
+    if (!csvString) return null;
+    rows = csvString.split(/\r\n|\r|\n/g);
+    header = splitRow(rows[0], delimiter);
+    rows = rows.slice(1);
+
+    rows = _.reject(rows, _.isEmpty);
+
+    rows = _.map(rows, function (row) {
+        var cols, m = {};
+        cols = _.map(splitRow(row, delimiter), function (col) {
+            return isNaN(col) ? col : parseFloat(col);
+        });
+        _.each(cols, function (col, index) {
+            m[header[index]] = col;
+        });
+        return m;
+    });
+    return rows;
+};
+
+g.merge = function () {
+    var objects = _.flatten(arguments, true);
+    if (Array.isArray(objects)) {
+        objects = _.reject(objects, _.isEmpty);
+        if (objects.length > 0) {
+            var o = objects[0];
+            if (o && (o.commands || o.shapes)) {
+                return vg.merge(objects);
+            } else if (o instanceof img.Img) {
+                return img.merge(objects);
+            }
+        }
+    }
+    return null;
+};
+
+g.mix = function (a, b, t) {
+    t = t !== undefined ? t : 0.5;
+    if (typeof a === 'number') {
+        return (a * (1 - t)) + (b * t);
+    } else if (typeof a === 'object') {
+        var result = {};
+        var keys = Object.keys(a);
+        for (var i = 0, n = keys.length; i < n; i += 1) {
+            var k = keys[i];
+            var va = a[k];
+            var vb = b[k];
+            if (va !== undefined && vb !== undefined) {
+                result[k] = g.mix(va, vb, t);
+            }
+        }
+        return result;
+    } else {
+        return 0;
+    }
+};
+
+module.exports = g;
+
+},{"./libraries/data":10,"./libraries/easing":12,"./libraries/graphics":13,"./libraries/image":14,"./libraries/img/img":18,"./libraries/list":21,"./libraries/math":22,"./libraries/string":23,"./libraries/vg/vg":45,"lodash":4}],10:[function(require,module,exports){
+'use strict';
+
+var _ = require('lodash');
+var list = require('./list');
+
+var g = {};
+
+// Convert values from one range to another
+g.convert = function (v, inMin, inMax, outMin, outMax) {
+    var argLength = arguments.length;
+    if (argLength === 2) {
+        var d = arguments[1];
+        inMin = d.inMin;
+        inMax = d.inMax;
+        outMin = d.outMin;
+        outMax = d.outMax;
+    } else if (argLength === 3) {
+        inMin = arguments[1][0];
+        inMax = arguments[1][1];
+        outMin = arguments[2][0];
+        outMax = arguments[2][1];
+    }
+    try {
+        v = (v - inMin) / (inMax - inMin);
+    } catch (e) {
+        v = inMin;
+    }
+    // Convert value to target range.
+    return outMin + v * (outMax - outMin);
+};
+
+g.filterData = function (data, key, op, value) {
+    if (value === null || value === undefined) {
+        return data;
+    }
+    var results = [];
+    for (var i = 0; i < data.length; i += 1) {
+        var row = data[i];
+        var obj = row[key];
+        if (op === '==' && obj == value) { // jshint ignore:line
+            results.push(row);
+        } else if (op === '!=' && obj != value) { // jshint ignore:line
+            results.push(row);
+        } else if (op === '>' && obj > value) {
+            results.push(row);
+        } else if (op === '>=' && obj >= value) {
+            results.push(row);
+        } else if (op === '<' && obj < value) {
+            results.push(row);
+        } else if (op === '<=' && obj <= value) {
+            results.push(row);
+        }
+    }
+    return results;
+};
+
+g.groupBy = function (data, key) {
+    return _.values(_.groupBy(data, key));
+};
+
+/* // Draw a legend. ==> rename to axis?
+g.legend = function (scale, position, direction, nTicks) {
+    var ticks = g.ticks(scale, nTicks),
+        group = new vg.Group(),
+        p = new vg.Path(),
+        textOptions = {fontSize: 9, align: 'center'},
+        t,
+        i,
+        v;
+    p.moveTo(scale.outMax, position.y);
+    p.lineTo(scale.outMin, position.y);
+    p.stroke = 'black';
+    group.add(p);
+    for (i = 0; i < ticks.length; i += 1) {
+        v = g.convert(scale, ticks[i]);
+        p.moveTo(v, position.y);
+        p.lineTo(v, position.y + 5);
+        t = new g.Text('' + ticks[i], v, position.y + 15, textOptions);
+        group.add(t);
+    }
+    return group;
+}; */
+
+g.keys = function (data) {
+    var allKeys = [];
+    for (var i = 0; i < data.length; i++) {
+        allKeys = allKeys.concat(_.keys(data[i]));
+    }
+    return list.distinct(allKeys);
+};
+
+g.lookup = function (table, key) {
+    var obj, v;
+    obj = table;
+    // First try to lookup the key as-is.
+    v = obj[key];
+    if (v !== undefined) {
+        if (typeof v === 'function') {
+            v = v.call(obj);
+        }
+        return v;
+    }
+    _.each(key.split('.'), function (token) {
+        if (!obj) return null;
+        if (typeof obj[token] === 'function') {
+            v = obj[token];
+            obj = v.call(obj);
+        } else {
+            obj = obj[token];
+        }
+    });
+    return obj;
+};
+
+// Create a scale that maps values from the input domain to the output range.
+g.dataScale = function (domain, outMin, outMax) {
+    return {domain: domain, outMin: outMin, outMax: outMax};
+};
+
+
+// Generate about n values for the given scale.
+g.ticks = function (min, max, n) {
+    n = n !== undefined ? n : 10;
+
+    var span = max - min,
+        step = Math.pow(10, Math.floor(Math.log(span / n) / Math.LN10)),
+        err = n / span * step,
+        ticks = [],
+        i;
+
+    if (err <= 0.15) {
+        step *= 10;
+    } else if (err <= 0.35) {
+        step *= 5;
+    } else if (err <= 0.75) {
+        step *= 2;
+    }
+
+    min = Math.ceil(min / step) * step;
+    max = Math.floor(max / step) * step + (step * 0.5);
+
+    for (i = min; i < max; i += step) {
+        ticks.push(i);
+    }
+
+    return ticks;
+};
+
+module.exports = g;
+
+},{"./list":21,"lodash":4}],11:[function(require,module,exports){
+/* jshint eqeqeq:false */
+
+'use strict';
+
+// Equality functionality taken from node.js' (http://nodejs.org) assert module:
+// https://github.com/joyent/node/blob/master/lib/assert.js
+
+function isBuffer() {
+    return false;
+}
+
+function isObject(arg) {
+    return typeof arg === 'object' && arg !== null;
+}
+
+function objectToString(o) {
+    return Object.prototype.toString.call(o);
+}
+
+function isRegExp(re) {
+    return isObject(re) && objectToString(re) === '[object RegExp]';
+}
+
+function isDate(d) {
+    return isObject(d) && objectToString(d) === '[object Date]';
+}
+
+function isNullOrUndefined(arg) {
+    return (arg === null || arg === undefined);
+}
+
+var util = {
+    isObject: isObject,
+    isRegExp: isRegExp,
+    isDate: isDate,
+    isNullOrUndefined: isNullOrUndefined,
+    isBuffer: isBuffer
+};
+
+var pSlice = Array.prototype.slice;
+var deepEqual = {};
+
+var isArguments, _deepEqual, objEquiv;
+
+_deepEqual = function (actual, expected) {
+    // 7.1. All identical values are equivalent, as determined by ===.
+    if (actual === expected) {
+        return true;
+    } else if (util.isBuffer(actual) && util.isBuffer(expected)) {
+        if (actual.length !== expected.length) return false;
+
+        for (var i = 0; i < actual.length; i++) {
+            if (actual[i] !== expected[i]) return false;
+        }
+
+        return true;
+
+    // 7.2. If the expected value is a Date object, the actual value is
+    // equivalent if it is also a Date object that refers to the same time.
+    } else if (util.isDate(actual) && util.isDate(expected)) {
+        return actual.getTime() === expected.getTime();
+
+    // 7.3 If the expected value is a RegExp object, the actual value is
+    // equivalent if it is also a RegExp object with the same source and
+    // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
+    } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
+        return actual.source === expected.source &&
+            actual.global === expected.global &&
+            actual.multiline === expected.multiline &&
+            actual.lastIndex === expected.lastIndex &&
+            actual.ignoreCase === expected.ignoreCase;
+
+    // 7.4. Other pairs that do not both pass typeof value == 'object',
+    // equivalence is determined by ==.
+    } else if (!util.isObject(actual) && !util.isObject(expected)) {
+        return actual == expected;
+
+    // 7.5 For all other Object pairs, including Array objects, equivalence is
+    // determined by having the same number of owned properties (as verified
+    // with Object.prototype.hasOwnProperty.call), the same set of keys
+    // (although not necessarily the same order), equivalent values for every
+    // corresponding key, and an identical 'prototype' property. Note: this
+    // accounts for both named and indexed properties on Arrays.
+    } else {
+        return objEquiv(actual, expected);
+    }
+};
+
+deepEqual.deepEqual = _deepEqual;
+
+isArguments = function (object) {
+    return Object.prototype.toString.call(object) === '[object Arguments]';
+};
+
+objEquiv = function (a, b) {
+    if (util.isNullOrUndefined(a) || util.isNullOrUndefined(b))
+        return false;
+    // an identical 'prototype' property.
+    if (a.prototype !== b.prototype) return false;
+    //~~~I've managed to break Object.keys through screwy arguments passing.
+    //   Converting to array solves the problem.
+    var aIsArgs = isArguments(a),
+        bIsArgs = isArguments(b);
+    if ((aIsArgs && !bIsArgs) || (!aIsArgs && bIsArgs))
+        return false;
+    if (aIsArgs) {
+        a = pSlice.call(a);
+        b = pSlice.call(b);
+        return _deepEqual(a, b);
+    }
+    var ka, kb, key, i;
+    try {
+        ka = Object.keys(a);
+        kb = Object.keys(b);
+    } catch (e) {//happens when one is a string literal and the other isn't
+        return false;
+    }
+    // having the same number of owned properties (keys incorporates
+    // hasOwnProperty)
+    if (ka.length !== kb.length)
+        return false;
+    //the same set of keys (although not necessarily the same order),
+    ka.sort();
+    kb.sort();
+    //~~~cheap key test
+    for (i = ka.length - 1; i >= 0; i--) {
+        if (ka[i] != kb[i])
+            return false;
+    }
+    //equivalent values for every corresponding key, and
+    //~~~possibly expensive deep test
+    for (i = ka.length - 1; i >= 0; i--) {
+        key = ka[i];
+        if (!_deepEqual(a[key], b[key])) return false;
+    }
+    return true;
+};
+
+module.exports = deepEqual;
+},{}],12:[function(require,module,exports){
+'use strict';
+
+// Easing functions in javascript ported from jQuery Easing Plugin:
+// https://github.com/gdsmith/jquery.easing
+// t: current time, b: beginning value, c: change in value, d: duration
+
+var g = {};
+
+g.easeInQuad = function (t, b, c, d) {
+    return c * (t /= d) * t + b;
+};
+
+g.easeOutQuad = function (t, b, c, d) {
+    return -c * (t /= d) * (t - 2) + b;
+};
+
+g.easeInOutQuad = function (t, b, c, d) {
+    if ((t /= d / 2) < 1) { return c / 2 * t * t + b; }
+    return -c / 2 * ((--t) * (t - 2) - 1) + b;
+};
+
+g.easeInCubic = function (t, b, c, d) {
+    return c * (t /= d) * t * t + b;
+};
+
+g.easeOutCubic = function (t, b, c, d) {
+    return c * ((t = t / d - 1) * t * t + 1) + b;
+};
+
+g.easeInOutCubic = function (t, b, c, d) {
+    if ((t /= d / 2) < 1) { return c / 2 * t * t * t + b; }
+    return c / 2 * ((t -= 2) * t * t + 2) + b;
+};
+
+g.easeInQuart = function (t, b, c, d) {
+    return c * (t /= d) * t * t * t + b;
+};
+
+g.easeOutQuart = function (t, b, c, d) {
+    return -c * ((t = t / d - 1) * t * t * t - 1) + b;
+};
+
+g.easeInOutQuart = function (t, b, c, d) {
+    if ((t /= d / 2) < 1) { return c / 2 * t * t * t * t + b; }
+    return -c / 2 * ((t -= 2) * t * t * t - 2) + b;
+};
+
+g.easeInQuint = function (t, b, c, d) {
+    return c * (t /= d) * t * t * t * t + b;
+};
+
+g.easeOutQuint = function (t, b, c, d) {
+    return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
+};
+
+g.easeInOutQuint = function (t, b, c, d) {
+    if ((t /= d / 2) < 1) { return c / 2 * t * t * t * t * t + b; }
+    return c / 2 * ((t -= 2) * t * t * t * t + 2) + b;
+};
+
+g.easeInSine = function (t, b, c, d) {
+    return -c * Math.cos(t / d * (Math.PI / 2)) + c + b;
+};
+
+g.easeOutSine = function (t, b, c, d) {
+    return c * Math.sin(t / d * (Math.PI / 2)) + b;
+};
+
+g.easeInOutSine = function (t, b, c, d) {
+    return -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
+};
+
+g.easeInExpo = function (t, b, c, d) {
+    return (t === 0) ? b : c * Math.pow(2, 10 * (t / d - 1)) + b;
+};
+
+g.easeOutExpo = function (t, b, c, d) {
+    return (t === d) ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
+};
+
+g.easeInOutExpo = function (t, b, c, d) {
+    if (t === 0) { return b; }
+    if (t === d) { return b + c; }
+    if ((t /= d / 2) < 1) { return c / 2 * Math.pow(2, 10 * (t - 1)) + b; }
+    return c / 2 * (-Math.pow(2, -10 * --t) + 2) + b;
+};
+
+g.easeInCirc = function (t, b, c, d) {
+    return -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b;
+};
+
+g.easeOutCirc = function (t, b, c, d) {
+    return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
+};
+
+g.easeInOutCirc = function (t, b, c, d) {
+    if ((t /= d / 2) < 1) { return -c / 2 * (Math.sqrt(1 - t * t) - 1) + b; }
+    return c / 2 * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
+};
+
+g.easeInElastic = function (t, b, c, d) {
+    var s = 1.70158;
+    var p = 0;
+    var a = c;
+    if (t === 0) { return b; }
+    if ((t /= d) === 1) { return b + c; }
+    if (!p) p = d * 0.3;
+    if (a < Math.abs(c)) {
+        a = c;
+        s = p / 4;
+    }
+    else {
+        s = p / (2 * Math.PI) * Math.asin(c / a);
+    }
+    return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
+};
+
+g.easeOutElastic = function (t, b, c, d) {
+    var s = 1.70158;
+    var p = 0;
+    var a = c;
+    if (t === 0) { return b; }
+    if ((t /= d) === 1) { return b + c; }
+    if (!p) p = d * 0.3;
+    if (a < Math.abs(c)) {
+        a = c;
+        s = p / 4;
+    }
+    else {
+        s = p / (2 * Math.PI) * Math.asin(c / a);
+    }
+    return a * Math.pow(2, -10 * t) * Math.sin((t * d - s) * (2 * Math.PI) / p) + c + b;
+};
+
+g.easeInOutElastic = function (t, b, c, d) {
+    var s = 1.70158;
+    var p = 0;
+    var a = c;
+    if (t === 0) { return b; }
+    if ((t /= d / 2) === 2) { return b + c; }
+    if (!p) p = d * (0.3 * 1.5);
+    if (a < Math.abs(c)) {
+        a = c;
+        s = p / 4;
+    }
+    else {
+        s = p / (2 * Math.PI) * Math.asin(c / a);
+    }
+    if (t < 1) { return -0.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b; }
+    return a * Math.pow(2, -10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p) * 0.5 + c + b;
+};
+
+g.easeInBack = function (t, b, c, d, s) {
+    if (s === undefined) {
+        s = 1.70158;
+    }
+    return c * (t /= d) * t * ((s + 1) * t - s) + b;
+};
+
+g.easeOutBack = function (t, b, c, d, s) {
+    if (s === undefined) {
+        s = 1.70158;
+    }
+    return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
+};
+
+g.easeInOutBack = function (t, b, c, d, s) {
+    if (s === undefined) {
+        s = 1.70158;
+    }
+    if ((t /= d / 2) < 1) { return c / 2 * (t * t * (((s *= (1.525)) + 1) * t - s)) + b; }
+    return c / 2 * ((t -= 2) * t * (((s *= (1.525)) + 1) * t + s) + 2) + b;
+};
+
+g.easeInBounce = function (t, b, c, d) {
+    return c - g.easeOutBounce(d - t, 0, c, d) + b;
+};
+
+g.easeOutBounce = function (t, b, c, d) {
+    if ((t /= d) < (1 / 2.75)) {
+        return c * (7.5625 * t * t) + b;
+    } else if (t < (2 / 2.75)) {
+        return c * (7.5625 * (t -= (1.5 / 2.75)) * t + 0.75) + b;
+    } else if (t < (2.5 / 2.75)) {
+        return c * (7.5625 * (t -= (2.25 / 2.75)) * t + 0.9375) + b;
+    } else {
+        return c * (7.5625 * (t -= (2.625 / 2.75)) * t + 0.984375) + b;
+    }
+};
+
+g.easeInOutBounce = function (t, b, c, d) {
+    if (t < d / 2) { return g.easeInBounce(t * 2, 0, c, d) * 0.5 + b; }
+    return g.easeOutBounce(t * 2 - d, 0, c, d) * 0.5 + c * 0.5 + b;
+};
+
+g.easing = function (f) {
+    var fn = g[f];
+    var args = Array.prototype.slice.call(arguments, 1);
+    return fn.apply(null, args);
+};
+
+module.exports = g;
+
+},{}],13:[function(require,module,exports){
+'use strict';
+
+var _ = require('lodash');
+var vg = require('./vg/vg');
+var img = require('./img/img');
+var math = require('./math');
+
+var g = {};
+
+g.HORIZONTAL = 'horizontal';
+g.VERTICAL = 'vertical';
+g.BOTH = 'both';
+
+g.LEFT = 'left';
+g.RIGHT = 'right';
+g.CENTER = 'center';
+g.TOP = 'top';
+g.BOTTOM = 'bottom';
+g.MIDDLE = 'middle';
+
+function clamp(val, min, max) {
+    return Math.min(max, Math.max(min, val));
+}
+
+function transformShape(shape, t) {
+    return t.transformShape(shape);
+}
+
+function transformImage(image, t) {
+    return image._transform(t.m);
+}
+
+function transform(shape, t) {
+    if (shape instanceof vg.Path || shape instanceof vg.Group || shape instanceof vg.Text || ((shape.x !== undefined && shape.y !== undefined))) {
+        return transformShape(shape, t);
+    } else if (Array.isArray(shape)) {
+        var l = [];
+        for (var i = 0; i < shape.length; i += 1) {
+            l.push(transform(shape[i], t));
+        }
+        return l;
+    } else if (shape instanceof img.Img) {
+        return transformImage(shape, t);
+    }
+}
+
+g.align = function (shape, position, hAlign, vAlign) {
+    if (!shape) {
+        return;
+    }
+    var dx, dy, t,
+        x = position.x,
+        y = position.y,
+        bounds = vg.bounds(shape);
+    if (hAlign === g.LEFT) {
+        dx = x - bounds.x;
+    } else if (hAlign === g.RIGHT) {
+        dx = x - bounds.x - bounds.width;
+    } else if (hAlign === g.CENTER) {
+        dx = x - bounds.x - bounds.width / 2;
+    } else {
+        dx = 0;
+    }
+    if (vAlign === g.TOP) {
+        dy = y - bounds.y;
+    } else if (vAlign === g.BOTTOM) {
+        dy = y - bounds.y - bounds.height;
+    } else if (vAlign === g.MIDDLE) {
+        dy = y - bounds.y - bounds.height / 2;
+    } else {
+        dy = 0;
+    }
+
+    t = new vg.Transform().translate(dx, dy);
+    return transform(shape, t);
+};
+
+g.colorize = function (shape, options) {
+    var args = arguments;
+    if (typeof options !== 'object' || options instanceof vg.Color) {
+        options = {};
+        if (args[1] !== undefined) { options.fill = args[1]; }
+        if (args[2] !== undefined) { options.stroke = args[2]; }
+        if (args[3] !== undefined) { options.strokeWidth = args[3]; }
+    }
+    if (shape instanceof vg.Path || shape instanceof vg.Group) {
+        return shape.colorize(options);
+    } else if (shape instanceof img.Img || shape instanceof vg.Text) {
+        if (options.fill || options.fill === 0) {
+            return shape.colorize(options.fill);
+        } else {
+            throw new Error('No color given');
+        }
+    }
+};
+
+g.copy = function (shape, copies, order, translate, rotate, scale) {
+    var i, t, j, op, fn,
+        shapes = [],
+        tx = 0,
+        ty = 0,
+        r = 0,
+        sx = 1.0,
+        sy = 1.0,
+        isListOfPoints = false;
+
+    if (shape instanceof vg.Path || shape instanceof vg.Group || shape instanceof vg.Text) {
+        fn = transformShape;
+    } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+        isListOfPoints = true;
+        fn = transformShape;
+    } else if (shape instanceof img.Img) {
+        fn = transformImage;
+    }
+
+    for (i = 0; i < copies; i += 1) {
+        t = new vg.Transform();
+        for (j = 0; j < order.length; j += 1) {
+            op = order[j];
+            if (op === 't') {
+                t = t.translate(tx, ty);
+            } else if (op === 'r') {
+                t = t.rotate(r);
+            } else if (op === 's') {
+                t = t.scale(sx, sy);
+            }
+        }
+        if (isListOfPoints) {
+            shapes = shapes.concat(fn(shape, t));
+        } else {
+            shapes.push(fn(shape, t));
+        }
+
+        tx += translate.x;
+        ty += translate.y;
+        r += rotate;
+        sx += scale.x;
+        sy += scale.y;
+    }
+    return shapes;
+};
+
+g.flip = function (shape, axis) {
+    if (axis === 'none') { return shape; }
+    if (shape instanceof vg.Path || shape instanceof vg.Group || shape instanceof vg.Text || (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined)) {
+        var x = axis === g.HORIZONTAL || axis === g.BOTH ? -1 : 1;
+        var y = axis === g.VERTICAL || axis === g.BOTH ? -1 : 1;
+        return vg.scale(shape, new vg.Point(x, y), vg.centerPoint(shape));
+    } else if (shape instanceof img.Img) {
+        var image = shape;
+        var layer = image.toLayer(false);
+        if (axis === g.HORIZONTAL || axis === g.BOTH) {
+            layer.flipHorizontal();
+        }
+        if (axis === g.VERTICAL || axis === g.BOTH) {
+            layer.flipVertical();
+        }
+        return image.withCanvas(layer.toCanvas());
+    }
+};
+
+g.fit = function (shape, position, width, height, stretch) {
+    if (!shape) {
+        return;
+    }
+    stretch = stretch !== undefined ? stretch : false;
+    var t, sx, sy,
+        bounds = vg.bounds(shape),
+        bx = bounds.x,
+        by = bounds.y,
+        bw = bounds.width,
+        bh = bounds.height;
+
+    // Make sure bw and bh aren't infinitely small numbers.
+    // This will lead to incorrect transformations with for examples lines.
+    bw = (bw > 0.000000000001) ? bw : 0;
+    bh = (bh > 0.000000000001) ? bh : 0;
+
+    t = new vg.Transform();
+    t = t.translate(position.x, position.y);
+
+    if (!stretch) {
+        // don't scale widths or heights that are equal to zero.
+        sx = (bw > 0) ? (width / bw) : Number.MAX_VALUE;
+        sy = (bh > 0) ? (height / bh) : Number.MAX_VALUE;
+        sx = sy = Math.min(sx, sy);
+    } else {
+        sx = (bw > 0) ? (width / bw) : 1;
+        sy = (bh > 0) ? (height / bh) : 1;
+    }
+
+    t = t.scale(sx, sy);
+    t = t.translate(-bw / 2 - bx, -bh / 2 - by);
+    return transform(shape, t);
+};
+
+g.fitTo = function (shape, bounding, stretch) {
+    if (!shape) {
+        return;
+    }
+    if (!bounding) {
+        return shape;
+    }
+
+    var bounds = vg.bounds(bounding),
+        bx = bounds.x,
+        by = bounds.y,
+        bw = bounds.width,
+        bh = bounds.height;
+
+    return g.fit(shape, {x: bx + bw / 2, y: by + bh / 2}, bw, bh, stretch);
+};
+
+g.hslAdjust = function (v, hue, saturation, lightness, alpha) {
+    if (!alpha) { alpha = 0; }
+
+    // First, handle the image case.
+    if (v instanceof img.Img) {
+        var image = v;
+        var layer = image.toLayer(false);
+        layer.addFilter('hslAdjust', {h: hue, s: saturation, l: lightness, a: alpha});
+        return image.withCanvas(layer.toCanvas());
+    }
+
+    hue = clamp(hue, -1, 1);
+    saturation = clamp(saturation, -1, 1);
+    lightness = clamp(lightness, -1, 1);
+    alpha = clamp(alpha, -1, 1);
+    var satMul = 1 + saturation * (saturation < 0 ? 1 : 2);
+    var lightMul = lightness < 0 ? 1 + lightness : 1 - lightness;
+    var lightAdd = lightness < 0 ? 0 : lightness;
+    var r, g, b, vs, ms, vm, h, s, l, m, vmh, sextant;
+    hue = (hue * 6) % 6;
+
+    function hslAdjust(v1) {
+        if (v1 instanceof vg.Group) {
+            var newShapes = [];
+            for (var i = 0; i < v1.shapes.length; i += 1) {
+                newShapes.push(hslAdjust(v1.shapes[i]));
+            }
+            return new vg.Group(newShapes);
+        } else if (v1 instanceof vg.Path) {
+            var p = v1.clone();
+            p.fill = hslAdjust(p.fill);
+            p.stroke = hslAdjust(p.stroke);
+            return p;
+        }
+        var c = v1;
+        if (!(c instanceof vg.Color)) {
+            c = vg.Color.parse(c);
+        }
+
+        r = c.r;
+        g = c.g;
+        b = c.b;
+
+        if (hue !== 0 || saturation !== 0) {
+            // ok, here comes rgb to hsl + adjust + hsl to rgb, all in one jumbled mess.
+            // It's not so pretty, but it's been optimized to get somewhat decent performance.
+            // The transforms were originally adapted from the ones found in Graphics Gems, but have been heavily modified.
+            vs = r;
+            if (g > vs) {
+                vs = g;
+            }
+            if (b > vs) {
+                vs = b;
+            }
+            ms = r;
+            if (g < ms) {
+                ms = g;
+            }
+            if (b < ms) {
+                ms = b;
+            }
+            vm = vs - ms;
+            l = (ms + vs) / 2;
+
+            if (l > 0 && vm > 0) {
+                if (l <= 0.5) {
+                    s = vm / (vs + ms) * satMul;
+                    if (s > 1) {
+                        s = 1;
+                    }
+                    v = (l * (1 + s));
+                } else {
+                    s = vm / (2 - vs - ms) * satMul;
+                    if (s > 1) {
+                        s = 1;
+                    }
+                    v = (l + s - l * s);
+                }
+                if (r === vs) {
+                    if (g === ms) {
+                        h = 5 + ((vs - b) / vm) + hue;
+                    } else {
+                        h = 1 - ((vs - g) / vm) + hue;
+                    }
+                } else if (g === vs) {
+                    if (b === ms) {
+                        h = 1 + ((vs - r) / vm) + hue;
+                    } else {
+                        h = 3 - ((vs - b) / vm) + hue;
+                    }
+                } else {
+                    if (r === ms) {
+                        h = 3 + ((vs - g) / vm) + hue;
+                    } else {
+                        h = 5 - ((vs - r) / vm) + hue;
+                    }
+                }
+                if (h < 0) {
+                    h += 6;
+                }
+                if (h >= 6) {
+                    h -= 6;
+                }
+                m = (l + l - v);
+                sextant = h >> 0;
+                vmh = (v - m) * (h - sextant);
+                if (sextant === 0) {
+                    r = v;
+                    g = m + vmh;
+                    b = m;
+                } else if (sextant === 1) {
+                    r = v - vmh;
+                    g = v;
+                    b = m;
+                } else if (sextant === 2) {
+                    r = m;
+                    g = v;
+                    b = m + vmh;
+                } else if (sextant === 3) {
+                    r = m;
+                    g = v - vmh;
+                    b = v;
+                } else if (sextant === 4) {
+                    r = m + vmh;
+                    g = m;
+                    b = v;
+                } else if (sextant === 5) {
+                    r = v;
+                    g = m;
+                    b = v - vmh;
+                }
+            }
+        }
+
+        r = r * lightMul + lightAdd;
+        g = g * lightMul + lightAdd;
+        b = b * lightMul + lightAdd;
+
+        if (r < 0) { r = 0; }
+        if (g < 0) { g = 0; }
+        if (b < 0) { b = 0; }
+        if (r > 1) { r = 1; }
+        if (g > 1) { g = 1; }
+        if (b > 1) { b = 1; }
+
+        return new vg.Color(r, g, b, c.a + alpha);
+    }
+    return hslAdjust(v);
+};
+
+g.rgbAdjust = function (v, red, green, blue, alpha) {
+    if (!alpha) { alpha = 0; }
+    red = clamp(red, -1, 1);
+    green = clamp(green, -1, 1);
+    blue = clamp(blue, -1, 1);
+    alpha = clamp(alpha, -1, 1);
+
+    function rgbAdjust(v) {
+        if (v instanceof img.Img) {
+            var image = v;
+            var layer = image.toLayer(false);
+            layer.addFilter('rgbAdjust', {r: red, g: green, b: blue, a: alpha});
+            return image.withCanvas(layer.toCanvas());
+        } else if (v instanceof vg.Group) {
+            var newShapes = [];
+            for (var i = 0; i < v.shapes.length; i += 1) {
+                newShapes.push(rgbAdjust(v.shapes[i]));
+            }
+            return new vg.Group(newShapes);
+        } else if (v instanceof vg.Path) {
+            var p = v.clone();
+            p.fill = rgbAdjust(p.fill);
+            p.stroke = rgbAdjust(p.stroke);
+            return p;
+        }
+        var c = v;
+        if (!(c instanceof vg.Color)) {
+            c = vg.Color.parse(c);
+        }
+        return new vg.Color(c.r + red, c.g + green, c.b + blue, c.a + alpha);
+    }
+    return rgbAdjust(v);
+};
+
+g.stack = function (shapes, direction, margin) {
+    if (!shapes) {
+        return [];
+    }
+    if (shapes.length <= 1) {
+        return shapes;
+    }
+
+    var tx, ty, t, bounds,
+        firstBounds = shapes[0].bounds(),
+        newShapes = [];
+    if (direction === 'e') {
+        tx = -(firstBounds.width / 2);
+        _.each(shapes, function (shape) {
+            bounds = shape.bounds();
+            t = new vg.Transform().translate(tx - bounds.x, 0);
+            newShapes.push(transform(shape, t));
+            tx += bounds.width + margin;
+        });
+    } else if (direction === 'w') {
+        tx = firstBounds.width / 2;
+        _.each(shapes, function (shape) {
+            bounds = shape.bounds();
+            t = new vg.Transform().translate(tx + bounds.x, 0);
+            newShapes.push(transform(shape, t));
+            tx -= bounds.width + margin;
+        });
+    } else if (direction === 'n') {
+        ty = firstBounds.height / 2;
+        _.each(shapes, function (shape) {
+            bounds = shape.bounds();
+            t = new vg.Transform().translate(0, ty + bounds.y);
+            newShapes.push(transform(shape, t));
+            ty -= bounds.height + margin;
+        });
+    } else if (direction === 's') {
+        ty = -(firstBounds.height / 2);
+        _.each(shapes, function (shape) {
+            bounds = shape.bounds();
+            t = new vg.Transform().translate(0, ty - bounds.y);
+            newShapes.push(transform(shape, t));
+            ty += bounds.height + margin;
+        });
+    }
+    return newShapes;
+};
+
+g.angle = function (point1, point2) {
+    var args = arguments;
+    if (args.length === 4) {
+        point1 = vg.Point.read(args[0], args[1]);
+        point2 = vg.Point.read(args[2], args[3]);
+    } else {
+        point1 = vg.Point.read(point1);
+        point2 = vg.Point.read(point2);
+    }
+    return math.degrees(Math.atan2(point2.y - point1.y, point2.x - point1.x));
+};
+
+g.coordinates = function (point, angle, distance) {
+    var args = arguments;
+    if (args.length === 4) {
+        point = vg.Point.read(args[0], args[1]);
+        angle = args[2];
+        distance = args[3];
+    } else {
+        point = vg.Point.read(point);
+    }
+    return vg.geo.coordinates(point.x, point.y, angle, distance);
+};
+
+g.distance = function (point1, point2) {
+    var args = arguments;
+    if (args.length === 4) {
+        point1 = vg.Point.read(args[0], args[1]);
+        point2 = vg.Point.read(args[2], args[3]);
+    } else {
+        point1 = vg.Point.read(point1);
+        point2 = vg.Point.read(point2);
+    }
+    return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
+};
+
+g.grayColor = function (gray, alpha) {
+    if (!alpha && alpha !== 0) { alpha = 1; }
+    return vg.Color.gray(gray, alpha, 1.0);
+};
+
+g.hexColor = function (s) {
+    function isNumeric(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+    if (isNumeric(s)) {
+        s = s.toString(16);
+    } else {
+        s = String(s);
+    }
+    if (s[0] !== '#') {
+        s = '#' + s;
+    }
+    return vg.Color.parse(s);
+};
+
+g.hslColor = function (hue, saturation, lightness, alpha) {
+    if (!alpha && alpha !== 0) { alpha = 1; }
+    return vg.Color.hsl(hue, saturation, lightness, alpha, 1.0);
+};
+
+g.rgbColor = function (red, green, blue, alpha) {
+    if (!alpha && alpha !== 0) { alpha = 1; }
+    return vg.Color.rgb(red, green, blue, alpha, 1.0);
+};
+
+g.desaturate = function (shape, method) {
+    if (!shape) { return null; }
+    return shape.desaturate({method: method});
+};
+
+g.invert = function (shape) {
+    if (!shape) { return null; }
+    if (shape instanceof img.Img) {
+        var image = shape;
+        var layer = image.toLayer(false);
+        layer.addFilter('invert');
+        return image.withCanvas(layer.toCanvas());
+    }
+    return shape.invert();
+};
+
+module.exports = g;
+
+},{"./img/img":18,"./math":22,"./vg/vg":45,"lodash":4}],14:[function(require,module,exports){
+'use strict';
+
+var vg = require('./vg/vg');
+var img = require('./img/img');
+
+var Img = img.Img;
+var Layer = img.Layer;
+var ImageCanvas = img.ImageCanvas;
+var g = {};
+
+g.blend = function (image1, image2, mode) {
+    var b1 = image1.bounds();
+    var b2 = image2.bounds();
+
+    var b = new vg.Rect(b1.x, b1.y, b1.width, b1.height).unite(b2);
+    var width = Math.ceil(b.width);
+    var height = Math.ceil(b.height);
+    var dx = width / 2 + b.x;
+    var dy = height / 2 + b.y;
+
+    var canvas = new ImageCanvas(width, height);
+    var l1 = canvas.addLayer(image1.toLayer());
+    l1.translate(-dx, -dy);
+    var l2 = canvas.addLayer(image2.toLayer());
+    l2.translate(-dx, -dy);
+    l2.blendmode = mode;
+    return new Img(canvas.render(), dx, dy);
+};
+
+g.blur = function (image, radius) {
+    var layer = image.toLayer(false);
+    layer.addFilter('blur', {radius: radius});
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.brighten = function (image, brightness, contrast) {
+    var layer = image.toLayer(false);
+    layer.addFilter('brightness', {brightness: brightness / 100, contrast: contrast / 100});
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.bump = function (image, position, radius, zoom) {
+    var layer = image.toLayer(false);
+    layer.addFilter('bump', {dx: position.x, dy: position.y, radius: radius, zoom: zoom / 100});
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.colorImage = function (width, height, color) {
+    var layer = Layer.fromColor(color);
+    layer.width = width;
+    layer.height = height;
+    return new Img(layer.toCanvas());
+};
+
+g.crop = function (image, bounding) {
+    return image.crop(bounding);
+};
+
+g.crossEdges = function (image, strength) {
+    var layer = image.toLayer(false);
+    layer.addFilter('crossedges', {strength: strength / 100});
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.dent = function (image, position, radius, zoom) {
+    var layer = image.toLayer(false);
+    layer.addFilter('dent', {dx: position.x, dy: position.y, radius: radius, zoom: zoom / 100});
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.emboss = function (image, amount, angle) {
+    var layer = image.toLayer(false);
+    layer.addFilter('emboss', {amount: amount / 100, angle: angle});
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.equalize = function (image) {
+    var layer = image.toLayer(false);
+    layer.addFilter('equalize');
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.findEdges = function (image) {
+    var layer = image.toLayer(false);
+    layer.addFilter('findedges');
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.glow = function (image, amount, kernelSize) {
+    var layer = image.toLayer(false);
+    layer.addFilter('glow', {amount: amount / 100, kernelSize: kernelSize});
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.gradientImage = function (width, height, startColor, endColor, type, angle, spread) {
+    var layer = Layer.fromGradient(startColor, endColor, type, angle, spread / 100);
+    layer.width = width;
+    layer.height = height;
+    return new Img(layer.toCanvas());
+};
+
+g.histogram = function (image, channel, relative) {
+    var pixels = image.getPixels();
+    var vals = new Array(256);
+    var i, c, pixel, comp;
+    for (i = 0; i < vals.length; i += 1) { vals[i] = 0; }
+    if (channel === 'lum') {
+        for (i = 0; i < pixels.width * pixels.height; i += 1) {
+            pixel = pixels.get(i);
+            comp = pixel[0] * 0.2125 + pixel[1] * 0.7154 + pixel[2] * 0.0721;
+            vals[Math.round(comp)] += 1;
+        }
+    } else {
+        if (channel === 'red') { c = 0; }
+        if (channel === 'green') { c = 1; }
+        if (channel === 'blue') { c = 2; }
+        if (channel === 'alpha') { c = 3; }
+        for (i = 0; i < pixels.width * pixels.height; i += 1) {
+            pixel = pixels.get(i);
+            comp = pixel[c];
+            vals[comp] += 1;
+        }
+    }
+    if (relative) {
+        for (i = 0; i < vals.length; i += 1) {
+            vals[i] /= (pixels.width * pixels.height);
+        }
+    }
+    return vals;
+};
+
+g.lightTunnel = function (image, position, radius) {
+    var layer = image.toLayer(false);
+    layer.addFilter('splash', {dx: position.x, dy: position.y, radius: radius});
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.luminanceBW = function (image) {
+    var layer = image.toLayer(false);
+    layer.addFilter('luminancebw');
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.mask = function (image, mask) {
+    image = image.transformed();
+    mask = mask.transformed();
+
+    var layer = image.toLayer(false);
+    var maskLayer = mask.toLayer();
+
+    var b1 = image.bounds();
+    var b2 = mask.bounds();
+
+    var b = new vg.Rect(b1.x, b1.y, b1.width, b1.height).unite(b2);
+    var width = Math.ceil(b.width);
+    var height = Math.ceil(b.height);
+    var dx = width / 2 + b.x;
+    var dy = height / 2 + b.y;
+    maskLayer.translate(-dx, -dy);
+
+    var l = layer.mask.addLayer('white');
+    l.width = layer.width;
+    l.height = layer.height;
+    layer.mask.addLayer(maskLayer);
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.mosaic = function (image, blockSize) {
+    var layer = image.toLayer(false);
+    layer.addFilter('mosaic', {blockSize: blockSize});
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.pinch = function (image, position, zoom) {
+    var layer = image.toLayer(false);
+    layer.addFilter('pinch', {dx: position.x, dy: position.y, zoom: zoom / 100});
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.posterize = function (image, levels) {
+    var layer = image.toLayer(false);
+    layer.addFilter('posterize', {levels: levels});
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.removeNoise = function (image) {
+    var layer = image.toLayer(false);
+    layer.addFilter('removenoise');
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.solarize = function (image) {
+    var layer = image.toLayer(false);
+    layer.addFilter('solarize');
+    return image.withCanvas(layer.toCanvas());
+};
+
+g.toBitmap = function (shape, bounding) {
+    var canvas = document.createElement('canvas');
+    var bounds;
+    if (bounding) {
+        bounds = bounding.bounds();
+    } else {
+        bounds = shape.bounds();
+    }
+    var x = bounds.x;
+    var y = bounds.y;
+    var width = canvas.width = Math.ceil(bounds.width);
+    var height = canvas.height = Math.ceil(bounds.height);
+    var ctx = canvas.getContext('2d');
+    ctx.translate(-x, -y);
+    shape.draw(ctx);
+    return new Img(canvas, width / 2 + x, height / 2 + y);
+};
+
+g.toPixels = function (image, step) {
+    step = step > 1 ? step : 1;
+    var canvas = image.canvas;
+    var imgWidth = canvas.width;
+    var imgHeight = canvas.height;
+    var ctx = canvas.getContext('2d');
+    var data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    var pixels = data.data;
+    var stride = canvas.width * 4;
+
+    var outPixels = [];
+    for (var y = 0; y < imgHeight; y += step) {
+        for (var x = 0; x < imgWidth; x += step) {
+            var offset = y * stride + x * 4;
+            var pr = pixels[offset];
+            var pg = pixels[offset + 1];
+            var pb = pixels[offset + 2];
+            var pa = pixels[offset + 3];
+            outPixels.push({
+                x: x - imgWidth / 2,
+                y: y - imgHeight / 2,
+                r: pr,
+                g: pg,
+                b: pb,
+                a: pa,
+                color: new vg.Color(pr / 255, pg / 255, pb / 255, pa / 255)
+            });
+        }
+    }
+    return outPixels;
+};
+
+g.twirl = function (image, position, radius, angle) {
+    var layer = image.toLayer(false);
+    layer.addFilter('twirl', {dx: position.x, dy: position.y, radius: radius, angle: angle});
+    return image.withCanvas(layer.toCanvas());
+};
+
+module.exports = g;
+
+},{"./img/img":18,"./vg/vg":45}],15:[function(require,module,exports){
+'use strict';
+
+var async = require('async');
+var process = require('./process');
+var CanvasRenderer = require('./canvasrenderer');
+
+// Utility function that passes its input (normally a html canvas) to the next function.
+function passThrough(canvas, callback) {
+    callback(null, canvas);
+}
+
+// RENDERING.
+
+// The Layer and ImageCanvas objects don't do any actual pixel operations themselves,
+// they only contain information about the operations. The actual rendering is done
+// by a Renderer object. Currently there is only one kind available, the CanvasRenderer,
+// which uses the HTML Canvas object (containing the pixel data) and a 2D context that
+// acts on this canvas object. In the future, a webgl renderer might be added as well.
+
+var AsyncRenderer = {};
+
+// Renders a html canvas as an html Image. Currently unused.
+AsyncRenderer.toImage = function () {
+    return function (canvas, callback) {
+        callback(null, CanvasRenderer.toImage(canvas));
+    };
+};
+
+
+// 'LOADING' OF LAYERS.
+
+// Returns a html canvas dependent on the type of the layer provided.
+AsyncRenderer.load = function (iCanvas, layer) {
+    if (layer.isPath()) {
+        return AsyncRenderer.loadFile(layer.data);
+    } else if (layer.isFill()) {
+        return AsyncRenderer.generateColor(iCanvas, layer);
+    } else if (layer.isGradient()) {
+        return AsyncRenderer.generateGradient(iCanvas, layer);
+    } else if (layer.isHtmlCanvas()) {
+        return AsyncRenderer.loadHtmlCanvas(layer.data);
+    } else if (layer.isImage()) {
+        return AsyncRenderer.loadImage(layer.data);
+    } else if (layer.isImageCanvas()) {
+        return AsyncRenderer.loadImageCanvas(layer.data);
+    }
+};
+
+// Returns a html canvas from an image file location.
+AsyncRenderer.loadFile = function (src) {
+    return function (_, callback) {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+
+        var source = new Image();
+        source.onload = function () {
+            canvas.width = source.width;
+            canvas.height = source.height;
+            ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+            callback(null, canvas);
+        };
+        source.src = src;
+    };
+};
+
+// Passes a html canvas.
+AsyncRenderer.loadHtmlCanvas = function (canvas) {
+    return function (_, callback) {
+        callback(null, canvas);
+    };
+};
+
+// Returns a html canvas from rendering an ImageCanvas.
+AsyncRenderer.loadImageCanvas = function (iCanvas) {
+    return function (_, callback) {
+        iCanvas.render(function (canvas) {
+            callback(null, canvas);
+        });
+    };
+};
+
+// Returns a html canvas from rendering a stored Image file.
+AsyncRenderer.loadImage = function (img) {
+    return function (_, callback) {
+        var canvas = CanvasRenderer.loadImage(img);
+        callback(null, canvas);
+    };
+};
+
+// Returns a html canvas with a solid fill color.
+AsyncRenderer.generateColor = function (iCanvas, layer) {
+    return function (_, callback) {
+        var canvas = CanvasRenderer.generateColor(iCanvas, layer);
+        callback(null, canvas);
+    };
+};
+
+// Returns a html canvas with a gradient.
+AsyncRenderer.generateGradient = function (iCanvas, layer) {
+    return function (_, callback) {
+        var canvas = CanvasRenderer.generateGradient(iCanvas, layer);
+        callback(null, canvas);
+    };
+};
+
+
+// PROCESSING OF LAYERS.
+
+// Performs a number of filtering operations on an html image.
+// This method executes on the main thread if web workers aren't available on the current system.
+AsyncRenderer.processImage = function (filters) {
+    if (filters.length === 0) {
+        return passThrough;
+    }
+
+    return function (canvas, callback) {
+        CanvasRenderer.processImage(canvas, filters);
+        callback(null, canvas);
+    };
+};
+
+// Renders the layer mask and applies it to the layer that it is supposed to mask.
+AsyncRenderer.processMask = function (mask) {
+    if (mask.layers.length === 0) {
+        return passThrough;
+    }
+    return function (canvas, callback) {
+        mask.width = canvas.width;
+        mask.height = canvas.height;
+
+        // First, make a black and white version of the masking canvas and pass
+        // the result to the masking operation.
+        AsyncRenderer.renderBW(mask, function (c) {
+            var data = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+            var maskFilter = {name: 'mask', options: {data: data, x: 0, y: 0, width: c.width, height: c.height} };
+            var fn = AsyncRenderer.processImage([maskFilter]);
+            fn(canvas, callback);
+        });
+    };
+};
+
+// Processes a single layer. First the layer image is loaded, then a mask (if applicable) is applied to it,
+// and finally the filters (if any) are applied to it.
+function processLayers(iCanvas) {
+    return function (layer, callback) {
+        async.compose(
+            AsyncRenderer.processImage(layer.filters),
+            AsyncRenderer.processMask(layer.mask),
+            AsyncRenderer.load(iCanvas, layer)
+        )(null, callback);
+    };
+}
+
+
+// LAYER BLENDING.
+
+// Blends the subsequent layer images with the base layer and returns a single image.
+// This method is used when web workers aren't available for use on this system.
+AsyncRenderer.mergeManualBlend = function (iCanvas, layerData) {
+    return function (canvas, callback) {
+        CanvasRenderer.mergeManualBlend(iCanvas, layerData)(canvas);
+        callback(null, canvas);
+    };
+};
+
+// Blends the subsequent layer images with the base layer and returns the resulting image.
+// This method is used when the system supports the requested blending mode(s).
+AsyncRenderer.mergeNativeBlend = function (iCanvas, layerData) {
+    return function (canvas, callback) {
+        CanvasRenderer.mergeNativeBlend(iCanvas, layerData)(canvas);
+        callback(null, canvas);
+    };
+};
+
+// Merges the different canvas layers together in a single image and returns this as a html canvas.
+AsyncRenderer.merge = function (iCanvas, layerData, callback) {
+    var renderPipe = CanvasRenderer.createRenderPipe(AsyncRenderer, iCanvas, layerData);
+    renderPipe.reverse();
+
+    var canvas = CanvasRenderer.singleLayerWithOpacity(iCanvas, layerData[0]);
+    renderPipe.push(function (_, cb) {
+        cb(null, canvas);
+    });
+
+    async.compose.apply(null, renderPipe)(null, function () {
+        callback(canvas);
+    });
+};
+
+AsyncRenderer.composite = function (iCanvas, layerData, callback) {
+    if (!layerData || layerData.length === 0) {
+        callback(null);
+        return;
+    }
+    if (layerData.length === 1) {
+        callback(CanvasRenderer.singleLayerWithOpacity(iCanvas, layerData[0]));
+        return;
+    }
+
+    AsyncRenderer.merge(iCanvas, layerData, callback);
+};
+
+// Renders the image canvas. Top level.
+AsyncRenderer.render = function (iCanvas, callback) {
+    async.map(iCanvas.layers,
+        processLayers(iCanvas), function (err, layerImages) {
+            if (callback) {
+                AsyncRenderer.composite(iCanvas, CanvasRenderer.getLayerData(iCanvas, layerImages), callback);
+            }
+        });
+};
+
+// Renders the image canvas and turns it into a black and white image. Useful for rendering a layer mask.
+AsyncRenderer.renderBW = function (iCanvas, callback) {
+    AsyncRenderer.render(iCanvas, function (canvas) {
+        var data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+        var bwFilter = {name: 'desaturate', options: {method: 'ITU-R BT.709'}};
+        var fn = AsyncRenderer.processImage([bwFilter]);
+        fn(canvas, function (err, c) {
+            callback(c);
+        });
+    });
+};
+
+module.exports = AsyncRenderer;
+
+},{"./canvasrenderer":17,"./process":19,"async":1}],16:[function(require,module,exports){
+'use strict';
+
+var blend, process;
+
+var aliases = {
+    normal: 'source-over',
+    'linear-dodge': 'add'
+};
+
+function addAliases(d) {
+    var i, mode, alias;
+    var modes = Object.keys(aliases);
+    for (i = 0; i < modes.length; i += 1) {
+        mode = modes[i];
+        alias = aliases[mode];
+        d[mode] = d[alias];
+    }
+}
+
+function realBlendMode(mode) {
+    if (aliases[mode] !== undefined) { return aliases[mode]; }
+    return mode;
+}
+
+// Tests which blending modes are supported on the current system and returns a dictionary with the results.
+// For example d['source-over'] always results in true.
+function getNativeModes() {
+    if (typeof document === 'undefined') {
+        return {};
+    }
+    var i, mode, darken, ok;
+    var nativeModes = {};
+    var dCanvas = document.createElement('canvas');
+    var ctx = dCanvas.getContext('2d');
+
+    var native = ['source-over', 'source-in', 'source-out', 'source-atop',
+            'destination-over', 'destination-in', 'destination-out',
+            'destination-atop', 'lighter', 'darker', 'copy', 'xor'];
+
+    var maybeNative = ['multiply', 'screen', 'overlay', 'soft-light', 'hard-light',
+            'color-dodge', 'color-burn', 'darken', 'lighten', 'difference',
+            'exclusion', 'hue', 'saturation', 'luminosity', 'color',
+            'add', 'subtract', 'average', 'negation'];
+
+    var nonNative = ['divide', 'darker-color', 'lighter-color', 'linear-burn', 'linear-light',
+            'vivid-light', 'pin-light', 'hard-mix'];
+
+    for (i = 0; i < native.length; i += 1) {
+        nativeModes[native[i]] = true;
+    }
+    for (i = 0; i < nonNative.length; i += 1) {
+        nativeModes[nonNative[i]] = false;
+    }
+    dCanvas.width = 1;
+    dCanvas.height = 1;
+    for (i = 0; i < maybeNative.length; i += 1) {
+        mode = maybeNative[i];
+        darken = mode === 'darken';
+        ok = false;
+        ctx.save();
+        try {
+            ctx.fillStyle = darken ? '#300' : '#a00';
+            ctx.fillRect(0, 0, 1, 1);
+            ctx.globalCompositeOperation = mode;
+            if (ctx.globalCompositeOperation === mode) {
+                ctx.fillStyle = darken ? '#a00' : '#300';
+                ctx.fillRect(0, 0, 1, 1);
+                ok = ctx.getImageData(0, 0, 1, 1).data[0] !== (darken ? 170 : 51);
+            }
+        } catch (e) {
+        }
+        ctx.restore();
+        nativeModes[mode] = ok;
+    }
+
+    addAliases(nativeModes);
+
+    return nativeModes;
+}
+
+process = function (inData, outData, width, height, options) {
+
+    var blend_fn,
+        sr, sg, sb, sa,
+        dr, dg, db, da,
+        or, og, ob, oa;
+    var max = Math.max;
+    var min = Math.min;
+    var div_2_255 = 2 / 255;
+
+    /*R = 0.299;
+     G = 0.587;
+     B = 0.114;*/
+
+    var R = 0.2126;
+    var G = 0.7152;
+    var B = 0.0722;
+
+    /** This is the formula used by Photoshop to convert a color from
+     * RGB (Red, Green, Blue) to HSY (Hue, Saturation, Luminosity).
+     * The hue is calculated using the exacone approximation of the saturation
+     * cone.
+     * @param rgb The input color RGB normalized components.
+     * @param hsy The output color HSY normalized components.
+     */
+    function rgbToHsy(r, g, b) {
+        r /= 255;
+        g /= 255;
+        b /= 255;
+        var h, s, y;
+
+        // For saturation equals to 0 any value of hue are valid.
+        // In this case we choose 0 as a default value.
+
+        if (r === g && g === b) {            // Limit case.
+            s = 0;
+            h = 0;
+        } else if ((r >= g) && (g >= b)) { // Sector 0: 0° - 60°
+            s = r - b;
+            h = 60 * (g - b) / s;
+        } else if ((g > r) && (r >= b)) {  // Sector 1: 60° - 120°
+            s = g - b;
+            h = 60 * (g - r) / s + 60;
+        } else if ((g >= b) && (b > r)) {  // Sector 2: 120° - 180°
+            s = g - r;
+            h = 60 * (b - r) / s + 120;
+        } else if ((b > g) && (g > r)) {   // Sector 3: 180° - 240°
+            s = b - r;
+            h = 60 * (b - g) / s + 180;
+        } else if ((b > r) && (r >= g)) {  // Sector 4: 240° - 300°
+            s = b - g;
+            h = 60 * (r - g) / s + 240;
+        } else {                           // Sector 5: 300° - 360°
+            s = r - g;
+            h = 60 * (r - b) / s + 300;
+        }
+
+        y = R * r + G * g + B * b;
+
+        // Approximations erros can cause values to exceed bounds.
+
+        return [h % 360,
+            min(max(s, 0), 1),
+            min(max(y, 0), 1)];
+    }
+
+    /**
+     * This is the formula used by Photoshop to convert a color from
+     * HSY (Hue, Saturation, Luminosity) to RGB (Red, Green, Blue).
+     * The hue is calculated using the exacone approximation of the saturation
+     * cone.
+     * @param hsy The input color HSY normalized components.
+     * @param rgb The output color RGB normalized components.
+     */
+    function hsyToRgb(h, s, y) {
+
+        h = h % 360;
+        var r, g, b, k; // Intermediate variable.
+
+        if (h >= 0 && h < 60) {           // Sector 0: 0° - 60°
+            k = s * h / 60;
+            b = y - R * s - G * k;
+            r = b + s;
+            g = b + k;
+        } else if (h >= 60 && h < 120) {  // Sector 1: 60° - 120°
+            k = s * (h - 60) / 60;
+            g = y + B * s + R * k;
+            b = g - s;
+            r = g - k;
+        } else if (h >= 120 && h < 180) { // Sector 2: 120° - 180°
+            k = s * (h - 120) / 60;
+            r = y - G * s - B * k;
+            g = r + s;
+            b = r + k;
+        } else if (h >= 180 && h < 240) { // Sector 3: 180° - 240°
+            k = s * (h - 180) / 60;
+            b = y + R * s + G * k;
+            r = b - s;
+            g = b - k;
+        } else if (h >= 240 && h < 300) { // Sector 4: 240° - 300°
+            k = s * (h - 240) / 60;
+            g = y - B * s - R * k;
+            b = g + s;
+            r = g + k;
+        } else {                          // Sector 5: 300° - 360°
+            k = s * (h - 300) / 60;
+            r = y + G * s + B * k;
+            g = r - s;
+            b = r - k;
+        }
+
+        // Approximations erros can cause values to exceed bounds.
+
+        r = min(max(r, 0), 1) * 255;
+        g = min(max(g, 0), 1) * 255;
+        b = min(max(b, 0), 1) * 255;
+        return [r, g, b];
+    }
+
+    function _sourceover() {
+        or = sr;
+        og = sg;
+        ob = sb;
+    }
+
+    function _svg_sourceover() {
+        or = sr + dr - dr * sa;
+        og = sg + dg - dg * sa;
+        ob = sb + db - db * sa;
+    }
+
+    function _multiply() {
+        or = dr * sr / 255;
+        og = dg * sg / 255;
+        ob = db * sb / 255;
+    }
+
+    function _svg_multiply() {
+        or = sr * dr + sr * (1 - da) + dr * (1 - sa);
+        og = sg * dg + sg * (1 - da) + dg * (1 - sa);
+        ob = sb * db + sb * (1 - da) + db * (1 - sa);
+    }
+
+    function _subtract() {
+        or = max(dr - sr, 0);
+        og = max(dg - sg, 0);
+        ob = max(db - sb, 0);
+    }
+
+    function _svg_subtract() {
+        or = max(dr * sa - sr * da, 0) + sr * (1 - da) + dr * (1 - sa);
+        og = max(dg * sa - sg * da, 0) + sg * (1 - da) + dg * (1 - sa);
+        ob = max(db * sa - sb * da, 0) + sb * (1 - da) + db * (1 - sa);
+    }
+
+    function _divide() {
+        or = sr === 0 ? 0 : dr / sr * 255;
+        og = sg === 0 ? 0 : dg / sg * 255;
+        ob = sb === 0 ? 0 : db / sb * 255;
+    }
+
+    function _screen() {
+        or = (255 - (((255 - dr) * (255 - sr)) >> 8));
+        og = (255 - (((255 - dg) * (255 - sg)) >> 8));
+        ob = (255 - (((255 - db) * (255 - sb)) >> 8));
+    }
+
+    function _svg_screen() {
+        or = sr + dr - sr * dr;
+        og = sg + dg - sg * dg;
+        ob = sb + db - sb * db;
+    }
+
+    function _lighten() {
+        or = dr > sr ? dr : sr;
+        og = dg > sg ? dg : sg;
+        ob = db > sb ? db : sb;
+    }
+
+    function _svg_lighten() {
+        or = max(sr * da, dr * sa) + sr * (1 - da) + dr * (1 - sa);
+        og = max(sg * da, dg * sa) + sg * (1 - da) + dg * (1 - sa);
+        ob = max(sb * da, db * sa) + sb * (1 - da) + db * (1 - sa);
+    }
+
+    function _darken() {
+        or = dr < sr ? dr : sr;
+        og = dg < sg ? dg : sg;
+        ob = db < sb ? db : sb;
+    }
+
+    function _svg_darken() {
+        or = min(sr * da, dr * sa) + sr * (1 - da) + dr * (1 - sa);
+        og = min(sg * da, dg * sa) + sg * (1 - da) + dg * (1 - sa);
+        ob = min(sb * da, db * sa) + sb * (1 - da) + db * (1 - sa);
+    }
+
+    function _darkercolor() {
+        if (dr * 0.3 + dg * 0.59 + db * 0.11 <= sr * 0.3 + sg * 0.59 + sb * 0.11) {
+            or = dr;
+            og = dg;
+            ob = db;
+        } else {
+            or = sr;
+            og = sg;
+            ob = sb;
+        }
+    }
+
+    function _svg_darkercolor() {
+        if (dr * sa * 0.3 + dg * sa * 0.59 + db * sa * 0.11 <= sr * da * 0.3 + sg * da * 0.59 + sb * da * 0.11) {
+            or = dr * sa;
+            og = dg * sa;
+            ob = db * sa;
+        } else {
+            or = sr * da;
+            og = sg * da;
+            ob = sb * da;
+        }
+        or += sr * (1 - da) + dr * (1 - sa);
+        og += sg * (1 - da) + dg * (1 - sa);
+        ob += sb * (1 - da) + db * (1 - sa);
+    }
+
+    function _lightercolor() {
+        if (dr * 0.3 + dg * 0.59 + db * 0.11 > sr * 0.3 + sg * 0.59 + sb * 0.11) {
+            or = dr;
+            og = dg;
+            ob = db;
+        } else {
+            or = sr;
+            og = sg;
+            ob = sb;
+        }
+    }
+
+    function _svg_lightercolor() {
+        if (dr * sa * 0.3 + dg * sa * 0.59 + db * sa * 0.11 > sr * da * 0.3 + sg * da * 0.59 + sb * da * 0.11) {
+            or = dr * sa;
+            og = dg * sa;
+            ob = db * sa;
+        } else {
+            or = sr * da;
+            og = sg * da;
+            ob = sb * da;
+        }
+        or += sr * (1 - da) + dr * (1 - sa);
+        og += sg * (1 - da) + dg * (1 - sa);
+        ob += sb * (1 - da) + db * (1 - sa);
+    }
+
+    function _add() { // also known as linear dodge
+        or = min(dr + sr, 255);
+        og = min(dg + sg, 255);
+        ob = min(db + sb, 255);
+    }
+
+    function _linearburn() {
+        or = dr + sr;
+        og = dg + sg;
+        ob = db + sb;
+
+        or = or < 255 ? 0 : (or - 255);
+        og = og < 255 ? 0 : (og - 255);
+        ob = ob < 255 ? 0 : (ob - 255);
+    }
+
+    function _difference() {
+        or = dr - sr;
+        og = dg - sg;
+        ob = db - sb;
+
+        or = or < 0 ? -or : or;
+        og = og < 0 ? -og : og;
+        ob = ob < 0 ? -ob : ob;
+    }
+
+    function _svg_difference() {
+        or = sr + dr - 2 * min(sr * da, dr * sa);
+        og = sg + dg - 2 * min(sg * da, dg * sa);
+        ob = sb + db - 2 * min(sb * da, db * sa);
+    }
+
+    function _exclusion() {
+        or = dr - (dr * div_2_255 - 1) * sr;
+        og = dg - (dg * div_2_255 - 1) * sg;
+        ob = db - (db * div_2_255 - 1) * sb;
+    }
+
+    function _svg_exclusion() {
+        or = sr * da + dr * sa - 2 * sr * dr + sr * (1 - da) + dr * (1 - sa);
+        og = sg * da + dg * sa - 2 * sg * dg + sg * (1 - da) + dg * (1 - sa);
+        ob = sb * da + db * sa - 2 * sb * db + sb * (1 - da) + db * (1 - sa);
+    }
+
+    function _overlay() {
+        if (dr < 128) {
+            or = sr * dr * div_2_255;
+        } else {
+            or = 255 - (255 - sr) * (255 - dr) * div_2_255;
+        }
+
+        if (dg < 128) {
+            og = sg * dg * div_2_255;
+        } else {
+            og = 255 - (255 - sg) * (255 - dg) * div_2_255;
+        }
+
+        if (db < 128) {
+            ob = sb * db * div_2_255;
+        } else {
+            ob = 255 - (255 - sb) * (255 - db) * div_2_255;
+        }
+    }
+
+    function _svg_overlay() {
+        if (2 * dr <= da) {
+            or = 2 * sr * dr + sr * (1 - da) + dr * (1 - sa);
+        } else {
+            or = sr * (1 + da) + dr * (1 + sa) - 2 * dr * sr - da * sa;
+        }
+        if (2 * dg <= da) {
+            og = 2 * sg * dg + sg * (1 - da) + dg * (1 - sa);
+        } else {
+            og = sg * (1 + da) + dg * (1 + sa) - 2 * dg * sg - da * sa;
+        }
+        if (2 * db <= da) {
+            ob = 2 * sb * db + sb * (1 - da) + db * (1 - sa);
+        } else {
+            ob = sb * (1 + da) + db * (1 + sa) - 2 * db * sb - da * sa;
+        }
+    }
+
+    function _softlight() {
+        if (dr < 128) {
+            or = ((sr >> 1) + 64) * dr * div_2_255;
+        } else {
+            or = 255 - (191 - (sr >> 1)) * (255 - dr) * div_2_255;
+        }
+
+        if (dg < 128) {
+            og = ((sg >> 1) + 64) * dg * div_2_255;
+        } else {
+            og = 255 - (191 - (sg >> 1)) * (255 - dg) * div_2_255;
+        }
+
+        if (db < 128) {
+            ob = ((sb >> 1) + 64) * db * div_2_255;
+        } else {
+            ob = 255 - (191 - (sb >> 1)) * (255 - db) * div_2_255;
+        }
+    }
+
+    function _svg_softlight() {
+        var m;
+        var pow = Math.pow;
+
+        if (0.0 === da) {
+            or = sr;
+            og = sg;
+            ob = sb;
+            return;
+        }
+
+        m = dr / da;
+        if (2 * sr <= sa) {
+            or = dr * (sa + (2 * sr - sa) * (1 - m)) + sr * (1 - da) + dr * (1 - sa);
+        } else if (2 * sr > sa && 4 * dr <= da) {
+            or = da * (2 * sr - sa) * (16 * pow(m, 3) - 12 * pow(m, 2) - 3 * m) + sr - sr * da + dr;
+        } else if (2 * sr > sa && 4 * dr > da) {
+            or = da * (2 * sr - sa) * (pow(m, 0.5) - m) + sr - sr * da + dr;
+        }
+
+        m = dg / da;
+        if (2 * sg <= sa) {
+            og = dg * (sa + (2 * sg - sa) * (1 - m)) + sg * (1 - da) + dg * (1 - sa);
+        } else if (2 * sg > sa && 4 * dg <= da) {
+            og = da * (2 * sg - sa) * (16 * pow(m, 3) - 12 * pow(m, 2) - 3 * m) + sg - sg * da + dg;
+        } else if (2 * sg > sa && 4 * dg > da) {
+            og = da * (2 * sg - sa) * (pow(m, 0.5) - m) + sg - sg * da + dg;
+        }
+
+        m = db / da;
+        if (2 * sb <= sa) {
+            ob = db * (sa + (2 * sb - sa) * (1 - m)) + sb * (1 - da) + db * (1 - sa);
+        } else if (2 * sb > sa && 4 * db <= da) {
+            ob = da * (2 * sb - sa) * (16 * pow(m, 3) - 12 * pow(m, 2) - 3 * m) + sb - sb * da + db;
+        } else if (2 * sb > sa && 4 * db > da) {
+            ob = da * (2 * sb - sa) * (pow(m, 0.5) - m) + sb - sb * da + db;
+        }
+    }
+
+    function _hardlight() {
+        if (sr < 128) {
+            or = dr * sr * div_2_255;
+        } else {
+            or = 255 - (255 - dr) * (255 - sr) * div_2_255;
+        }
+
+        if (sg < 128) {
+            og = dg * sg * div_2_255;
+        } else {
+            og = 255 - (255 - dg) * (255 - sg) * div_2_255;
+        }
+
+        if (sb < 128) {
+            ob = db * sb * div_2_255;
+        } else {
+            ob = 255 - (255 - db) * (255 - sb) * div_2_255;
+        }
+    }
+
+    function _svg_hardlight() {
+        if (2 * sr <= sa) {
+            or = 2 * sr * dr + sr * (1 - da) + dr * (1 - sa);
+        } else {
+            or = sr * (1 + da) + dr * (1 + sa) - sa * da - 2 * sr * dr;
+        }
+
+        if (2 * sg <= sa) {
+            og = 2 * sg * dg + sg * (1 - da) + dg * (1 - sa);
+        } else {
+            og = sg * (1 + da) + dg * (1 + sa) - sa * da - 2 * sg * dg;
+        }
+
+        if (2 * sb <= sa) {
+            ob = 2 * sb * db + sb * (1 - da) + db * (1 - sa);
+        } else {
+            ob = sb * (1 + da) + db * (1 + sa) - sa * da - 2 * sb * db;
+        }
+    }
+
+    function _colordodge() {
+        var dr1 = (dr << 8) / (255 - sr);
+        var dg1 = (dg << 8) / (255 - sg);
+        var db1 = (db << 8) / (255 - sb);
+
+        or = (dr1 > 255 || sr === 255) ? 255 : dr1;
+        og = (dg1 > 255 || sg === 255) ? 255 : dg1;
+        ob = (db1 > 255 || sb === 255) ? 255 : db1;
+    }
+
+    function _svg_colordodge() {
+        if (da === 0) {
+            or = sr;
+            og = sg;
+            ob = sb;
+            return;
+        }
+
+        if (sr === sa && dr === 0) {
+            or = sr * (1 - da);
+        } else if (sr === sa) {
+            or = sa * da + sr * (1 - da) + dr * (1 - sa);
+        } else if (sr < sa) {
+            or = sa * da * min(1, dr / da * sa / (sa - sr)) + sr * (1 - da) + dr * (1 - sa);
+        }
+
+        if (sg === sa && dg === 0) {
+            og = sg * (1 - da);
+        } else if (sr === sa) {
+            og = sa * da + sg * (1 - da) + dg * (1 - sa);
+        } else if (sr < sa) {
+            og = sa * da * min(1, dg / da * sa / (sa - sg)) + sg * (1 - da) + dg * (1 - sa);
+        }
+
+        if (sb === sa && db === 0) {
+            ob = sb * (1 - da);
+        } else if (sr === sa) {
+            ob = sa * da + sb * (1 - da) + db * (1 - sa);
+        } else if (sr < sa) {
+            ob = sa * da * min(1, db / da * sa / (sa - sb)) + sb * (1 - da) + db * (1 - sa);
+        }
+    }
+
+    function _colorburn() {
+        var dr1 = 255 - ((255 - dr) << 8) / sr;
+        var dg1 = 255 - ((255 - dg) << 8) / sg;
+        var db1 = 255 - ((255 - db) << 8) / sb;
+
+        or = (dr1 < 0 || sr === 0) ? 0 : dr1;
+        og = (dg1 < 0 || sg === 0) ? 0 : dg1;
+        ob = (db1 < 0 || sb === 0) ? 0 : db1;
+    }
+
+    function _svg_colorburn() {
+        if (da === 0) {
+            or = sr;
+            og = sg;
+            ob = sb;
+            return;
+        }
+
+        if (sr === 0 && dr === da) {
+            or = sa * da + dr * (1 - sa);
+        } else if (sr === 0) {
+            or = dr * (1 - sa);
+        } else if (sr > 0) {
+            or = sa * da * (1 - min(1, (1 - dr / da) * sa / sr)) + sr * (1 - da) + dr * (1 - sa);
+        }
+
+        if (sg === 0 && dg === da) {
+            og = sa * da + dg * (1 - sa);
+        } else if (sg === 0) {
+            og = dg * (1 - sa);
+        } else if (sg > 0) {
+            og = sa * da * (1 - min(1, (1 - dg / da) * sa / sg)) + sg * (1 - da) + dg * (1 - sa);
+        }
+
+        if (sb === 0 && db === da) {
+            ob = sa * da + db * (1 - sa);
+        } else if (sb === 0) {
+            ob = db * (1 - sa);
+        } else if (sb > 0) {
+            ob = sa * da * (1 - min(1, (1 - db / da) * sa / sb)) + sb * (1 - da) + db * (1 - sa);
+        }
+    }
+
+    function _linearlight() {
+        var dr1 = 2 * sr + dr - 256;
+        var dg1 = 2 * sg + dg - 256;
+        var db1 = 2 * sb + db - 256;
+
+        or = (dr1 < 0 || (sr < 128 && dr1 < 0)) ? 0 : (dr1 > 255 ? 255 : dr1);
+        og = (dg1 < 0 || (sg < 128 && dg1 < 0)) ? 0 : (dg1 > 255 ? 255 : dg1);
+        ob = (db1 < 0 || (sb < 128 && db1 < 0)) ? 0 : (db1 > 255 ? 255 : db1);
+    }
+
+    function _vividlight() {
+        var a;
+
+        if (sr < 128) {
+            if (sr) {
+                a = 255 - ((255 - dr) << 8) / (2 * sr);
+                or = a < 0 ? 0 : a;
+            } else {
+                or = 0;
+            }
+        } else {
+            a = 2 * sr - 256;
+            if (a < 255) {
+                a = (dr << 8) / (255 - a);
+                or = a > 255 ? 255 : a;
+            } else {
+                or = a < 0 ? 0 : a;
+            }
+        }
+
+        if (sg < 128) {
+            if (sg) {
+                a = 255 - ((255 - dg) << 8) / (2 * sg);
+                og = a < 0 ? 0 : a;
+            } else {
+                og = 0;
+            }
+        } else {
+            a = 2 * sg - 256;
+            if (a < 255) {
+                a = (dg << 8) / (255 - a);
+                og = a > 255 ? 255 : a;
+            } else {
+                og = a < 0 ? 0 : a;
+            }
+        }
+
+        if (sb < 128) {
+            if (sb) {
+                a = 255 - ((255 - db) << 8) / (2 * sb);
+                ob = a < 0 ? 0 : a;
+            } else {
+                ob = 0;
+            }
+        } else {
+            a = 2 * sb - 256;
+            if (a < 255) {
+                a = (db << 8) / (255 - a);
+                ob = a > 255 ? 255 : a;
+            } else {
+                ob = a < 0 ? 0 : a;
+            }
+        }
+    }
+
+    function _pinlight() {
+        var a;
+
+        if (sr < 128) {
+            a = 2 * sr;
+            or = dr < a ? dr : a;
+        } else {
+            a = 2 * sr - 256;
+            or = dr > a ? dr : a;
+        }
+
+        if (sg < 128) {
+            a = 2 * sg;
+            og = dg < a ? dg : a;
+        } else {
+            a = 2 * sg - 256;
+            og = dg > a ? dg : a;
+        }
+
+        if (sb < 128) {
+            a = 2 * sb;
+            ob = db < a ? db : a;
+        } else {
+            a = 2 * sb - 256;
+            ob = db > a ? db : a;
+        }
+    }
+
+    function _hardmix() {
+        var a;
+
+        if (sr < 128) {
+            or = (255 - ((255 - dr) << 8) / (2 * sr) < 128 || sr === 0) ? 0 : 255;
+        } else {
+            a = 2 * sr - 256;
+            or = (a < 255 && (dr << 8) / (255 - a) < 128) ? 0 : 255;
+        }
+
+        if (sg < 128) {
+            og = (255 - ((255 - dg) << 8) / (2 * sg) < 128 || sg === 0) ? 0 : 255;
+        } else {
+            a = 2 * sg - 256;
+            og = (a < 255 && (dg << 8) / (255 - a) < 128) ? 0 : 255;
+        }
+
+        if (sb < 128) {
+            ob = (255 - ((255 - db) << 8) / (2 * sb) < 128 || sb === 0) ? 0 : 255;
+        } else {
+            a = 2 * sb - 256;
+            ob = (a < 255 && (db << 8) / (255 - a) < 128) ? 0 : 255;
+        }
+    }
+
+    function _hue() {
+        var hcl1 = rgbToHsy(dr, dg, db);
+        var hcl2 = rgbToHsy(sr, sg, sb);
+        var rgb = hsyToRgb(hcl2[0], hcl1[1], hcl1[2]);
+        or = rgb[0];
+        og = rgb[1];
+        ob = rgb[2];
+    }
+
+    function _saturation() {
+        var hcl1 = rgbToHsy(dr, dg, db);
+        var hcl2 = rgbToHsy(sr, sg, sb);
+        var rgb = hsyToRgb(hcl1[0], hcl2[1], hcl1[2]);
+        or = rgb[0];
+        og = rgb[1];
+        ob = rgb[2];
+    }
+
+    function _luminosity() {
+        var hcl1 = rgbToHsy(dr, dg, db);
+        var hcl2 = rgbToHsy(sr, sg, sb);
+        var rgb = hsyToRgb(hcl1[0], hcl1[1], hcl2[2]);
+        or = rgb[0];
+        og = rgb[1];
+        ob = rgb[2];
+    }
+
+    function _color() {
+        var hcl1 = rgbToHsy(dr, dg, db);
+        var hcl2 = rgbToHsy(sr, sg, sb);
+        var rgb = hsyToRgb(hcl2[0], hcl2[1], hcl1[2]);
+        or = rgb[0];
+        og = rgb[1];
+        ob = rgb[2];
+    }
+
+    blend_fn = {
+        'source-over': _svg_sourceover,
+        'multiply': _svg_multiply,
+        'subtract': _svg_subtract,
+        'divide': _divide,
+        'screen': _svg_screen,
+        'lighten': _svg_lighten,
+        'darken': _svg_darken,
+        'darker-color': _svg_darkercolor,
+        'lighter-color': _svg_lightercolor,
+        'add': _add,
+        'linear-burn': _linearburn,
+        'difference': _svg_difference,
+        'exclusion': _svg_exclusion,
+        'overlay': _svg_overlay,
+        'soft-light': _svg_softlight,
+        'hard-light': _svg_hardlight,
+        'color-dodge': _svg_colordodge,
+        'color-burn': _svg_colorburn,
+        'linear-light': _linearlight,
+        'vivid-light': _vividlight,
+        'pin-light': _pinlight,
+        'hard-mix': _hardmix,
+        'hue': _hue,
+        'saturation': _saturation,
+        'luminosity': _luminosity,
+        'color': _color
+    };
+
+    function rectIntersect(r1, r2) {
+        var right1 = r1.x + r1.width;
+        var bottom1 = r1.y + r1.height;
+        var right2 = r2.x + r2.width;
+        var bottom2 = r2.y + r2.height;
+
+        var x = max(r1.x, r2.x);
+        var y = max(r1.y, r2.y);
+        var w = max(min(right1, right2) - x, 0);
+        var h = max(min(bottom1, bottom2) - y, 0);
+        return [x, y, w, h];
+    }
+
+    (function () {
+        var pix, pixIn, x, y, a, a2, da2, demultiply, fBlend;
+        var data2 = options.data;
+        var opacity = options.opacity === 0 ? 0 : options.opacity || 1;
+        var fn = blend_fn[options.type || '_svg_normal'];
+        var dx = options.dx || 0;
+        var dy = options.dy || 0;
+        var ri = rectIntersect({x: 0, y: 0, width: width, height: height},
+             {x: dx, y: dy, width: options.width, height: options.height});
+        var xi = ri[0];
+        var yi = ri[1];
+        var wi = ri[2];
+        var hi = ri[3];
+
+        function pBlend() {
+            sa = data2[pixIn + 3] / 255 * opacity;
+            da = inData[pix + 3] / 255;
+            da2 = (sa + da - sa * da);
+            demultiply = 255 / da2;
+
+            sr = data2[pixIn] / 255 * sa;
+            sg = data2[pixIn + 1] / 255 * sa;
+            sb = data2[pixIn + 2] / 255 * sa;
+
+            dr = inData[pix] / 255 * da;
+            dg = inData[pix + 1] / 255 * da;
+            db = inData[pix + 2] / 255 * da;
+
+            fn();
+
+            outData[pix] = or * demultiply;
+            outData[pix + 1] = og * demultiply;
+            outData[pix + 2] = ob * demultiply;
+            outData[pix + 3] = da2 * 255;
+        }
+
+        function sBlend() {
+            dr = inData[pix];
+            dg = inData[pix + 1];
+            db = inData[pix + 2];
+
+            sr = data2[pixIn];
+            sg = data2[pixIn + 1];
+            sb = data2[pixIn + 2];
+
+            fn();
+
+            outData[pix] = or;
+            outData[pix + 1] = og;
+            outData[pix + 2] = ob;
+            outData[pix + 3] = inData[pix + 3];
+
+            a = opacity * data2[pixIn + 3] / 255;
+            if (a < 1) {
+                a2 = 1 - a;
+                outData[pix] = (inData[pix] * a2 + outData[pix] * a);
+                outData[pix + 1] = (inData[pix + 1] * a2 + outData[pix + 1] * a);
+                outData[pix + 2] = (inData[pix + 2] * a2 + outData[pix + 2] * a);
+            }
+        }
+
+        fBlend = fn.name.indexOf('_svg_') === 0 ? pBlend : sBlend;
+
+        for (y = 0; y < height; y += 1) {
+            for (x = 0; x < width; x += 1) {
+                pix = (y * width + x) * 4;
+                if (y >= yi && x >= xi && x < xi + wi && y < yi + hi) {
+                    pixIn = ((y - dy) * options.width + x - dx) * 4;
+                    fBlend();
+                } else {
+                    outData[pix] = inData[pix];
+                    outData[pix + 1] = inData[pix + 1];
+                    outData[pix + 2] = inData[pix + 2];
+                    outData[pix + 3] = inData[pix + 3];
+                }
+            }
+        }
+    }());
+};
+
+function _blend(inData, outData, width, height, options) {
+    process(inData, outData, width, height, options);
+}
+
+function _wrap(type) {
+    return function (inData, outData, width, height, options) {
+        options.type = type;
+        _blend(inData, outData, width, height, options);
+    };
+}
+
+blend = (function () {
+    var mode;
+    var d = { blend: _blend };
+    var modes = ['source-over', 'add', 'multiply', 'subtract', 'divide', 'screen',
+            'lighten', 'darken', 'darker-color', 'lighter-color', 'linear-burn',
+            'difference', 'exclusion', 'overlay', 'soft-light', 'hard-light',
+            'color-dodge', 'color-burn', 'linear-light', 'vivid-light', 'pin-light',
+            'hard-mix', 'hue', 'saturation', 'luminosity', 'color'];
+    for (var i = 0; i < modes.length; i += 1) {
+        mode = modes[i];
+        d[mode] = _wrap(mode);
+    }
+    modes = Object.keys(modes);
+    for (i = 0; i < modes.length; i += 1) {
+
+    }
+    // Aliases for the blending modes
+    addAliases(d);
+
+    d.getNativeModes = getNativeModes;
+    d.realBlendMode = realBlendMode;
+
+    return d;
+}());
+
+// MODULE SUPPORT ///////////////////////////////////////////////////////
+
+module.exports = blend;
+
+},{}],17:[function(require,module,exports){
+'use strict';
+
+var blend = require('./blend');
+var process = require('./process');
+var util = require('./util');
+
+// Dictionary of blend modes that the client browser does or does not support.
+var nativeBlendModes = blend.getNativeModes();
+
+function createImageData(ctx, width, height) {
+    if (ctx.createImageData) {
+        return ctx.createImageData(width, height);
+    } else {
+        return ctx.getImageData(0, 0, width, height);
+    }
+}
+
+// RENDERING.
+
+// The Layer and ImageCanvas objects don't do any actual pixel operations themselves,
+// they only contain information about the operations. The actual rendering is done
+// by a Renderer object. Currently there is only one kind available, the CanvasRenderer,
+// which uses the HTML Canvas object (containing the pixel data) and a 2D context that
+// acts on this canvas object. In the future, a webgl renderer might be added as well.
+
+var CanvasRenderer = {};
+
+// Renders a html canvas as an html Image. Currently unused.
+CanvasRenderer.toImage = function (canvas) {
+    var img = new Image();
+    img.width = canvas.width;
+    img.height = canvas.height;
+    img.src = canvas.toDataURL();
+    return img;
+};
+
+// 'LOADING' OF LAYERS.
+
+// Returns a html canvas dependent on the type of the layer provided.
+CanvasRenderer.load = function (iCanvas, layer) {
+    if (layer.isFill()) {
+        return CanvasRenderer.generateColor(iCanvas, layer);
+    } else if (layer.isGradient()) {
+        return CanvasRenderer.generateGradient(iCanvas, layer);
+    } else if (layer.isHtmlCanvas()) {
+        return CanvasRenderer.loadHtmlCanvas(layer.data);
+    } else if (layer.isImage()) {
+        return CanvasRenderer.loadImage(layer.data);
+    } else if (layer.isImageCanvas()) {
+        return CanvasRenderer.loadImageCanvas(layer.data);
+    }
+};
+
+// Passes a html canvas.
+CanvasRenderer.loadHtmlCanvas = function (canvas) {
+    return canvas;
+};
+
+// Returns a html canvas from rendering an ImageCanvas.
+CanvasRenderer.loadImageCanvas = function (iCanvas) {
+    return iCanvas.render();
+};
+
+// Returns a html canvas from rendering a stored Image file.
+CanvasRenderer.loadImage = function (img) {
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas;
+};
+
+// Returns a html canvas with a solid fill color.
+CanvasRenderer.generateColor = function (iCanvas, layer) {
+    var width = layer.width !== undefined ? layer.width : iCanvas.width;
+    var height = layer.height !== undefined ? layer.height : iCanvas.height;
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+
+    canvas.width = width;
+    canvas.height = height;
+    ctx.fillStyle = layer.data;
+    ctx.fillRect(0, 0, width, height);
+    return canvas;
+};
+
+// Returns a html canvas with a gradient.
+CanvasRenderer.generateGradient = function (iCanvas, layer) {
+    var grd, x1, y1, x2, y2;
+    var width = layer.width !== undefined ? layer.width : iCanvas.width;
+    var height = layer.height !== undefined ? layer.height : iCanvas.height;
+    var cx = width / 2;
+    var cy = height / 2;
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    var data = layer.data;
+    var type = data.type || 'linear';
+    var rotateDegrees = data.rotation || 0;
+
+    if (type === 'radial') {
+        grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(width, height) / 2);
+    } else {
+        // Rotation code taken from html5-canvas-gradient-creator:
+        // Website: http://victorblog.com/html5-canvas-gradient-creator/
+        // Code: https://github.com/evictor/html5-canvas-gradient-creator/blob/master/js/src/directive/previewCanvas.coffee
+        if (rotateDegrees < 0) {
+            rotateDegrees += 360;
+        }
+        if ((0 <= rotateDegrees && rotateDegrees < 45)) {
+            x1 = 0;
+            y1 = height / 2 * (45 - rotateDegrees) / 45;
+            x2 = width;
+            y2 = height - y1;
+        } else if ((45 <= rotateDegrees && rotateDegrees < 135)) {
+            x1 = width * (rotateDegrees - 45) / (135 - 45);
+            y1 = 0;
+            x2 = width - x1;
+            y2 = height;
+        } else if ((135 <= rotateDegrees && rotateDegrees < 225)) {
+            x1 = width;
+            y1 = height * (rotateDegrees - 135) / (225 - 135);
+            x2 = 0;
+            y2 = height - y1;
+        } else if ((225 <= rotateDegrees && rotateDegrees < 315)) {
+            x1 = width * (1 - (rotateDegrees - 225) / (315 - 225));
+            y1 = height;
+            x2 = width - x1;
+            y2 = 0;
+        } else if (315 <= rotateDegrees) {
+            x1 = 0;
+            y1 = height - height / 2 * (rotateDegrees - 315) / (360 - 315);
+            x2 = width;
+            y2 = height - y1;
+        }
+        grd = ctx.createLinearGradient(x1, y1, x2, y2);
+    }
+    grd.addColorStop(data.spread || 0, data.startColor);
+    grd.addColorStop(1, data.endColor);
+
+    canvas.width = width;
+    canvas.height = height;
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, width, height);
+    return canvas;
+};
+
+// PROCESSING OF LAYERS.
+
+// Performs a number of filtering operations on an html image.
+CanvasRenderer.processImage = function (canvas, filters) {
+    if (filters.length === 0) {
+        return canvas;
+    }
+    var filter, tmpData;
+    var ctx = canvas.getContext('2d');
+    var width = canvas.width;
+    var height = canvas.height;
+    var inData = ctx.getImageData(0, 0, width, height);
+    var outData = createImageData(ctx, width, height);
+
+    for (var i = 0; i < filters.length; i += 1) {
+        if (i > 0) {
+            tmpData = inData;
+            inData = outData;
+            outData = tmpData;
+        }
+        filter = filters[i];
+        process[filter.name](inData.data, outData.data, width, height, filter.options);
+    }
+
+    ctx.putImageData(outData, 0, 0);
+    return canvas;
+};
+
+// Renders the layer mask and applies it to the layer that it is supposed to mask.
+CanvasRenderer.processMask = function (canvas, mask) {
+    if (mask.layers.length === 0) {
+        return canvas;
+    }
+    mask.width = canvas.width;
+    mask.height = canvas.height;
+    // First, make a black and white version of the masking canvas and pass
+    // the result to the masking operation.
+    var c = CanvasRenderer.renderBW(mask);
+    var data = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+    var maskFilter = {name: 'mask', options: {data: data, x: 0, y: 0, width: c.width, height: c.height} };
+    return CanvasRenderer.processImage(canvas, [maskFilter]);
+};
+
+// Processes a single layer. First the layer image is loaded, then a mask (if applicable) is applied to it,
+// and finally the filters (if any) are applied to it.
+CanvasRenderer.processLayer = function (iCanvas, layer) {
+    var layerImage = CanvasRenderer.load(iCanvas, layer);
+    var maskedImage = CanvasRenderer.processMask(layerImage, layer.mask);
+    return CanvasRenderer.processImage(maskedImage, layer.filters);
+};
+
+
+// LAYER TRANFORMATIONS.
+
+
+// Transforms the 2d context that acts upon this layer's image. Utility function. -> Rename this?
+function transformLayer(ctx, iCanvas, layer) {
+    var m = layer.transform.matrix();
+
+    ctx.translate(iCanvas.width / 2, iCanvas.height / 2);
+    ctx.transform(m[0], m[1], m[3], m[4], m[6], m[7]);
+    if (layer.flip_h || layer.flip_v) {
+        ctx.scale(layer.flip_h ? -1 : 1, layer.flip_v ? -1 : 1);
+    }
+    ctx.translate(-layer.img.width / 2, -layer.img.height / 2);
+}
+
+// Transforms the bounds of a layer (the bounding rectangle) and returns the bounding rectangle
+// that encloses this transformed rectangle.
+function transformRect(iCanvas, layer) {
+    var pt, minx, miny, maxx, maxy;
+    var width = layer.img.width;
+    var height = layer.img.height;
+    var p1 = {x: 0, y: 0};
+    var p2 = {x: width, y: 0};
+    var p3 = {x: 0, y: height};
+    var p4 = {x: width, y: height};
+    var points = [p1, p2, p3, p4];
+
+    var t = util.transform();
+    t = t.translate(iCanvas.width / 2, iCanvas.height / 2);
+    t = t.append(layer.transform);
+    t = t.translate(-layer.img.width / 2, -layer.img.height / 2);
+
+    for (var i = 0; i < 4; i += 1) {
+        pt = t.transformPoint(points[i]);
+        if (i === 0) {
+            minx = maxx = pt.x;
+            miny = maxy = pt.y;
+        } else {
+            if (pt.x < minx) {
+                minx = pt.x;
+            }
+            if (pt.x > maxx) {
+                maxx = pt.x;
+            }
+            if (pt.y < miny) {
+                miny = pt.y;
+            }
+            if (pt.y > maxy) {
+                maxy = pt.y;
+            }
+        }
+    }
+    return {x: minx, y: miny, width: maxx - minx, height: maxy - miny};
+}
+
+// Calculates the intersecting rectangle of two input rectangles.
+function rectIntersect(r1, r2) {
+    var right1 = r1.x + r1.width;
+    var bottom1 = r1.y + r1.height;
+    var right2 = r2.x + r2.width;
+    var bottom2 = r2.y + r2.height;
+
+    var x = Math.max(r1.x, r2.x);
+    var y = Math.max(r1.y, r2.y);
+    var w = Math.max(Math.min(right1, right2) - x, 0);
+    var h = Math.max(Math.min(bottom1, bottom2) - y, 0);
+    return {x: x, y: y, width: w, height: h};
+}
+
+// Calculates the mimimal area that a transformed layer needs so that it
+// can still be drawn on the canvas. Returns a rectangle.
+function calcLayerRect(iCanvas, layer) {
+    var rect = transformRect(iCanvas, layer);
+    rect = rectIntersect(rect, {x: 0, y: 0, width: iCanvas.width, height: iCanvas.height});
+    return { x: Math.round(rect.x),
+        y: Math.round(rect.y),
+        width: Math.ceil(rect.width),
+        height: Math.ceil(rect.height)};
+}
+
+// Transforms a layer and returns the resulting pixel data.
+function getTransformedLayerData(iCanvas, layer, rect) {
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    ctx.translate(-rect.x, -rect.y);
+    transformLayer(ctx, iCanvas, layer);
+    ctx.drawImage(layer.img, 0, 0);
+    return ctx.getImageData(0, 0, rect.width, rect.height);
+}
+
+
+// LAYER BLENDING.
+
+// Blends the subsequent layer images with the base layer and returns a single image.
+// This method is used when web workers aren't available for use on this system.
+CanvasRenderer.mergeManualBlend = function (iCanvas, layerData) {
+    return function (canvas) {
+        var layer, blendMode, blendData, tmpData, layerOptions, rect;
+        var ctx = canvas.getContext('2d');
+        var width = iCanvas.width;
+        var height = iCanvas.height;
+        var baseData = ctx.getImageData(0, 0, width, height);
+        var outData = createImageData(ctx, width, height);
+        for (var i = 0; i < layerData.length; i += 1) {
+            layer = layerData[i];
+            rect = calcLayerRect(iCanvas, layer);
+            if (rect.width > 0 && rect.height > 0) {
+                if (i > 0) {
+                    tmpData = baseData;
+                    baseData = outData;
+                    outData = tmpData;
+                }
+                blendData = getTransformedLayerData(iCanvas, layer, rect);
+                layerOptions = {data: blendData.data, width: rect.width, height: rect.height, opacity: layer.opacity, dx: rect.x, dy: rect.y};
+                if (blend[layer.blendmode] === undefined) {
+                    throw new Error('No blend mode named \'' + layer.blendmode + '\'');
+                }
+                blendMode = blend.realBlendMode(layer.blendmode);
+                blend[blendMode](baseData.data, outData.data, width, height, layerOptions);
+            }
+        }
+        ctx.putImageData(outData, 0, 0);
+        return canvas;
+    };
+};
+
+// Renders a single layer. This is useful when there's only one layer available (and no blending is needed)
+// or to render the base layer on which subsequent layers are blended.
+CanvasRenderer.singleLayerWithOpacity = function (iCanvas, layer) {
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+
+    canvas.width = iCanvas.width;
+    canvas.height = iCanvas.height;
+
+    ctx.save();
+    transformLayer(ctx, iCanvas, layer);
+    if (layer.opacity !== 1) {
+        ctx.globalAlpha = layer.opacity;
+    }
+    ctx.drawImage(layer.img, 0, 0);
+    ctx.restore();
+    return canvas;
+};
+
+// Blends the subsequent layer images with the base layer and returns the resulting image.
+// This method is used when the system supports the requested blending mode(s).
+CanvasRenderer.mergeNativeBlend = function (iCanvas, layerData) {
+    return function (canvas) {
+        var ctx = canvas.getContext('2d');
+        var layer;
+        for (var i = 0; i < layerData.length; i += 1) {
+            layer = layerData[i];
+            ctx.save();
+            transformLayer(ctx, iCanvas, layer);
+            if (layer.opacity !== 1) {
+                ctx.globalAlpha = layer.opacity;
+            }
+            if (layer.blendmode !== 'source-over') {
+                ctx.globalCompositeOperation = blend.realBlendMode(layer.blendmode);
+            }
+            ctx.drawImage(layer.img, 0, 0);
+            ctx.restore();
+        }
+        return canvas;
+    };
+};
+
+CanvasRenderer.createRenderPipe = function (Renderer, iCanvas, layerData) {
+    var mode, useNative, currentList, layer;
+    var renderPipe = [];
+
+    function pushList() {
+        if (useNative !== undefined) {
+            var fn = useNative ? Renderer.mergeNativeBlend : Renderer.mergeManualBlend;
+            renderPipe.push(fn(iCanvas, currentList));
+        }
+    }
+
+    for (var i = 1; i < layerData.length; i += 1) {
+        layer = layerData[i];
+        mode = layer.blendmode;
+        // todo: handle blendmode aliases.
+        if (useNative === undefined || useNative !== nativeBlendModes[mode]) {
+            pushList();
+            currentList = [];
+        }
+        currentList.push(layer);
+        useNative = nativeBlendModes[mode];
+        if (i === layerData.length - 1) {
+            pushList();
+        }
+    }
+    return renderPipe;
+};
+
+// Merges the different canvas layers together in a single image and returns this as a html canvas.
+CanvasRenderer.merge = function (iCanvas, layerData) {
+    var renderPipe = CanvasRenderer.createRenderPipe(CanvasRenderer, iCanvas, layerData);
+    var canvas = CanvasRenderer.singleLayerWithOpacity(iCanvas, layerData[0]);
+    for (var i = 0; i < renderPipe.length; i += 1) {
+        canvas = renderPipe[i](canvas);
+    }
+    return canvas;
+};
+
+CanvasRenderer.composite = function (iCanvas, layerData) {
+    if (!layerData || layerData.length === 0) {
+        return null;
+    }
+    if (layerData.length === 1) {
+        return CanvasRenderer.singleLayerWithOpacity(iCanvas, layerData[0]);
+    }
+
+    return CanvasRenderer.merge(iCanvas, layerData);
+};
+
+// Returns an object with additional layer information as well as the input images
+// to be passed to the different processing functions.
+CanvasRenderer.getLayerData = function (iCanvas, layerImages) {
+    var d, layer, layerImg;
+    var layerData = [];
+    for (var i = 0; i < layerImages.length; i += 1) {
+        layer = iCanvas.layers[i];
+        layerImg = layerImages[i];
+        d = { img: layerImg,
+            opacity: layer.opacity,
+            blendmode: layer.blendmode,
+            transform: layer.transform,
+            flip_h: layer.flip_h, flip_v: layer.flip_v
+        };
+        layerData.push(d);
+    }
+    return layerData;
+};
+
+// Renders the image canvas. Top level.
+CanvasRenderer.render = function (iCanvas) {
+    var layerImages = [];
+    for (var i = 0; i < iCanvas.layers.length; i += 1) {
+        layerImages.push(CanvasRenderer.processLayer(iCanvas, iCanvas.layers[i]));
+    }
+    return CanvasRenderer.composite(iCanvas, CanvasRenderer.getLayerData(iCanvas, layerImages));
+};
+
+// Renders the image canvas and turns it into a black and white image. Useful for rendering a layer mask.
+CanvasRenderer.renderBW = function (iCanvas) {
+    var canvas = CanvasRenderer.render(iCanvas);
+    var data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+    var bwFilter = {name: 'desaturate', options: {method: 'ITU-R BT.709'}};
+    return CanvasRenderer.processImage(canvas, [bwFilter]);
+};
+
+module.exports = CanvasRenderer;
+
+},{"./blend":16,"./process":19,"./util":20}],18:[function(require,module,exports){
+'use strict';
+
+var util = require('./util');
+var CanvasRenderer = require('./canvasrenderer');
+var AsyncRenderer = require('./asyncrenderer');
+
+var img, ImageCanvas, Layer, Img;
+
+var DEFAULT_WIDTH = 800;
+var DEFAULT_HEIGHT = 800;
+
+// Different layer types.
+var TYPE_PATH = 'path';
+var TYPE_IMAGE = 'image';
+var TYPE_HTML_CANVAS = 'htmlCanvas';
+var TYPE_IMAGE_CANVAS = 'iCanvas';
+var TYPE_FILL = 'fill';
+var TYPE_GRADIENT = 'gradient';
+
+var IDENTITY_TRANSFORM = util.transform();
+var Transform = IDENTITY_TRANSFORM;
+
+var clamp = util.clamp;
+
+// Named colors supported by all browsers.
+// See: http://www.w3schools.com/html/html_colornames.asp
+var colors = ['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darksalmon', 'darkseagreen', 'darkslateblue', 'darkslategray', 'darkturquoise', 'darkviolet', 'deeppink', 'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen', 'fuchsia', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'greenyellow', 'grey', 'honeydew', 'hotpink', 'indianred', 'indigo', 'ivory', 'khaki', 'lavender', 'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgreen', 'lightgrey', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightsteelblue', 'lightyellow', 'lime', 'limegreen', 'linen', 'maroon', 'mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite', 'navy', 'oldlace', 'olive', 'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue', 'purple', 'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell', 'sienna', 'silver', 'skyblue', 'slateblue', 'slategray', 'snow', 'springgreen', 'steelblue', 'tan', 'teal', 'thistle', 'tomato', 'transparent', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen'];
+
+
+// Converts a number of arguments to a type of color argument that the html canvas context can understand:
+// a named color, a hex color or a string in the form of rgba(r, g, b, a)
+function toColor(v1, v2, v3, v4, v5) {
+    var _r, _g, _b, _a, R, G, B, rgb, options;
+    if (v1 === undefined) {
+        _r = _g = _b = 0;
+        _a = 1;
+    } else if (Array.isArray(v1)) {
+        options = v2 || {};
+        _r = v1[0] !== undefined ? v1[0] : 0;
+        _g = v1[1] !== undefined ? v1[1] : 0;
+        _b = v1[2] !== undefined ? v1[2] : 0;
+        _a = v1[3] !== undefined ? v1[3] : options.base || 1;
+    } else if (v1.r !== undefined) {
+        options = v2 || {};
+        _r = v1.r;
+        _g = v1.g;
+        _b = v1.b;
+        _a = v1.a !== undefined ? v1.a : options.base || 1;
+    } else if (typeof v1 === 'string') {
+        if (v1.indexOf('#') === 0) {
+            return v1;
+        }
+        if (v1.indexOf('rgb') === 0) {
+            return v1;
+        }
+        if (colors.indexOf(v1) !== -1) {
+            return v1;
+        }
+    } else if (typeof v1 === 'number') {
+        if (arguments.length === 1) { // Grayscale value
+            _r = _g = _b = v1;
+            _a = 1;
+        } else if (arguments.length === 2) { // Gray and alpha or options
+            _r = _g = _b = v1;
+            if (typeof v2 === 'number') {
+                _a = v2;
+            } else {
+                options = v2;
+                _a = options.base || 1;
+            }
+        } else if (arguments.length === 3) { // RGB or gray, alpha and options
+            if (typeof v3 === 'number') {
+                _r = v1;
+                _g = v2;
+                _b = v3;
+                _a = 1;
+            } else {
+                _r = _g = _b = v1;
+                _a = v2;
+                options = v3;
+            }
+        } else if (arguments.length === 4) { // RGB and alpha or options
+            _r = v1;
+            _g = v2;
+            _b = v3;
+            if (typeof v4 === 'number') {
+                _a = v4;
+            } else {
+                options = v4 || {};
+                _a = options.base || 1;
+            }
+        } else { // RGBA + options
+            _r = v1;
+            _g = v2;
+            _b = v3;
+            _a = v4;
+            options = v5;
+        }
+    }
+
+    if (!(typeof _r === 'number' &&
+        typeof _g === 'number' &&
+        typeof _b === 'number' &&
+        typeof _a === 'number')) {
+        throw new Error('Invalid color arguments');
+    }
+
+    options = options || {};
+
+    // The base option allows you to specify values in a different range.
+    if (options.base !== undefined) {
+        _r /= options.base;
+        _g /= options.base;
+        _b /= options.base;
+        _a /= options.base;
+    }
+    R = Math.round(_r * 255);
+    G = Math.round(_g * 255);
+    B = Math.round(_b * 255);
+    return 'rgba(' + R + ', ' + G + ', ' + B + ', ' + _a + ')';
+}
+
+// Converts a number of arguments into a dictionary of gradient information that is understood by the renderer.
+function toGradientData(v1, v2, v3, v4, v5) {
+    var startColor, endColor, type, rotation, spread, d;
+    var data = {};
+
+    if (arguments.length === 1) { // The argument is a dictionary or undefined.
+        d = v1 || {};
+        startColor = d.startColor;
+        endColor = d.endColor;
+        type = d.type;
+        rotation = d.rotation;
+        spread = d.spread;
+    } else if (arguments.length >= 2) { // The first two arguments are a start color and an end color.
+        startColor = v1;
+        endColor = v2;
+        type = 'linear';
+        rotation = 0;
+        spread = 0;
+        if (arguments.length === 3) {
+            if (typeof v3 === 'string') { // The type can be either linear or radial.
+                type = v3;
+            } else if (typeof v3 === 'number') { // The type is implicitly linear and the third argument is the rotation angle.
+                rotation = v3;
+            }
+        } else if (arguments.length === 4) {
+            if (typeof v3 === 'number') { // The type is implicitly linear and the third/forth arguments are the rotation angle and gradient spread.
+                rotation = v3;
+                spread = v4;
+            } else if (v3 === 'linear') { // The type is explicitly linear and the forth argument is the rotation angle.
+                rotation = v4;
+            } else if (v3 === 'radial') { // The type is explicitly radial and the forth argument is the gradient spread.
+                type = v3;
+                spread = v4;
+            } else {
+                throw new Error('Wrong argument provided: ' + v3);
+            }
+        } else if (arguments.length === 5) { // Type, rotation (unused in case of radial type gradient), and gradient spread.
+            type = v3;
+            rotation = v4;
+            spread = v5;
+        }
+    }
+
+    if (!startColor && startColor !== 0) {
+        throw new Error('No startColor was given.');
+    }
+    if (!endColor && endColor !== 0) {
+        throw new Error('No endColor was given.');
+    }
+
+    try {
+        data.startColor = toColor(startColor);
+    } catch (e1) {
+        throw new Error('startColor is not a valid color: ' + startColor);
+    }
+
+    try {
+        data.endColor = toColor(endColor);
+    } catch (e2) {
+        throw new Error('endColor is not a valid color: ' + endColor);
+    }
+
+    if (type === undefined) {
+        type = 'linear';
+    }
+    if (type !== 'linear' && type !== 'radial') {
+        throw new Error('Unknown gradient type: ' + type);
+    }
+
+    data.type = type;
+
+    if (spread === undefined) {
+        spread = 0;
+    }
+    if (typeof spread !== 'number') {
+        throw new Error('Spread value is not a number: ' + spread);
+    }
+
+    if (type === 'linear') {
+        if (rotation === undefined) {
+            rotation = 0;
+        }
+        if (typeof rotation !== 'number') {
+            throw new Error('Rotation value is not a number: ' + rotation);
+        }
+        data.rotation = rotation;
+    }
+
+    data.spread = clamp(spread, 0, 0.99);
+
+    return data;
+}
+
+function findType(data) {
+    if (typeof data === 'string') {
+        return TYPE_PATH;
+    } else if (data instanceof Image) {
+        return TYPE_IMAGE;
+    } else if (data instanceof HTMLCanvasElement) {
+        return TYPE_HTML_CANVAS;
+    } else if (data instanceof ImageCanvas) {
+        return TYPE_IMAGE_CANVAS;
+    } else if (data.r !== undefined && data.g !== undefined && data.b !== undefined && data.a !== undefined) {
+        return TYPE_FILL;
+    } else if (data.startColor !== undefined && data.endColor !== undefined) {
+        return TYPE_GRADIENT;
+    }
+    throw new Error('Cannot establish type for data ', data);
+}
+
+
+// IMAGE LAYER.
+
+Layer = function (data, type) {
+    if (!type) {
+        type = findType(data);
+    }
+    this.data = data;
+    this.type = type;
+
+    if (type === TYPE_HTML_CANVAS || type === TYPE_IMAGE_CANVAS || type === TYPE_IMAGE) {
+        this.width = data.width;
+        this.height = data.height;
+    }
+
+    // Compositing.
+    this.opacity = 1.0;
+    this.blendmode = 'source-over';
+
+    // Transformations.
+    this.transform = IDENTITY_TRANSFORM;
+    this.flip_h = false;
+    this.flip_v = false;
+
+    // An alpha mask hides parts of the masked layer where the mask is darker.
+    this.mask = new ImageCanvas();
+
+    this.filters = [];
+};
+
+Layer.Transform = Layer.IDENTITY_TRANSFORM = IDENTITY_TRANSFORM;
+
+// Copies the layer object.
+Layer.prototype.clone = function () {
+    function cloneFilter(filter) {
+        var key, value;
+        var f = {};
+        f.name = filter.name;
+        if (filter.options !== undefined) {
+            f.options = {};
+            var optionsKeys = Object.keys(filter.options);
+            for (var i = 0; i < optionsKeys.length; i += 1) {
+                key = optionsKeys[i];
+                value = filter.options[key];
+                if (Array.isArray(value)) {
+                    f.options[key] = value.slice(0);
+                } else {
+                    f.options[key] = value;
+                }
+            }
+        }
+        return f;
+    }
+
+    var d = Object.create(Layer.prototype);
+    d.data = this.data;
+    d.type = this.type;
+    d.width = this.width;
+    d.height = this.height;
+    d.opacity = this.opacity;
+    d.blendmode = this.blendmode;
+    d.transform = this.transform;
+    d.flip_h = this.flip_h;
+    d.flip_v = this.flip_v;
+    d.mask = this.mask.clone();
+    d.filters = [];
+
+    if (this.type === TYPE_IMAGE_CANVAS) {
+        d.data = this.data.clone();
+    } else if (this.type === TYPE_GRADIENT) {
+        d.data = {
+            startColor: this.data.startColor,
+            endColor: this.data.endColor,
+            type: this.data.type,
+            rotation: this.data.rotation,
+            spread: this.data.spread
+        };
+    }
+
+    for (var i = 0; i < this.filters.length; i += 1) {
+        d.filters.push(cloneFilter(this.filters[i]));
+    }
+
+    return d;
+};
+
+// Sets the opacity of the layer (requires a number in the range 0.0-1.0).
+Layer.prototype.setOpacity = function (opacity) {
+    this.opacity = clamp(opacity, 0, 1);
+};
+
+// Within an image canvas, a layer is by default positioned in the center.
+// Translating moves the layer away from this center.
+// Each successive call to the translate function performs an additional translation on top of the current transformation matrix.
+Layer.prototype.translate = function (tx, ty) {
+    ty = ty === undefined ? 0 : ty;
+    var t = Transform.translate(tx, ty);
+    this.transform = this.transform.prepend(t);
+};
+
+// Scaling happens relatively in a 0.0-1.0 based range where 1.0 stands for 100%.
+// Each successive call to the scale function performs an additional scaling operation on top of the current transformation matrix.
+// If only one parameter is supplied, the layer is scaled proportionally.
+Layer.prototype.scale = function (sx, sy) {
+    sy = sy === undefined ? sx : sy;
+    var t = Transform.scale(sx, sy);
+    this.transform = this.transform.prepend(t);
+};
+
+// The supplied parameter should be in degrees (not radians).
+// Each successive call to the rotation function performs an additional rotation on top of the current transformation matrix.
+Layer.prototype.rotate = function (rot) {
+    var t = Transform.rotate(rot);
+    this.transform = this.transform.prepend(t);
+};
+
+// Each successive call to the skew function performs an additional skewing operation on top of the current transformation matrix.
+Layer.prototype.skew = function (kx, ky) {
+    ky = ky === undefined ? kx : ky;
+    var t = Transform.skew(kx, ky);
+    this.transform = this.transform.prepend(t);
+};
+
+// Flips the layer horizontally.
+Layer.prototype.flipHorizontal = function (arg) {
+    if (arg !== undefined) {
+        this.flip_h = arg;
+    } else {
+        this.flip_h = !this.flip_h;
+    }
+};
+
+// Flips the layer vertically.
+Layer.prototype.flipVertical = function (arg) {
+    if (arg !== undefined) {
+        this.flip_v = arg;
+    } else {
+        this.flip_v = !this.flip_v;
+    }
+};
+
+Layer.prototype.addFilter = function (filter, options) {
+    this.filters.push({
+        name: filter,
+        options: options
+    });
+};
+
+// Renders the layer to a new canvas.
+Layer.prototype.draw = function (ctx) {
+    var width = this.width === undefined ? DEFAULT_WIDTH : this.width;
+    var height = this.height === undefined ? DEFAULT_HEIGHT : this.height;
+    var canvas = new ImageCanvas(width, height);
+    canvas.addLayer(this);
+    canvas.draw(ctx);
+};
+
+Layer.prototype.toCanvas = function () {
+    var canvas = document.createElement('canvas');
+    canvas.width = this.width;
+    canvas.height = this.height;
+    var ctx = canvas.getContext('2d');
+    this.draw(ctx);
+    return canvas;
+};
+
+Layer.fromFile = function (filename) {
+    return new Layer(filename, TYPE_PATH);
+};
+
+Layer.fromImage = function (image) {
+    return new Layer(image, TYPE_IMAGE);
+};
+
+Layer.fromCanvas = function (canvas) {
+    if (canvas instanceof HTMLCanvasElement) {
+        return Layer.fromHtmlCanvas(canvas);
+    }
+    return Layer.fromImageCanvas(canvas);
+};
+
+Layer.fromHtmlCanvas = function (canvas) {
+    return new Layer(canvas, TYPE_HTML_CANVAS);
+};
+
+Layer.fromImageCanvas = function (iCanvas) {
+    return new Layer(iCanvas, TYPE_IMAGE_CANVAS);
+};
+
+Layer.fromColor = function (color) {
+    return new Layer(toColor(color), TYPE_FILL);
+};
+
+Layer.fromGradient = function () {
+    return new Layer(toGradientData.apply(null, arguments), TYPE_GRADIENT);
+};
+
+Layer.prototype.isPath = function () {
+    return this.type === TYPE_PATH;
+};
+
+Layer.prototype.isFill = function () {
+    return this.type === TYPE_FILL;
+};
+
+Layer.prototype.isGradient = function () {
+    return this.type === TYPE_GRADIENT;
+};
+
+Layer.prototype.isHtmlCanvas = function () {
+    return this.type === TYPE_HTML_CANVAS;
+};
+
+Layer.prototype.isImage = function () {
+    return this.type === TYPE_IMAGE;
+};
+
+Layer.prototype.isImageCanvas = function () {
+    return this.type === TYPE_IMAGE_CANVAS;
+};
+
+
+// IMAGE PIXELS.
+
+var Pixels = function (canvas) {
+    this.width = canvas.width;
+    this.height = canvas.height;
+    var ctx = canvas.getContext('2d');
+    this._data = ctx.getImageData(0, 0, this.width, this.height);
+    this.array = this._data.data;
+};
+
+Pixels.prototype.get = function (i) {
+    i *= 4;
+    var v = this.array;
+    return [v[i + 0], v[i + 1], v[i + 2], v[i + 3]];
+};
+
+Pixels.prototype.set = function (i, rgba) {
+    i *= 4;
+    var v = this.array;
+    v[i + 0] = rgba[0];
+    v[i + 1] = rgba[1];
+    v[i + 2] = rgba[2];
+    v[i + 3] = rgba[3];
+};
+
+Pixels.prototype.toCanvas = function () {
+    var canvas = document.createElement('canvas');
+    canvas.width = this.width;
+    canvas.height = this.height;
+    var ctx = canvas.getContext('2d');
+    ctx.putImageData(this._data, 0, 0);
+    return canvas;
+};
+
+
+// IMAGE CANVAS.
+
+ImageCanvas = function (width, height) {
+    if (!width) {
+        width = DEFAULT_WIDTH;
+    }
+    if (!height) {
+        height = DEFAULT_HEIGHT;
+    }
+
+    this.width = width;
+    this.height = height;
+    this.layers = [];
+};
+
+// Copies the ImageCanvas.
+ImageCanvas.prototype.clone = function () {
+    var c = new ImageCanvas(this.width, this.height);
+    for (var i = 0; i < this.layers.length; i += 1) {
+        c.layers.push(this.layers[i].clone());
+    }
+    return c;
+};
+
+// Creates a new layer from figuring out the given argument(s) and adds it to the canvas.
+ImageCanvas.prototype.addLayer = function (arg0) {
+    var layer;
+
+    try {
+        return this.addGradientLayer.apply(this, arguments);
+    } catch (e1) {
+    }
+
+    try {
+        return this.addColorLayer.apply(this, arguments);
+    } catch (e2) {
+    }
+
+    if (arguments.length === 1) {
+        if (typeof arg0 === 'string') {
+            layer = new Layer(arg0, TYPE_PATH);
+        } else if (arg0 instanceof Layer) {
+            layer = arg0;
+        } else if (arg0 instanceof HTMLCanvasElement) {
+            layer = new Layer(arg0, TYPE_HTML_CANVAS);
+        } else if (arg0 instanceof Image) {
+            layer = new Layer(arg0, TYPE_IMAGE);
+        } else if (arg0 instanceof ImageCanvas) {
+            layer = new Layer(arg0, TYPE_IMAGE_CANVAS);
+        }
+    }
+
+    if (!layer) {
+        throw new Error('Error creating layer.');
+    }
+
+    this.layers.push(layer);
+    return layer;
+};
+
+// Adds a new color layer to the canvas.
+ImageCanvas.prototype.addColorLayer = function () {
+    var c = toColor.apply(null, arguments);
+    var layer = new Layer(c, TYPE_FILL);
+    this.layers.push(layer);
+    return layer;
+};
+
+// Adds a new gradient layer to the canvas.
+ImageCanvas.prototype.addGradientLayer = function () {
+    var c = toGradientData.apply(null, arguments);
+    var layer = new Layer(c, TYPE_GRADIENT);
+    this.layers.push(layer);
+    return layer;
+};
+
+// Renders the canvas and passes the result (a html canvas) to the given callback function.
+ImageCanvas.prototype.render = function (callback) {
+    var renderer = callback ? AsyncRenderer : CanvasRenderer;
+    return renderer.render(this, callback);
+};
+
+// Renders the canvas on another canvas.
+ImageCanvas.prototype.draw = function (ctx, callback) {
+    if (callback) {
+        this.render(function (canvas) {
+            ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+        });
+    } else {
+        var canvas = this.render();
+        ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+    }
+};
+
+
+// Img
+
+function isPoint(arg) {
+    if (!arg) { return false; }
+    return arg.x !== undefined && arg.y !== undefined;
+}
+
+function pointFromArray(arg) {
+    var x = arg[0];
+    var y = arg.length > 1 ? arg[1] : x;
+    return {x: x, y: y};
+}
+
+function pointFromNumber(arg) {
+    return {x: arg, y: arg};
+}
+
+function isValidArg(arg) {
+    return arg !== undefined && arg !== null;
+}
+
+function convertArg(arg) {
+    if (Array.isArray(arg)) {
+        return pointFromArray(arg);
+    } else if (typeof arg === 'number') {
+        return pointFromNumber(arg);
+    } else if (isPoint(arg)) {
+        return arg;
+    }
+}
+
+Img = function (canvas, x, y) {
+    this.canvas = canvas;
+    this.originalWidth = canvas ? canvas.width : 0;
+    this.originalHeight = canvas ? canvas.height: 0;
+    this.transform = x || y ? Transform.translate(x, y) : Layer.IDENTITY_TRANSFORM;
+};
+
+Img.prototype.clone = function () {
+    var n = new Img();
+    n.canvas = this.canvas;
+    n.originalWidth = this.originalWidth;
+    n.originalHeight = this.originalHeight;
+    n.transform = this.transform;
+    return n;
+};
+
+Img.prototype.withCanvas = function (canvas) {
+    var n = this.clone();
+    n.canvas = canvas;
+    return n;
+};
+
+Img.prototype._transform = function (t) {
+    var n = this.clone();
+    n.transform = n.transform.prepend(t);
+    return n;
+};
+
+Img.prototype.translate = function (position) {
+    var t = pointFromNumber(0);
+    var args = arguments;
+    if (args.length === 1 && isValidArg(position)) {
+        t = convertArg(position);
+    } else if (args.length === 2) {
+        t = {x: args[0], y: args[1]};
+    }
+    if (t.x === 0 && t.y === 0) { return this; }
+    return this._transform(Transform.translate(t.x, t.y));
+};
+
+Img.prototype.rotate = function (angle) {
+    if (!angle) { return this; }
+    var o = pointFromNumber(0);
+    var args = arguments;
+    if (args.length === 2) {
+        o = convertArg(args[1]);
+    } else if (args.length === 3) {
+        o = {x: args[1], y: args[2]};
+    }
+    return this._transform(Transform.translate(o.x, o.y).rotate(angle).translate(-o.x, -o.y));
+};
+
+Img.prototype.scale = function (scale) {
+    var s = pointFromNumber(1);
+    var o = pointFromNumber(0);
+    var args = arguments;
+    if (args.length === 1 && isValidArg(scale)) {
+        s = convertArg(scale);
+    } else if (args.length === 2) {
+        if (typeof scale === 'number' && typeof args[1] === 'number') {
+            s = {x: args[0], y: args[1]};
+        } else {
+            s = convertArg(scale);
+            o = convertArg(args[1]);
+        }
+    } else if (args.length === 4) {
+        s = {x: args[0], y: args[1]};
+        o = {x: args[2], y: args[3]};
+    }
+    if (s.x === 1 && s.y === 1) { return this; }
+    return this._transform(Transform.translate(o.x, o.y).scale(s.x, s.y).translate(-o.x, -o.y));
+};
+
+Img.prototype.skew = function (skew) {
+    var k = pointFromNumber(0);
+    var o = pointFromNumber(0);
+    var args = arguments;
+    if (args.length === 1 && isValidArg(skew)) {
+        k = convertArg(skew);
+    } else if (args.length === 2) {
+        if (typeof skew === 'number' && typeof args[1] === 'number') {
+            k = {x: args[0], y: args[1]};
+        } else {
+            k = convertArg(skew);
+            o = convertArg(args[1]);
+        }
+    } else if (args.length === 4) {
+        k = {x: args[0], y: args[1]};
+        o = {x: args[2], y: args[3]};
+    }
+    if (k.x === 0 && k.y === 0) { return this; }
+    return this._transform(Transform.translate(o.x, o.y).skew(k.x, k.y).translate(-o.x, -o.y));
+};
+
+Img.prototype.transformed = function () {
+    return img.merge([this]);
+};
+
+Img.prototype.bounds = function () {
+    var t = this.transform;
+    var x = this.originalWidth / 2;
+    var y = this.originalHeight / 2;
+
+    var p1 = {x: -x, y: -y};
+    var p2 = {x: x, y: -y};
+    var p3 = {x: -x, y: y};
+    var p4 = {x: x, y: y};
+    var points = [p1, p2, p3, p4];
+    var pt, minx, miny, maxx, maxy;
+
+    for (var i = 0; i < 4; i += 1) {
+        pt = t.transformPoint(points[i]);
+        if (i === 0) {
+            minx = maxx = pt.x;
+            miny = maxy = pt.y;
+        } else {
+            if (pt.x < minx) {
+                minx = pt.x;
+            }
+            if (pt.x > maxx) {
+                maxx = pt.x;
+            }
+            if (pt.y < miny) {
+                miny = pt.y;
+            }
+            if (pt.y > maxy) {
+                maxy = pt.y;
+            }
+        }
+    }
+    return {x: minx, y: miny, width: maxx - minx, height: maxy - miny};
+};
+
+Img.prototype.colorize = function (color) {
+    var colorLayer = Layer.fromColor(color);
+    colorLayer.width = this.originalWidth;
+    colorLayer.height = this.originalHeight;
+    var i = new Img(colorLayer.toCanvas());
+    i = i._transform(this.transform.matrix());
+    return img.merge([this, i]);
+};
+
+Img.prototype.desaturate = function (options) {
+    var layer = this.toLayer(false);
+    layer.addFilter('desaturate', options);
+    return this.withCanvas(layer.toCanvas());
+};
+
+Img.prototype.crop = function (bounding) {
+    // Calculates the intersecting rectangle of two input rectangles.
+    function rectIntersect(r1, r2) {
+        var right1 = r1.x + r1.width,
+            bottom1 = r1.y + r1.height,
+            right2 = r2.x + r2.width,
+            bottom2 = r2.y + r2.height,
+
+            x = Math.max(r1.x, r2.x),
+            y = Math.max(r1.y, r2.y),
+            w = Math.max(Math.min(right1, right2) - x, 0),
+            h = Math.max(Math.min(bottom1, bottom2) - y, 0);
+        return {x: x, y: y, width: w, height: h};
+    }
+
+    var iBounds = this.bounds();
+    var bounds = bounding.bounds();
+    var ri = rectIntersect(iBounds, bounds);
+    var width = Math.ceil(ri.width);
+    var height = Math.ceil(ri.height);
+
+    if (ri.width === 0 || ri.height === 0) {
+        throw new Error('Resulting image has no dimensions');
+    }
+
+    var canvas = new img.ImageCanvas(width, height);
+    var l1 = canvas.addLayer(this.toLayer());
+    l1.translate(width / 2 - bounds.width - bounds.x,
+        height / 2 - bounds.height - bounds.y);
+    if (width < bounds.width && ri.x > iBounds.x) {
+        l1.translate(bounds.width - width, 0);
+    }
+    if (height < bounds.height && ri.y > iBounds.y) {
+        l1.translate(0, bounds.height - height);
+    }
+
+    return new Img(canvas.render(), ri.x + width / 2, ri.y + height / 2);
+};
+
+Img.prototype.draw = function (ctx) {
+    ctx.save();
+    var m = this.transform.matrix();
+    ctx.transform(m[0], m[1], m[3], m[4], m[6], m[7]);
+    ctx.translate(-this.originalWidth / 2, -this.originalHeight / 2);
+    ctx.drawImage(this.canvas, 0, 0);
+    ctx.restore();
+};
+
+Img.prototype.toLayer = function (copyTransformations) {
+    var canvas = document.createElement('canvas');
+    canvas.width = this.canvas.width;
+    canvas.height = this.canvas.height;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(this.canvas, 0, 0);
+    var layer = img.Layer.fromHtmlCanvas(canvas);
+    if (copyTransformations === undefined) {
+        copyTransformations = true;
+    }
+    if (copyTransformations) {
+        layer.transform = this.transform;
+    }
+    return layer;
+};
+
+Img.prototype.getPixels = function () {
+    return new Pixels(this.canvas);
+};
+
+Img.prototype.toImage = function () {
+    var b = this.bounds();
+    var cropped = this.crop({bounds: function() { return b; }});
+    var i = new Image();
+    i.width = cropped.canvas.width;
+    i.height = cropped.canvas.height;
+    i.src = cropped.canvas.toDataURL();
+    return i;
+};
+
+img = {};
+img.Layer = Layer;
+img.ImageCanvas = ImageCanvas;
+img.Img = Img;
+img.Pixels = Pixels;
+
+// MODULE SUPPORT ///////////////////////////////////////////////////////
+
+var async = require('async');
+
+function loadImage(image, callback) {
+    var img = new Image();
+    img.onload = function () {
+        callback(null, [image, this]);
+    };
+    img.src = image;
+}
+
+function loadImages(images, callback) {
+    async.map(images,
+        loadImage, function (err, loadedImages) {
+            if (callback) {
+                var name, image;
+                var d = {};
+                for (var i = 0; i < loadedImages.length; i += 1) {
+                    name = loadedImages[i][0];
+                    image = loadedImages[i][1];
+                    d[name] = image;
+                }
+                callback(d);
+            }
+        });
+}
+
+function rectUnite(r1, r2) {
+    var x = Math.min(r1.x, r2.x),
+        y = Math.min(r1.y, r2.y),
+        width = Math.max(r1.x + r1.width, r2.x + r2.width) - x,
+        height = Math.max(r1.y + r1.height, r2.y + r2.height) - y;
+    return {x: x, y: y, width: width, height: height};
+}
+
+function merge(images) {
+    var i, image, b, l;
+    for (i = 0; i < images.length; i += 1) {
+        image = images[i];
+        if (i === 0) {
+            b = image.bounds();
+        } else {
+            b = rectUnite(b, image.bounds());
+        }
+    }
+    var dx = b.width / 2 + b.x;
+    var dy = b.height / 2 + b.y;
+
+    var canvas = new ImageCanvas(b.width, b.height);
+    for (i = 0; i < images.length; i += 1) {
+        l = canvas.addLayer(images[i].toLayer());
+        l.translate(-dx, -dy);
+    }
+    return new Img(canvas.render(), dx, dy);
+}
+
+img.loadImages = loadImages;
+img.merge = merge;
+
+module.exports = img;
+
+},{"./asyncrenderer":15,"./canvasrenderer":17,"./util":20,"async":1}],19:[function(require,module,exports){
+/*!
+ * Image processing based on Pixastic library:
+ *
+ * Pixastic - JavaScript Image Processing
+ * http://pixastic.com/
+ * Copyright 2012, Jacob Seidelin
+ *
+ * Dual licensed under the MPL 1.1 or GPLv3 licenses.
+ * http://pixastic.com/license-mpl.txt
+ * http://pixastic.com/license-gpl-3.0.txt
+ *
+ */
+
+'use strict';
+
+var stackblur = require('stackblur');
+var util = require('./util');
+
+var clamp = util.clamp;
+
+var LUMINOSITY_ITU_R_BT601 = 'ITU-R BT.601';
+var LUMINOSITY_ITU_R_BT709 = 'ITU-R BT.709';
+
+function defaultOptions(options, defaults) {
+    if (!options) {
+        return defaults;
+    }
+    var opt, o = {};
+    for (opt in defaults) {
+        if (defaults.hasOwnProperty(opt)) {
+            if (typeof options[opt] === 'undefined') {
+                o[opt] = defaults[opt];
+            } else {
+                o[opt] = options[opt];
+            }
+        }
+    }
+    return o;
+}
+
+function smoothstep(a, b, x) {
+    /* Returns a smooth transition between 0.0 and 1.0 using Hermite interpolation (cubic spline),
+     * where x is a number between a and b. The return value will ease (slow down) as x nears a or b.
+     * For x smaller than a, returns 0.0. For x bigger than b, returns 1.0.
+     */
+    if (x < a) { return 0.0; }
+    if (x >=b) { return 1.0; }
+    x = (x - a) / ( b - a);
+    return x * x * (3 - 2 * x);
+}
+
+function noise() {
+    return Math.random() * 0.5 + 0.5;
+}
+
+function colorDistance(scale, dest, src) {
+    return clamp(scale * dest + (1 - scale) * src, 0, 255);
+}
+
+function convolve3x3(inData, outData, width, height, kernel, alpha, invert, mono) {
+    var x, y, n = width * height * 4,
+        idx, r, g, b, a,
+        pyc, pyp, pyn,
+        pxc, pxp, pxn,
+
+        k00 = kernel[0][0], k01 = kernel[0][1], k02 = kernel[0][2],
+        k10 = kernel[1][0], k11 = kernel[1][1], k12 = kernel[1][2],
+        k20 = kernel[2][0], k21 = kernel[2][1], k22 = kernel[2][2],
+
+        p00, p01, p02,
+        p10, p11, p12,
+        p20, p21, p22;
+
+    for (y = 0; y < height; y += 1) {
+        pyc = y * width * 4;
+        pyp = pyc - width * 4;
+        pyn = pyc + width * 4;
+
+        if (y < 1) {
+            pyp = pyc;
+        }
+        if (y >= width - 1) {
+            pyn = pyc;
+        }
+
+        for (x = 0; x < width; x += 1) {
+            idx = (y * width + x) * 4;
+
+            pxc = x * 4;
+            pxp = pxc - 4;
+            pxn = pxc + 4;
+
+            if (x < 1) {
+                pxp = pxc;
+            }
+            if (x >= width - 1) {
+                pxn = pxc;
+            }
+
+            p00 = pyp + pxp;
+            p01 = pyp + pxc;
+            p02 = pyp + pxn;
+            p10 = pyc + pxp;
+            p11 = pyc + pxc;
+            p12 = pyc + pxn;
+            p20 = pyn + pxp;
+            p21 = pyn + pxc;
+            p22 = pyn + pxn;
+
+            r = inData[p00] * k00 + inData[p01] * k01 + inData[p02] * k02 +
+                inData[p10] * k10 + inData[p11] * k11 + inData[p12] * k12 +
+                inData[p20] * k20 + inData[p21] * k21 + inData[p22] * k22;
+
+            g = inData[p00 + 1] * k00 + inData[p01 + 1] * k01 + inData[p02 + 1] * k02 +
+                inData[p10 + 1] * k10 + inData[p11 + 1] * k11 + inData[p12 + 1] * k12 +
+                inData[p20 + 1] * k20 + inData[p21 + 1] * k21 + inData[p22 + 1] * k22;
+
+            b = inData[p00 + 2] * k00 + inData[p01 + 2] * k01 + inData[p02 + 2] * k02 +
+                inData[p10 + 2] * k10 + inData[p11 + 2] * k11 + inData[p12 + 2] * k12 +
+                inData[p20 + 2] * k20 + inData[p21 + 2] * k21 + inData[p22 + 2] * k22;
+
+            if (alpha) {
+                a = inData[p00 + 3] * k00 + inData[p01 + 3] * k01 + inData[p02 + 3] * k02 +
+                    inData[p10 + 3] * k10 + inData[p11 + 3] * k11 + inData[p12 + 3] * k12 +
+                    inData[p20 + 3] * k20 + inData[p21 + 3] * k21 + inData[p22 + 3] * k22;
+            } else {
+                a = inData[idx + 3];
+            }
+
+            if (mono) {
+                r = g = b = (r + g + b) / 3;
+            }
+            if (invert) {
+                r = 255 - r;
+                g = 255 - g;
+                b = 255 - b;
+            }
+
+            outData[idx] = r;
+            outData[idx + 1] = g;
+            outData[idx + 2] = b;
+            outData[idx + 3] = a;
+        }
+    }
+}
+
+function convolve5x5(inData, outData, width, height, kernel, alpha, invert, mono) {
+    var x, y, n = width * height * 4,
+        idx, r, g, b, a,
+        pyc, pyp, pyn, pypp, pynn,
+        pxc, pxp, pxn, pxpp, pxnn,
+
+        k00 = kernel[0][0], k01 = kernel[0][1], k02 = kernel[0][2], k03 = kernel[0][3], k04 = kernel[0][4],
+        k10 = kernel[1][0], k11 = kernel[1][1], k12 = kernel[1][2], k13 = kernel[1][3], k14 = kernel[1][4],
+        k20 = kernel[2][0], k21 = kernel[2][1], k22 = kernel[2][2], k23 = kernel[2][3], k24 = kernel[2][4],
+        k30 = kernel[3][0], k31 = kernel[3][1], k32 = kernel[3][2], k33 = kernel[3][3], k34 = kernel[3][4],
+        k40 = kernel[4][0], k41 = kernel[4][1], k42 = kernel[4][2], k43 = kernel[4][3], k44 = kernel[4][4],
+
+        p00, p01, p02, p03, p04,
+        p10, p11, p12, p13, p14,
+        p20, p21, p22, p23, p24,
+        p30, p31, p32, p33, p34,
+        p40, p41, p42, p43, p44;
+
+    for (y = 0; y < height; y += 1) {
+        pyc = y * width * 4;
+        pyp = pyc - width * 4;
+        pypp = pyc - width * 4 * 2;
+        pyn = pyc + width * 4;
+        pynn = pyc + width * 4 * 2;
+
+        if (y < 1) {
+            pyp = pyc;
+        }
+        if (y >= width - 1) {
+            pyn = pyc;
+        }
+        if (y < 2) {
+            pypp = pyp;
+        }
+        if (y >= width - 2) {
+            pynn = pyn;
+        }
+
+        for (x = 0; x < width; x += 1) {
+            idx = (y * width + x) * 4;
+
+            pxc = x * 4;
+            pxp = pxc - 4;
+            pxn = pxc + 4;
+            pxpp = pxc - 8;
+            pxnn = pxc + 8;
+
+            if (x < 1) {
+                pxp = pxc;
+            }
+            if (x >= width - 1) {
+                pxn = pxc;
+            }
+            if (x < 2) {
+                pxpp = pxp;
+            }
+            if (x >= width - 2) {
+                pxnn = pxn;
+            }
+
+            p00 = pypp + pxpp;
+            p01 = pypp + pxp;
+            p02 = pypp + pxc;
+            p03 = pypp + pxn;
+            p04 = pypp + pxnn;
+            p10 = pyp + pxpp;
+            p11 = pyp + pxp;
+            p12 = pyp + pxc;
+            p13 = pyp + pxn;
+            p14 = pyp + pxnn;
+            p20 = pyc + pxpp;
+            p21 = pyc + pxp;
+            p22 = pyc + pxc;
+            p23 = pyc + pxn;
+            p24 = pyc + pxnn;
+            p30 = pyn + pxpp;
+            p31 = pyn + pxp;
+            p32 = pyn + pxc;
+            p33 = pyn + pxn;
+            p34 = pyn + pxnn;
+            p40 = pynn + pxpp;
+            p41 = pynn + pxp;
+            p42 = pynn + pxc;
+            p43 = pynn + pxn;
+            p44 = pynn + pxnn;
+
+            r = inData[p00] * k00 + inData[p01] * k01 + inData[p02] * k02 + inData[p03] * k04 + inData[p02] * k04 +
+                inData[p10] * k10 + inData[p11] * k11 + inData[p12] * k12 + inData[p13] * k14 + inData[p12] * k14 +
+                inData[p20] * k20 + inData[p21] * k21 + inData[p22] * k22 + inData[p23] * k24 + inData[p22] * k24 +
+                inData[p30] * k30 + inData[p31] * k31 + inData[p32] * k32 + inData[p33] * k34 + inData[p32] * k34 +
+                inData[p40] * k40 + inData[p41] * k41 + inData[p42] * k42 + inData[p43] * k44 + inData[p42] * k44;
+
+            g = inData[p00 + 1] * k00 + inData[p01 + 1] * k01 + inData[p02 + 1] * k02 + inData[p03 + 1] * k04 + inData[p02 + 1] * k04 +
+                inData[p10 + 1] * k10 + inData[p11 + 1] * k11 + inData[p12 + 1] * k12 + inData[p13 + 1] * k14 + inData[p12 + 1] * k14 +
+                inData[p20 + 1] * k20 + inData[p21 + 1] * k21 + inData[p22 + 1] * k22 + inData[p23 + 1] * k24 + inData[p22 + 1] * k24 +
+                inData[p30 + 1] * k30 + inData[p31 + 1] * k31 + inData[p32 + 1] * k32 + inData[p33 + 1] * k34 + inData[p32 + 1] * k34 +
+                inData[p40 + 1] * k40 + inData[p41 + 1] * k41 + inData[p42 + 1] * k42 + inData[p43 + 1] * k44 + inData[p42 + 1] * k44;
+
+            b = inData[p00 + 2] * k00 + inData[p01 + 2] * k01 + inData[p02 + 2] * k02 + inData[p03 + 2] * k04 + inData[p02 + 2] * k04 +
+                inData[p10 + 2] * k10 + inData[p11 + 2] * k11 + inData[p12 + 2] * k12 + inData[p13 + 2] * k14 + inData[p12 + 2] * k14 +
+                inData[p20 + 2] * k20 + inData[p21 + 2] * k21 + inData[p22 + 2] * k22 + inData[p23 + 2] * k24 + inData[p22 + 2] * k24 +
+                inData[p30 + 2] * k30 + inData[p31 + 2] * k31 + inData[p32 + 2] * k32 + inData[p33 + 2] * k34 + inData[p32 + 2] * k34 +
+                inData[p40 + 2] * k40 + inData[p41 + 2] * k41 + inData[p42 + 2] * k42 + inData[p43 + 2] * k44 + inData[p42 + 2] * k44;
+
+            if (alpha) {
+                a = inData[p00 + 3] * k00 + inData[p01 + 3] * k01 + inData[p02 + 3] * k02 + inData[p03 + 3] * k04 + inData[p02 + 3] * k04 +
+                    inData[p10 + 3] * k10 + inData[p11 + 3] * k11 + inData[p12 + 3] * k12 + inData[p13 + 3] * k14 + inData[p12 + 3] * k14 +
+                    inData[p20 + 3] * k20 + inData[p21 + 3] * k21 + inData[p22 + 3] * k22 + inData[p23 + 3] * k24 + inData[p22 + 3] * k24 +
+                    inData[p30 + 3] * k30 + inData[p31 + 3] * k31 + inData[p32 + 3] * k32 + inData[p33 + 3] * k34 + inData[p32 + 3] * k34 +
+                    inData[p40 + 3] * k40 + inData[p41 + 3] * k41 + inData[p42 + 3] * k42 + inData[p43 + 3] * k44 + inData[p42 + 3] * k44;
+            } else {
+                a = inData[idx + 3];
+            }
+
+            if (mono) {
+                r = g = b = (r + g + b) / 3;
+            }
+
+            if (invert) {
+                r = 255 - r;
+                g = 255 - g;
+                b = 255 - b;
+            }
+
+            outData[idx] = r;
+            outData[idx + 1] = g;
+            outData[idx + 2] = b;
+            outData[idx + 3] = a;
+        }
+    }
+}
+
+function gaussian(inData, outData, width, height, kernelSize) {
+    var x, y, i, j, n = width * height * 4,
+        r, g, b, a, idx,
+        inx, iny, w,
+        tmpData = [],
+        maxKernelSize = 13,
+        k1, k2, weights,
+        kernels = [
+            [1]
+        ];
+
+    kernelSize = clamp(kernelSize, 3, maxKernelSize);
+    k1 = -kernelSize / 2 + (kernelSize % 2 ? 0.5 : 0);
+    k2 = kernelSize + k1;
+
+    for (i = 1; i < maxKernelSize; i += 1) {
+        kernels[0][i] = 0;
+    }
+
+    for (i = 1; i < maxKernelSize; i += 1) {
+        kernels[i] = [1];
+        for (j = 1; j < maxKernelSize; j += 1) {
+            kernels[i][j] = kernels[i - 1][j] + kernels[i - 1][j - 1];
+        }
+    }
+
+    weights = kernels[kernelSize - 1];
+
+    for (i = 0, w = 0; i < kernelSize; i += 1) {
+        w += weights[i];
+    }
+    for (i = 0; i < kernelSize; i += 1) {
+        weights[i] /= w;
+    }
+
+    // pass 1
+    for (y = 0; y < height; y += 1) {
+        for (x = 0; x < width; x += 1) {
+            r = g = b = a = 0;
+
+            for (i = k1; i < k2; i += 1) {
+                inx = x + i;
+                iny = y;
+                w = weights[i - k1];
+
+                if (inx < 0) {
+                    inx = 0;
+                }
+                if (inx >= width) {
+                    inx = width - 1;
+                }
+
+                idx = (iny * width + inx) * 4;
+
+                r += inData[idx] * w;
+                g += inData[idx + 1] * w;
+                b += inData[idx + 2] * w;
+                a += inData[idx + 3] * w;
+
+            }
+
+            idx = (y * width + x) * 4;
+
+            tmpData[idx] = r;
+            tmpData[idx + 1] = g;
+            tmpData[idx + 2] = b;
+            tmpData[idx + 3] = a;
+        }
+    }
+
+    // pass 2
+    for (y = 0; y < height; y += 1) {
+        for (x = 0; x < width; x += 1) {
+            r = g = b = a = 0;
+
+            for (i = k1; i < k2; i += 1) {
+                inx = x;
+                iny = y + i;
+                w = weights[i - k1];
+
+                if (iny < 0) {
+                    iny = 0;
+                }
+                if (iny >= height) {
+                    iny = height - 1;
+                }
+
+                idx = (iny * width + inx) * 4;
+
+                r += tmpData[idx] * w;
+                g += tmpData[idx + 1] * w;
+                b += tmpData[idx + 2] * w;
+                a += tmpData[idx + 3] * w;
+            }
+
+            idx = (y * width + x) * 4;
+
+            outData[idx] = r;
+            outData[idx + 1] = g;
+            outData[idx + 2] = b;
+            outData[idx + 3] = a;
+        }
+    }
+}
+
+function getPixel(v, i) {
+    i *= 4;
+    return [v[i + 0], v[i + 1], v[i + 2], v[i + 3]];
+}
+
+function setPixel(v, i, rgba) {
+    i *= 4;
+    v[i + 0] = rgba[0];
+    v[i + 1] = rgba[1];
+    v[i + 2] = rgba[2];
+    v[i + 3] = rgba[3];
+}
+
+// Polar filters (distortion filters) are from canvas.js: https://github.com/clips/pattern/blob/master/pattern/canvas.js (BSD)
+// De Smedt T. & Daelemans W. (2012). Pattern for Python. Journal of Machine Learning Research.
+// Based on: L. Spagnolini, 2007
+
+function polar(inData, outData, x0, y0, width, height, callback) {
+    /* Sets image data based on a polar coordinates filter.
+     * The given callback is a function(distance, angle) that returns new [distance, angle].
+     */
+    x0 = width / 2 + (x0 || 0);
+    y0 = height / 2 + (y0 || 0);
+    var y1, x1, x, y, d, a, v;
+    for (y1 = 0; y1 < height; y1 += 1) {
+        for (x1 = 0; x1 < width; x1 += 1) {
+            x = x1 - x0;
+            y = y1 - y0;
+            d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+            a = Math.atan2(y, x);
+            v = callback(d, a);
+            d = v[0];
+            a = v[1];
+            setPixel(outData, x1 + y1 * width, getPixel(inData,
+                Math.round(x0 + Math.cos(a) * d) +
+                Math.round(y0 + Math.sin(a) * d) * width
+            ));
+        }
+    }
+}
+
+var process = {
+
+    invert: function (inData, outData, width, height) {
+        var i, n = width * height * 4;
+
+        for (i = 0; i < n; i += 4) {
+            outData[i] = 255 - inData[i];
+            outData[i + 1] = 255 - inData[i + 1];
+            outData[i + 2] = 255 - inData[i + 2];
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+    sepia: function (inData, outData, width, height) {
+        var i, n = width * height * 4,
+            r, g, b;
+
+        for (i = 0; i < n; i += 4) {
+            r = inData[i];
+            g = inData[i + 1];
+            b = inData[i + 2];
+            outData[i] = (r * 0.393 + g * 0.769 + b * 0.189);
+            outData[i + 1] = (r * 0.349 + g * 0.686 + b * 0.168);
+            outData[i + 2] = (r * 0.272 + g * 0.534 + b * 0.131);
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+    solarize: function (inData, outData, width, height) {
+        var i, n = width * height * 4,
+            r, g, b;
+
+        for (i = 0; i < n; i += 4) {
+            r = inData[i];
+            g = inData[i + 1];
+            b = inData[i + 2];
+
+            outData[i] = r > 127 ? 255 - r : r;
+            outData[i + 1] = g > 127 ? 255 - g : g;
+            outData[i + 2] = b > 127 ? 255 - b : b;
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+    brightness: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {
+            brightness: 1,
+            contrast: 0
+        });
+
+        var i, n = width * height * 4,
+            r, g, b,
+            contrast = clamp(options.contrast, -1, 1) / 2,
+            brightness = 1 + clamp(options.brightness, -1, 1),
+            brightMul = brightness < 0 ? -brightness : brightness,
+            brightAdd = brightness < 0 ? 0 : brightness,
+            contrastAdd;
+
+        contrast = 0.5 * Math.tan((contrast + 1) * Math.PI / 4);
+        contrastAdd = -(contrast - 0.5) * 255;
+
+        for (i = 0; i < n; i += 4) {
+            r = inData[i];
+            g = inData[i + 1];
+            b = inData[i + 2];
+
+            r = (r + r * brightMul + brightAdd) * contrast + contrastAdd;
+            g = (g + g * brightMul + brightAdd) * contrast + contrastAdd;
+            b = (b + b * brightMul + brightAdd) * contrast + contrastAdd;
+
+            outData[i] = r;
+            outData[i + 1] = g;
+            outData[i + 2] = b;
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+    desaturate: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {method: LUMINOSITY_ITU_R_BT601});
+        var i, n = width * height * 4,
+            level, rCoeff, gCoeff, bCoeff;
+
+        if (options.method === LUMINOSITY_ITU_R_BT601) {
+            rCoeff = 0.3; gCoeff = 0.59; bCoeff = 0.11;
+        } else if (options.method === LUMINOSITY_ITU_R_BT709) {
+            rCoeff = 0.2125; gCoeff = 0.7154; bCoeff = 0.0721;
+        }
+
+        for (i = 0; i < n; i += 4) {
+            level = inData[i] * rCoeff + inData[i + 1] * gCoeff + inData[i + 2] * bCoeff;
+            outData[i] = level;
+            outData[i + 1] = level;
+            outData[i + 2] = level;
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+    lighten: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {amount: 0.25});
+        var i, n = width * height * 4,
+            mul = 1 + clamp(options.amount, 0, 1);
+
+        for (i = 0; i < n; i += 4) {
+            outData[i] = inData[i] * mul;
+            outData[i + 1] = inData[i + 1] * mul;
+            outData[i + 2] = inData[i + 2] * mul;
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+    noise: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {amount: 0.5, strength: 0.5, mono: false});
+        var i, n = width * height * 4,
+            rnd, r, g, b,
+            amount = clamp(options.amount, 0, 1),
+            strength = clamp(options.strength, 0, 1),
+            mono = !!options.mono,
+            random = Math.random;
+
+        for (i = 0; i < n; i += 4) {
+            r = inData[i];
+            g = inData[i + 1];
+            b = inData[i + 2];
+
+            rnd = random();
+
+            if (rnd < amount) {
+                if (mono) {
+                    rnd = strength * ((rnd / amount) * 2 - 1) * 255;
+                    r += rnd;
+                    g += rnd;
+                    b += rnd;
+                } else {
+                    r += strength * random() * 255;
+                    g += strength * random() * 255;
+                    b += strength * random() * 255;
+                }
+            }
+
+            outData[i] = r;
+            outData[i + 1] = g;
+            outData[i + 2] = b;
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+    flipv: function (inData, outData, width, height) {
+        var x, y, n = width * height * 4,
+            inPix, outPix;
+
+        for (y = 0; y < height; y += 1) {
+            for (x = 0; x < width; x += 1) {
+                inPix = (y * width + x) * 4;
+                outPix = (y * width + (width - x - 1)) * 4;
+
+                outData[outPix] = inData[inPix];
+                outData[outPix + 1] = inData[inPix + 1];
+                outData[outPix + 2] = inData[inPix + 2];
+                outData[outPix + 3] = inData[inPix + 3];
+            }
+        }
+    },
+
+    fliph: function (inData, outData, width, height) {
+        var x, y, n = width * height * 4,
+            inPix, outPix;
+
+        for (y = 0; y < height; y += 1) {
+            for (x = 0; x < width; x += 1) {
+                inPix = (y * width + x) * 4;
+                outPix = ((height - y - 1) * width + x) * 4;
+
+                outData[outPix] = inData[inPix];
+                outData[outPix + 1] = inData[inPix + 1];
+                outData[outPix + 2] = inData[inPix + 2];
+                outData[outPix + 3] = inData[inPix + 3];
+            }
+        }
+    },
+
+    // Uses fast stackblur algorithm from http://www.quasimondo.com/StackBlurForCanvas
+    blur: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {radius: 10});
+        for (var i = 0; i < inData.length; i += 1) {
+            outData[i] = inData[i];
+        }
+        stackblur(outData, width, height, options.radius);
+    },
+
+    glow: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {amount: 0.75, kernelSize: 5});
+        var i, n = width * height * 4,
+            r, g, b,
+            amount = options.amount,
+            tmpData = [];
+
+        gaussian(inData, tmpData, width, height, options.kernelSize);
+
+        for (i = 0; i < n; i += 4) {
+            r = inData[i] + tmpData[i] * amount;
+            g = inData[i + 1] + tmpData[i + 1] * amount;
+            b = inData[i + 2] + tmpData[i + 2] * amount;
+            if (r > 255) {
+                r = 255;
+            }
+            if (g > 255) {
+                g = 255;
+            }
+            if (b > 255) {
+                b = 255;
+            }
+            outData[i] = r;
+            outData[i + 1] = g;
+            outData[i + 2] = b;
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+    convolve3x3: function (inData, outData, width, height, options) {
+        convolve3x3(inData, outData, width, height, options.kernel);
+    },
+
+    convolve5x5: function (inData, outData, width, height, options) {
+        convolve5x5(inData, outData, width, height, options.kernel);
+    },
+
+    // A 3x3 high-pass filter
+    sharpen3x3: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {strength: 1});
+        var a = -clamp(options.strength, 0, 1);
+        convolve3x3(inData, outData, width, height,
+            [
+                [a, a, a],
+                [a, 1 - a * 8, a],
+                [a, a, a]
+            ]);
+    },
+
+    // A 5x5 high-pass filter
+    sharpen5x5: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {strength: 1});
+        var a = -clamp(options.strength, 0, 1);
+        convolve5x5(inData, outData, width, height,
+            [
+                [a, a, a, a, a],
+                [a, a, a, a, a],
+                [a, a, 1 - a * 24, a, a],
+                [a, a, a, a, a],
+                [a, a, a, a, a]
+            ]);
+    },
+
+    // A 3x3 low-pass mean filter
+    soften3x3: function (inData, outData, width, height) {
+        var c = 1 / 9;
+        convolve3x3(inData, outData, width, height,
+            [
+                [c, c, c],
+                [c, c, c],
+                [c, c, c]
+            ]);
+    },
+
+    // A 5x5 low-pass mean filter
+    soften5x5: function (inData, outData, width, height) {
+        var c = 1 / 25;
+        convolve5x5(inData, outData, width, height,
+            [
+                [c, c, c, c, c],
+                [c, c, c, c, c],
+                [c, c, c, c, c],
+                [c, c, c, c, c],
+                [c, c, c, c, c]
+            ]);
+    },
+
+    // A 3x3 Cross edge-detect
+    crossedges: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {strength: 1});
+        var a = clamp(options.strength, 0, 1) * 5;
+        convolve3x3(inData, outData, width, height,
+            [
+                [ 0, -a, 0],
+                [-a, 0, a],
+                [ 0, a, 0]
+            ],
+            false, true);
+    },
+
+    // 3x3 directional emboss
+    emboss: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {amount: 1, angle: 0});
+        var i, n = width * height * 4,
+            amount = options.amount,
+            angle = options.angle,
+            x = Math.cos(-angle) * amount,
+            y = Math.sin(-angle) * amount,
+
+            a00 = -x - y,
+            a10 = -x,
+            a20 = y - x,
+            a01 = -y,
+            a21 = y,
+            a02 = -y + x,
+            a12 = x,
+            a22 = y + x,
+
+            tmpData = [];
+
+        convolve3x3(inData, tmpData, width, height,
+            [
+                [a00, a01, a02],
+                [a10, 0, a12],
+                [a20, a21, a22]
+            ]);
+
+        for (i = 0; i < n; i += 4) {
+            outData[i] = 128 + tmpData[i];
+            outData[i + 1] = 128 + tmpData[i + 1];
+            outData[i + 2] = 128 + tmpData[i + 2];
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+
+    // A 3x3 Sobel edge detect (similar to Photoshop's)
+    findedges: function (inData, outData, width, height) {
+        var i, n = width * height * 4,
+            gr1, gr2, gg1, gg2, gb1, gb2,
+            data1 = [],
+            data2 = [];
+
+        convolve3x3(inData, data1, width, height,
+            [
+                [-1, 0, 1],
+                [-2, 0, 2],
+                [-1, 0, 1]
+            ]);
+
+        convolve3x3(inData, data2, width, height,
+            [
+                [-1, -2, -1],
+                [ 0, 0, 0],
+                [ 1, 2, 1]
+            ]);
+
+        for (i = 0; i < n; i += 4) {
+            gr1 = data1[i];
+            gr2 = data2[i];
+            gg1 = data1[i + 1];
+            gg2 = data2[i + 1];
+            gb1 = data1[i + 2];
+            gb2 = data2[i + 2];
+
+            if (gr1 < 0) {
+                gr1 = -gr1;
+            }
+            if (gr2 < 0) {
+                gr2 = -gr2;
+            }
+            if (gg1 < 0) {
+                gg1 = -gg1;
+            }
+            if (gg2 < 0) {
+                gg2 = -gg2;
+            }
+            if (gb1 < 0) {
+                gb1 = -gb1;
+            }
+            if (gb2 < 0) {
+                gb2 = -gb2;
+            }
+
+            outData[i] = 255 - (gr1 + gr2) * 0.8;
+            outData[i + 1] = 255 - (gg1 + gg2) * 0.8;
+            outData[i + 2] = 255 - (gb1 + gb2) * 0.8;
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+    // A 3x3 edge enhance
+    edgeenhance3x3: function (inData, outData, width, height) {
+        var c = -1 / 9;
+        convolve3x3(inData, outData, width, height,
+            [
+                [c, c, c],
+                [c, 17 / 9, c],
+                [c, c, c]
+            ]);
+    },
+
+    // A 5x5 edge enhance
+    edgeenhance5x5: function (inData, outData, width, height) {
+        var c = -1 / 25;
+        convolve5x5(inData, outData, width, height,
+            [
+                [c, c, c, c, c],
+                [c, c, c, c, c],
+                [c, c, 49 / 25, c, c],
+                [c, c, c, c, c],
+                [c, c, c, c, c]
+            ]);
+    },
+
+    // A 3x3 Laplacian edge-detect
+    laplace3x3: function (inData, outData, width, height) {
+        convolve3x3(inData, outData, width, height,
+            [
+                [-1, -1, -1],
+                [-1, 8, -1],
+                [-1, -1, -1]
+            ],
+            false, true, true);
+    },
+
+    // A 5x5 Laplacian edge-detect
+    laplace5x5: function (inData, outData, width, height) {
+        convolve5x5(inData, outData, width, height,
+            [
+                [-1, -1, -1, -1, -1],
+                [-1, -1, -1, -1, -1],
+                [-1, -1, 24, -1, -1],
+                [-1, -1, -1, -1, -1],
+                [-1, -1, -1, -1, -1]
+            ],
+            false, true, true);
+    },
+
+    rgbAdjust: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {r: 0, g: 0, b: 0, a: 0});
+        var i, n = width * height * 4,
+            r, g, b, a,
+            ar = clamp(options.r, -1, 1) * 255,
+            ag = clamp(options.g, -1, 1) * 255,
+            ab = clamp(options.b, -1, 1) * 255,
+            aa = clamp(options.a, -1, 1) * 255;
+
+        for (i = 0; i < n; i += 4) {
+            r = inData[i] + ar;
+            g = inData[i + 1] + ag;
+            b = inData[i + 2] + ab;
+            a = inData[i + 3] + aa;
+            if (r < 0) {
+                r = 0;
+            }
+            if (g < 0) {
+                g = 0;
+            }
+            if (b < 0) {
+                b = 0;
+            }
+            if (a < 0) {
+                a = 0;
+            }
+            if (r > 255) {
+                r = 255;
+            }
+            if (g > 255) {
+                g = 255;
+            }
+            if (b > 255) {
+                b = 255;
+            }
+            if (a > 255) {
+                a = 255;
+            }
+            outData[i] = r;
+            outData[i + 1] = g;
+            outData[i + 2] = b;
+            outData[i + 3] = a;
+        }
+    },
+
+    colorfilter: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {luminosity: false, r: 1, g: 0.5, b: 0});
+        var i, n = width * height * 4,
+            r, g, b,
+            luminosity = !!options.luminosity,
+            min, max, h, l, h1, chroma, tmp, m,
+            ar = clamp(options.r, 0, 1),
+            ag = clamp(options.g, 0, 1),
+            ab = clamp(options.b, 0, 1);
+
+        for (i = 0; i < n; i += 4) {
+            r = inData[i] / 255;
+            g = inData[i + 1] / 255;
+            b = inData[i + 2] / 255;
+
+            l = r * 0.3 + g * 0.59 + b * 0.11;
+
+            r = (r + r * ar) / 2;
+            g = (g + g * ag) / 2;
+            b = (b + b * ab) / 2;
+
+            if (luminosity) {
+                min = max = r;
+                if (g > max) {
+                    max = g;
+                }
+                if (b > max) {
+                    max = b;
+                }
+                if (g < min) {
+                    min = g;
+                }
+                if (b < min) {
+                    min = b;
+                }
+                chroma = (max - min);
+
+                if (r === max) {
+                    h = ((g - b) / chroma) % 6;
+                } else if (g === max) {
+                    h = ((b - r) / chroma) + 2;
+                } else {
+                    h = ((r - g) / chroma) + 4;
+                }
+
+                h1 = h >> 0;
+                tmp = chroma * (h - h1);
+                r = g = b = l - (r * 0.3 + g * 0.59 + b * 0.11);
+
+                if (h1 === 0) {
+                    r += chroma;
+                    g += tmp;
+                } else if (h1 === 1) {
+                    r += chroma - tmp;
+                    g += chroma;
+                } else if (h1 === 2) {
+                    g += chroma;
+                    b += tmp;
+                } else if (h1 === 3) {
+                    g += chroma - tmp;
+                    b += chroma;
+                } else if (h1 === 4) {
+                    r += tmp;
+                    b += chroma;
+                } else if (h1 === 5) {
+                    r += chroma;
+                    b += chroma - tmp;
+                }
+            }
+
+            outData[i] = r * 255;
+            outData[i + 1] = g * 255;
+            outData[i + 2] = b * 255;
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+    hslAdjust: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {h: 0.5, s: 0.3, l: 0.1, a: 0});
+        var i, n = width * height * 4,
+            r, g, b, a,
+            hue = clamp(options.h, -1, 1),
+            saturation = clamp(options.s, -1, 1),
+            lightness = clamp(options.l, -1, 1),
+            aa = clamp(options.a, -1, 1) * 255,
+            satMul = 1 + saturation * (saturation < 0 ? 1 : 2),
+            lightMul = lightness < 0 ? 1 + lightness : 1 - lightness,
+            lightAdd = lightness < 0 ? 0 : lightness * 255,
+            vs, ms, vm, h, s, l, v, m, vmh, sextant;
+
+        hue = (hue * 6) % 6;
+
+        for (i = 0; i < n; i += 4) {
+
+            r = inData[i];
+            g = inData[i + 1];
+            b = inData[i + 2];
+            a = inData[i + 3] + aa;
+
+            if (hue !== 0 || saturation !== 0) {
+                // ok, here comes rgb to hsl + adjust + hsl to rgb, all in one jumbled mess.
+                // It's not so pretty, but it's been optimized to get somewhat decent performance.
+                // The transforms were originally adapted from the ones found in Graphics Gems, but have been heavily modified.
+                vs = r;
+                if (g > vs) {
+                    vs = g;
+                }
+                if (b > vs) {
+                    vs = b;
+                }
+                ms = r;
+                if (g < ms) {
+                    ms = g;
+                }
+                if (b < ms) {
+                    ms = b;
+                }
+                vm = vs - ms;
+                l = (ms + vs) / 510;
+
+                if (l > 0 && vm > 0) {
+                    if (l <= 0.5) {
+                        s = vm / (vs + ms) * satMul;
+                        if (s > 1) {
+                            s = 1;
+                        }
+                        v = (l * (1 + s));
+                    } else {
+                        s = vm / (510 - vs - ms) * satMul;
+                        if (s > 1) {
+                            s = 1;
+                        }
+                        v = (l + s - l * s);
+                    }
+                    if (r === vs) {
+                        if (g === ms) {
+                            h = 5 + ((vs - b) / vm) + hue;
+                        } else {
+                            h = 1 - ((vs - g) / vm) + hue;
+                        }
+                    } else if (g === vs) {
+                        if (b === ms) {
+                            h = 1 + ((vs - r) / vm) + hue;
+                        } else {
+                            h = 3 - ((vs - b) / vm) + hue;
+                        }
+                    } else {
+                        if (r === ms) {
+                            h = 3 + ((vs - g) / vm) + hue;
+                        } else {
+                            h = 5 - ((vs - r) / vm) + hue;
+                        }
+                    }
+                    if (h < 0) {
+                        h += 6;
+                    }
+                    if (h >= 6) {
+                        h -= 6;
+                    }
+                    m = (l + l - v);
+                    sextant = h >> 0;
+                    vmh = (v - m) * (h - sextant);
+                    if (sextant === 0) {
+                        r = v;
+                        g = m + vmh;
+                        b = m;
+                    } else if (sextant === 1) {
+                        r = v - vmh;
+                        g = v;
+                        b = m;
+                    } else if (sextant === 2) {
+                        r = m;
+                        g = v;
+                        b = m + vmh;
+                    } else if (sextant === 3) {
+                        r = m;
+                        g = v - vmh;
+                        b = v;
+                    } else if (sextant === 4) {
+                        r = m + vmh;
+                        g = m;
+                        b = v;
+                    } else if (sextant === 5) {
+                        r = v;
+                        g = m;
+                        b = v - vmh;
+                    }
+
+                    r *= 255;
+                    g *= 255;
+                    b *= 255;
+                }
+            }
+
+            r = r * lightMul + lightAdd;
+            g = g * lightMul + lightAdd;
+            b = b * lightMul + lightAdd;
+
+            if (r < 0) { r = 0; }
+            if (g < 0) { g = 0; }
+            if (b < 0) { b = 0; }
+            if (a < 0) { a = 0; }
+            if (r > 255) { r = 255; }
+            if (g > 255) { g = 255; }
+            if (b > 255) { b = 255; }
+            if (a > 255) { a = 255; }
+
+            outData[i] = r;
+            outData[i + 1] = g;
+            outData[i + 2] = b;
+            outData[i + 3] = a;
+        }
+    },
+
+    posterize: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {levels: 5});
+        var i, n = width * height * 4,
+            r, g, b,
+            numLevels = clamp(options.levels, 2, 256),
+            numAreas = 256 / numLevels,
+            numValues = 256 / (numLevels - 1);
+
+        for (i = 0; i < n; i += 4) {
+            outData[i] = numValues * ((inData[i] / numAreas) >> 0);
+            outData[i + 1] = numValues * ((inData[i + 1] / numAreas) >> 0);
+            outData[i + 2] = numValues * ((inData[i + 2] / numAreas) >> 0);
+            outData[i + 3] = inData[i + 3];
+        }
+    },
+
+    removenoise: function (inData, outData, width, height) {
+        var x, y, n = width * height * 4,
+            r, g, b, c, idx,
+            pyc, pyp, pyn,
+            pxc, pxp, pxn,
+            minR, minG, minB, maxR, maxG, maxB;
+
+        for (y = 0; y < height; y += 1) {
+            pyc = y * width * 4;
+            pyp = pyc - width * 4;
+            pyn = pyc + width * 4;
+
+            if (y < 1) {
+                pyp = pyc;
+            }
+            if (y >= width - 1) {
+                pyn = pyc;
+            }
+
+            for (x = 0; x < width; x += 1) {
+                idx = (y * width + x) * 4;
+
+                pxc = x * 4;
+                pxp = pxc - 4;
+                pxn = pxc + 4;
+
+                if (x < 1) {
+                    pxp = pxc;
+                }
+                if (x >= width - 1) {
+                    pxn = pxc;
+                }
+
+                minR = maxR = inData[pyc + pxp];
+                c = inData[pyc + pxn];
+                if (c < minR) {
+                    minR = c;
+                }
+                if (c > maxR) {
+                    maxR = c;
+                }
+                c = inData[pyp + pxc];
+                if (c < minR) {
+                    minR = c;
+                }
+                if (c > maxR) {
+                    maxR = c;
+                }
+                c = inData[pyn + pxc];
+                if (c < minR) {
+                    minR = c;
+                }
+                if (c > maxR) {
+                    maxR = c;
+                }
+
+                minG = inData[pyc + pxp + 1];
+                c = inData[pyc + pxn + 1];
+                if (c < minG) {
+                    minG = c;
+                }
+                c = inData[pyp + pxc + 1];
+                if (c < minG) {
+                    minG = c;
+                }
+                c = inData[pyn + pxc + 1];
+                if (c < minG) {
+                    minG = c;
+                }
+
+                minB = inData[pyc + pxp + 2];
+                c = inData[pyc + pxn + 2];
+                if (c < minB) {
+                    minB = c;
+                }
+                c = inData[pyp + pxc + 2];
+                if (c < minB) {
+                    minB = c;
+                }
+                c = inData[pyn + pxc + 2];
+                if (c < minB) {
+                    minB = c;
+                }
+
+                r = inData[idx];
+                g = inData[idx + 1];
+                b = inData[idx + 2];
+
+                if (r < minR) {
+                    r = minR;
+                }
+                if (r > maxR) {
+                    r = maxR;
+                }
+                if (g < minG) {
+                    g = minG;
+                }
+                if (g > maxG) {
+                    g = maxG;
+                }
+                if (b < minB) {
+                    b = minB;
+                }
+                if (b > maxB) {
+                    b = maxB;
+                }
+
+                outData[idx] = r;
+                outData[idx + 1] = g;
+                outData[idx + 2] = b;
+                outData[idx + 3] = inData[idx + 3];
+            }
+        }
+    },
+
+    mosaic: function (inData, outData, width, height, options) {
+        options = defaultOptions(options, {blockSize: 8});
+        var blockSize = clamp(options.blockSize, 1, Math.max(width, height)),
+            yBlocks = Math.ceil(height / blockSize),
+            xBlocks = Math.ceil(width / blockSize),
+            y0, y1, x0, x1, idx, pidx,
+            i, j, bidx, r, g, b, bi, bj,
+            n = yBlocks * xBlocks,
+            prog, lastProg = 0;
+
+        y0 = 0;
+        bidx = 0;
+        for (i = 0; i < yBlocks; i += 1) {
+            y1 = clamp(y0 + blockSize, 0, height);
+            x0 = 0;
+            for(j = 0; j < xBlocks; j += 1) {
+                x1 = clamp(x0 + blockSize, 0, width);
+
+                idx = (y0 * width + x0) << 2;
+                r = inData[idx];
+                g = inData[idx + 1];
+                b = inData[idx + 2];
+
+                for(bi = y0; bi < y1; bi += 1) {
+                   for(bj = x0; bj < x1; bj += 1) {
+                       pidx = (bi * width + bj) << 2;
+                       outData[pidx] = r;
+                       outData[pidx + 1] = g;
+                       outData[pidx + 2] = b;
+                       outData[pidx + 3] = inData[pidx + 3];
+                   }
+                }
+                x0 = x1;
+                bidx += 1;
+            }
+            y0 = y1;
+        }
+    },
+
+    equalize : function(inData, outData, width, height, options) {
+        var n = width * height, p, i, level, ratio,
+            prog, lastProg;
+        var round = Math.round;
+        // build histogram
+        var pdf = new Array(256);
+        for (i = 0; i < 256; i += 1) {
+            pdf[i] = 0;
+        }
+
+        for (i = 0; i < n; i += 1) {
+            p = i * 4;
+            level = clamp(round(inData[p] * 0.3 + inData[p + 1] * 0.59 + inData[p + 2] * 0.11), 0, 255);
+            outData[p + 3] = level;
+            pdf[level] += 1;
+        }
+
+        // build cdf
+        var cdf = new Array(256);
+        cdf[0] = pdf[0];
+        for(i = 1; i < 256; i += 1) {
+            cdf[i] = cdf[i - 1] + pdf[i];
+        }
+
+        // normalize cdf
+        for(i = 0; i < 256; i += 1) {
+            cdf[i] = cdf[i] / n * 255.0;
+        }
+
+        // map the pixel values
+        for (i = 0; i < n; i += 1) {
+            p = i * 4;
+            level = outData[p + 3];
+            ratio = cdf[level] / (level || 1);
+            outData[p] = clamp(round(inData[p] * ratio), 0, 255);
+            outData[p + 1] = clamp(round(inData[p + 1] * ratio), 0, 255);
+            outData[p + 2] = clamp(round(inData[p + 2] * ratio), 0, 255);
+            outData[p + 3] = inData[p + 3];
+        }
+    },
+
+    mask: function (inData, outData, width, height, options) {
+        var i, n = width * height * 4,
+            data = options.data;
+
+        // todo: consider the masking image's dimensions and position.
+
+        for (i = 0; i < n; i += 4) {
+            outData[i] = inData[i];
+            outData[i + 1] = inData[i + 1];
+            outData[i + 2] = inData[i + 2];
+            outData[i + 3] = inData[i + 3] * data[i] / 255 * data[i + 3] / 255;
+        }
+    },
+
+    // Distortion filters
+
+    bump: function (inData, outData, width, height, options) {
+        /* options:
+         *  - dx: horizontal offset (in pixels) of the effect.
+         *  - dy: vertical offset (in pixels) of the effect.
+         *  - radius: the radius of the effect in pixels.
+         *  - zoom: the amount of bulge (0.0-1.0).
+         */
+        options = defaultOptions(options, {dx: 0, dy: 0, radius: 0, zoom: 0});
+        var m1 = options.radius;
+        var m2 = clamp(options.zoom, 0, 1);
+        return polar(inData, outData, options.dx, options.dy, width, height, function (d, a) {
+            return [d * smoothstep(0, m2, d / m1), a];
+        });
+    },
+
+    dent: function (inData, outData, width, height, options) {
+        /* options:
+         *  - dx: horizontal offset (in pixels) of the effect.
+         *  - dy: vertical offset (in pixels) of the effect.
+         *  - radius: the radius of the effect in pixels.
+         *  - zoom: the amount of pinch (0.0-1.0).
+         */
+        options = defaultOptions(options, {dx: 0, dy: 0, radius: 0, zoom: 0});
+        var m1 = options.radius;
+        var m2 = clamp(options.zoom, 0, 1);
+        return polar(inData, outData, options.dx, options.dy, width, height, function (d, a) {
+            return [2 * d - d * smoothstep(0, m2, d / m1), a];
+        });
+    },
+
+    pinch: function (inData, outData, width, height, options) {
+        /* options:
+         *  - dx: horizontal offset (in pixels) of the effect.
+         *  - dy: vertical offset (in pixels) of the effect.
+         *  - zoom: the amount of bulge or pinch (-1.0-1.0):
+         */
+        options = defaultOptions(options, {dx: 0, dy: 0, zoom: 0});
+        var m1 = util.distance(0, 0, width, height);
+        var m2 = clamp(options.zoom * 0.75, -0.75, 0.75);
+        return polar(inData, outData, options.dx, options.dy, width, height, function (d, a) {
+            return [d * Math.pow(m1 / d, m2) * (1 - m2), a];
+        });
+    },
+
+    splash: function (inData, outData, width, height, options) {
+        /* options:
+         *  - dx: horizontal offset (in pixels) of the effect.
+         *  - dy: vertical offset (in pixels) of the effect.
+         *  - radius: the radius of the unaffected area in pixels.
+         */
+        options = defaultOptions(options, {dx: 0, dy: 0, radius: 0});
+        var m = options.radius;
+        return polar(inData, outData, options.dx, options.dy, width, height, function (d, a) {
+            return [(d > m)? m : d, a];
+        });
+    },
+
+    twirl: function (inData, outData, width, height, options) {
+        /* options:
+         *  - dx: horizontal offset (in pixels) of the effect.
+         *  - dy: vertical offset (in pixels) of the effect.
+         *  - radius: the radius of the effect in pixels.
+         *  - angle: the amount of rotation in degrees.
+         */
+        options = defaultOptions(options, {dx: 0, dy: 0, radius: 0, angle: 0});
+        var m1 = util.radians(options.angle);
+        var m2 = options.radius;
+        return polar(inData, outData, options.dx, options.dy, width, height, function (d, a) {
+            return [d, a + (1 - smoothstep(-m2, m2, d)) * m1];
+        });
+    }
+};
+
+
+// MODULE SUPPORT ///////////////////////////////////////////////////////
+
+module.exports = process;
+
+},{"./util":20,"stackblur":5}],20:[function(require,module,exports){
+'use strict';
+
+// UTILITIES.
+
+function degrees(radians) {
+    return radians * 180 / Math.PI;
+}
+
+function radians(degrees) {
+    return degrees / 180 * Math.PI;
+}
+
+function distance(x0, y0, x1, y1) {
+    return Math.sqrt(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2));
+}
+
+function clamp(val, min, max) {
+    return Math.min(max, Math.max(min, val));
+}
+
+// Basic affine transform functionality.
+function transform(m) {
+    // Identity matrix.
+    if (m === undefined) {
+        m = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+    } else {
+        m = m.slice();
+    }
+
+    // Performs the 3x3 matrix multiplication of the current matrix with the input matrix a.
+    function _mmult(a, m) {
+        m = m.slice();
+
+        var m0 = m[0];
+        var m1 = m[1];
+        var m2 = m[2];
+        var m3 = m[3];
+        var m4 = m[4];
+        var m5 = m[5];
+        var m6 = m[6];
+        var m7 = m[7];
+        var m8 = m[8];
+
+        m[0] = a[0] * m0 + a[1] * m3;
+        m[1] = a[0] * m1 + a[1] * m4;
+        m[3] = a[3] * m0 + a[4] * m3;
+        m[4] = a[3] * m1 + a[4] * m4;
+        m[6] = a[6] * m0 + a[7] * m3 + m6;
+        m[7] = a[6] * m1 + a[7] * m4 + m7;
+
+        return transform(m);
+    }
+
+    return {
+        matrix: function () {
+            return m.slice();
+        },
+
+        clone: function () {
+            return transform(m);
+        },
+
+        prepend: function (t) {
+            if (t.matrix) {
+                t = t.matrix();
+            }
+            return _mmult(m, t);
+        },
+
+        append: function (t) {
+            if (t.matrix) {
+                t = t.matrix();
+            }
+            return _mmult(t, m);
+        },
+
+        translate: function (x, y) {
+            return _mmult([1, 0, 0, 0, 1, 0, x, y, 1], m);
+        },
+
+        scale: function (x, y) {
+            if (y === undefined) {
+                y = x;
+            }
+            return _mmult([x, 0, 0, 0, y, 0, 0, 0, 1], m);
+        },
+
+        skew: function (x, y) {
+            if (y === undefined) {
+                y = x;
+            }
+            var kx = Math.PI * x / 180.0;
+            var ky = Math.PI * y / 180.0;
+            return _mmult([1, Math.tan(ky), 0, -Math.tan(kx), 1, 0, 0, 0, 1], m);
+        },
+
+        rotate: function (angle) {
+            var c = Math.cos(radians(angle));
+            var s = Math.sin(radians(angle));
+            return _mmult([c, s, 0, -s, c, 0, 0, 0, 1], m);
+        },
+
+        transformPoint: function (point) {
+            var x = point.x;
+            var y = point.y;
+            return {x: x * m[0] + y * m[3] + m[6],
+                y: x * m[1] + y * m[4] + m[7]};
+        }
+    };
+}
+
+module.exports = {
+    degrees: degrees,
+    radians: radians,
+    distance: distance,
+    clamp: clamp,
+    transform: transform
+};
+
+},{}],21:[function(require,module,exports){
+'use strict';
+
+var deepEqual = require('./deepequal');
+var util = require('./util');
+var g = {};
+
+g.combine = function () {
+    var i, l, result = [];
+    for (i = 0; i < arguments.length; i++) {
+        l = arguments[i];
+        if (l) {
+            result = result.concat(l);
+        }
+    }
+    return result;
+};
+
+g.contains = function (l, value) {
+    for (var i = 0; i < l.length; i += 1) {
+        if (deepEqual.deepEqual(l[i], value)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+g.equals = function (o1, o2) {
+    return deepEqual.deepEqual(o1, o2);
+};
+
+g.count = function (l) {
+    if (l && l.length) {
+        return l.length;
+    } else {
+        return 0;
+    }
+};
+
+g.cull = function (l, booleans) {
+    if (!l) { return []; }
+    if (!booleans) { return l; }
+    var i, keep, results = [];
+    for (i = 0; i < l.length; i++) {
+        // Cycle through the list of boolean values.
+        keep = booleans[i % booleans.length];
+        if (keep) {
+            results.push(l[i]);
+        }
+    }
+    return results;
+};
+
+g.distinct = function(l) {
+    if (!l) { return []; }
+    var i, length, value,
+        result = [],
+        seen = [];
+    for (i = 0, length = l.length; i < length; i += 1) {
+        value = l[i];
+        if (!g.contains(seen, value)) {
+            seen.push(value);
+            result.push(l[i]);
+        }
+    }
+    return result;
+};
+
+g.first = function (l) {
+    if (!l || l.length === 0) { return null; }
+    return l[0];
+};
+
+g.get = function (l, i) {
+    if (!l || l.length === 0) { return null; }
+    return l[i];
+};
+
+g.interleave = function () {
+    if (arguments.length === 0) return [];
+    var results = [];
+    var elIndex = 0;
+    while (true) {
+        for (var i = 0; i < arguments.length; i++) {
+            var arg = arguments[i];
+            if (arg.length > elIndex) {
+                results.push(arg[elIndex]);
+            } else {
+                return results;
+            }
+        }
+        elIndex += 1;
+    }
+};
+
+g.last = function (l) {
+    if (!l || l.length === 0) { return null; }
+    return l[l.length - 1];
+};
+
+g.pick = function (l, amount, seed) {
+    if (!l || l.length === 0 || amount <= 0) {
+        return [];
+    }
+    if (!seed && seed !== 0) {
+        seed = Math.random();
+    }
+    var rand = util.randomGenerator(seed || 0);
+    var results = [];
+    for (var i = 0; i < amount; i += 1) {
+        results.push(l[Math.floor(rand(0, l.length))]);
+    }
+    return results;
+};
+
+g.randomSample = function (l, amount, seed) {
+    if (!l || l.length === 0 || amount <= 0) {
+        return [];
+    }
+    if (!seed && seed !== 0) {
+        seed = Math.random();
+    }
+    var shuffledlist = g.shuffle(l, seed);
+    if (!amount) { return shuffledlist; }
+    return g.slice(shuffledlist, 0, amount);
+};
+
+g.repeat = function (l, amount, perItem) {
+    if (!l) { return []; }
+    if (amount <= 0) { return []; }
+    var i, j, v,
+        newList = [];
+    if (!perItem) {
+        for (i = 0; i < amount; i += 1) {
+            newList.push.apply(newList, l);
+        }
+    } else {
+        for (i = 0; i < l.length; i += 1) {
+            v = l[i];
+            for (j = 0; j < amount; j += 1) {
+                newList.push(v);
+            }
+        }
+    }
+    return newList;
+};
+
+g.rest = function (l) {
+    if (!l) { return []; }
+    return l.slice(1);
+};
+
+g.reverse = function (l) {
+    return l.slice().reverse();
+
+};
+
+g.second = function (l) {
+    if (!l || l.length < 2) { return null; }
+    return l[1];
+};
+
+g.shift = function (l, amount) {
+    // If the amount is bigger than the number of items, wrap around.
+    if (!l) { return []; }
+    amount = amount % l.length;
+    var head = l.slice(0, amount),
+        result = l.slice(amount);
+    result.push.apply(result, head);
+    return result;
+};
+
+g.shuffle = function (l, seed) {
+    var i, j, tmp, r;
+    if (!seed && seed !== 0) {
+        seed = Math.random();
+    }
+    r = util.randomGenerator(seed || 0);
+    for (i = l.length - 1; i > 0; i--) {
+        j = Math.floor(r(0, i + 1));
+        tmp = l[i];
+        l[i] = l[j];
+        l[j] = tmp;
+    }
+    return l;
+};
+
+g.slice = function (l, start, size, invert) {
+    if (!l) { return []; }
+    var firstList, secondList;
+    if (!invert) {
+        return l.slice(start, start + size);
+    } else {
+        firstList = l.slice(0, start);
+        secondList = l.slice(start + size);
+        firstList.push.apply(firstList, secondList);
+        return firstList;
+    }
+};
+
+g.sort = function (l, key) {
+    if (key) {
+        if (typeof key === 'string') {
+            return l.slice().sort(function (a, b) {
+                if (a[key] > b[key]) { return 1; }
+                else if (a[key] === b[key]) { return 0; }
+                else { return -1; }
+            });
+        } else if (typeof key === 'function') {
+            return l.slice().sort(key);
+        }
+    }
+    if (l && l[0] !== undefined && l[0] !== null && typeof l[0] === 'number') {
+        return l.slice().sort(function (a, b) { return a - b; });
+    }
+    return l.slice().sort();
+};
+
+g.switch = function (index) {
+    var nLists = (arguments.length - 1);
+    index = index % nLists;
+    if (index < 0) {
+        index += nLists;
+    }
+    return arguments[index + 1];
+};
+
+g.takeEvery = function (l, n, offset) {
+    var i, results = [];
+    offset = offset || 0;
+    for (i = 0; i < l.length; i += 1) {
+        if (i % n === offset) {
+            results.push(l[i]);
+        }
+    }
+    return results;
+};
+
+g.zipMap = function (keys, vals) {
+    var i, k, v,
+        m = {},
+        minLength = Math.min(keys.length, vals.length);
+    for (i = 0; i < minLength; i += 1) {
+        k = keys[i];
+        v = vals[i];
+        m[k] = v;
+    }
+    return m;
+};
+
+module.exports = g;
+
+},{"./deepequal":11,"./util":24}],22:[function(require,module,exports){
+'use strict';
+
+var _ = require('lodash');
+
+var util = require('./util');
+var vg = require('./vg/vg');
+
+var g = {};
+
+var TWO_PI = Math.PI * 2;
+
+g.abs = Math.abs;
+
+g.accumulate = function (values) {
+    if (arguments.length > 1) {
+        values = arguments;
+    } else if (arguments.length === 1 && !Array.isArray(values)) {
+        values = [values];
+    }
+    if (!values || values.length === 0) { return [0.0]; }
+    var i, b = [],
+        currentTotal = 0;
+    for (i = 0; i < values.length; i++) {
+        b.push(currentTotal);
+        currentTotal += values[i];
+    }
+    return b;
+};
+
+g.add = function (a, b) {
+    if (arguments.length === 2) { return a + b; }
+    return _.reduce(arguments, function(total, n) {
+        return total + n;
+    }, 0);
+};
+
+g.and = function (bool1, bool2) {
+    var argLength = arguments.length;
+    if (argLength === 2) {
+        return bool1 && bool2;
+    } else if (argLength === 1) {
+        return !!bool1;
+    } else if (argLength === 0) {
+        throw new Error('Wrong number of arguments');
+    }
+    return _.reduce(arguments, function(b1, b2) {
+        return b1 && b2;
+    }, true);
+};
+
+g.average = function (values) {
+    if (arguments.length > 1) {
+        values = arguments;
+    } else if (arguments.length === 1 && !Array.isArray(values)) {
+        values = [values];
+    }
+    if (!values || values.length === 0) { return 0; }
+    var i, sum = 0;
+    for (i = 0; i < values.length; i += 1) {
+        sum += values[i];
+    }
+    return sum / values.length;
+};
+
+g.boolean = function (v) {
+    return !!v;
+};
+
+g.ceil = Math.ceil;
+
+g.compare = function (v1, v2, comparator) {
+    if (comparator === '<') {
+        return v1 < v2;
+    } else if (comparator === '>') {
+        return v1 > v2;
+    } else if (comparator === '<=') {
+        return v1 <= v2;
+    } else if (comparator === '>=') {
+        return v1 >= v2;
+    } else if (comparator === '==') {
+        return v1 === v2;
+    } else if (comparator === '!=') {
+        return v1 !== v2;
+    }
+    throw new Error('Unknown comparison operation ' + comparator);
+};
+
+g.cos = Math.cos;
+
+g.degrees = function (radians) {
+    return radians * 180 / Math.PI;
+};
+
+g.divide = function (a, b) {
+    var argLength = arguments.length;
+    function checkIfZero(arg) {
+        if (arg === 0) {
+            throw new Error('Divide by zero');
+        }
+    }
+    if (argLength === 2) {
+        checkIfZero(b);
+        return a / b;
+    } else if (argLength === 1) {
+        checkIfZero(a);
+        return 1 / a;
+    } else if (argLength === 0) {
+        throw new Error('Wrong number of arguments');
+    }
+    return _.reduce([].slice.call(arguments, 1), function(total, n) {
+        checkIfZero(n);
+        return total / n;
+    }, arguments[0]);
+};
+
+g.e = function () {
+    return Math.E;
+};
+
+g.even = function (v) {
+    return v % 2 === 0;
+};
+
+g.floor = Math.floor;
+
+g.integer = function (v) {
+    return v | 0;
+};
+
+g.log = function (v) {
+    return v > 0 ? Math.log(v) : -Math.log(-v);
+};
+
+g.makeNumbers = function (s, separator) {
+    if (!s) { return []; }
+    if (!separator) { separator = ''; }
+    var i, num, numbers = [],
+        strings = s.split(separator);
+    for (i = 0; i < strings.length; i += 1) {
+        num = parseFloat(strings[i]);
+        if (num === 0 || num) {
+            numbers.push(num);
+        }
+    }
+    return numbers;
+};
+
+g.max = function () {
+    var values = arguments;
+    if (arguments.length === 1 && Array.isArray(arguments[0])) {
+        values = arguments[0];
+    }
+    if (values.length === 0) {
+        throw new Error('Wrong number of arguments');
+    }
+    return Math.max.apply(null, values);
+};
+
+g.min = function () {
+    var values = arguments;
+    if (arguments.length === 1 && Array.isArray(arguments[0])) {
+        values = arguments[0];
+    }
+    if (values.length === 0) {
+        throw new Error('Wrong number of arguments');
+    }
+    return Math.min.apply(null, values);
+};
+
+g.mod = function (a, b) {
+    return a % b;
+};
+
+g.multiply = function (a, b) {
+    var argLength = arguments.length;
+    if (argLength === 2) { return a * b; }
+    else if (argLength === 1) { return a; }
+    return _.reduce(arguments, function(total, n) {
+        return total * n;
+    }, 1);
+};
+
+g.negate = function (v) {
+    return -v;
+};
+
+g.not = function (bool) {
+    return !bool;
+};
+
+g.number = function (v) {
+    return v;
+};
+
+g.odd = function (v) {
+    return v % 2 !== 0;
+};
+
+g.or = function (bool1, bool2) {
+    var argLength = arguments.length;
+    if (argLength === 2) {
+        return bool1 || bool2;
+    } else if (argLength === 1) {
+        return !!bool1;
+    } else if (argLength === 0) {
+        throw new Error('Wrong number of arguments');
+    }
+    return _.reduce(arguments, function(b1, b2) {
+        return b1 || b2;
+    }, false);
+};
+
+// Compute Perlin noise
+g.perlinNoise = function (x, y, z) {
+    // Call optimized internal noise function.
+    return vg.math.noise(x, y, z);
+};
+
+g.pi = function () {
+    return Math.PI;
+};
+
+g.pow = Math.pow;
+
+g.radians = function (degrees) {
+    return degrees * Math.PI / 180;
+};
+
+g.randomNumbers = function (amount, min, max, seed) {
+    var argLength = arguments.length;
+    if (argLength < 4 || (!seed && seed !== 0)) {
+        seed = Math.random();
+    }
+    if (argLength === 3 || argLength === 4) {
+        min = min || 0;
+        max = max || (max === 0 ? 0 : 1);
+    } else if (argLength === 2) {
+        max = min || (min === 0 ? 0 : 1);
+        min = 0;
+    } else if (argLength === 1) {
+        min = 0;
+        max = 1;
+    }
+    if (max < min) {
+        var tmp = max;
+        max = min;
+        min = tmp;
+    }
+    var v;
+    var delta = max - min;
+    var numbers = [];
+    var rand = util.randomGenerator(seed || 0);
+    for (var i = 0; i < amount; i += 1) {
+        v = min + (rand(0, 1) * delta);
+        numbers.push(v);
+    }
+    return numbers;
+};
+
+g.range = function (min, max, step, includeMax) {
+    if (min === max) { return []; }
+    if (step !== 0) {
+        step = step || (min < max ? 1 : -1);
+    }
+    if (step > 0 && min > max) return [];
+    if (step < 0 && min < max) return [];
+    if (step === 0) return [];
+    var values = [];
+    var i;
+    if (min < max) {
+        if (!!includeMax) {
+            for (i = min; i <= max; i += step) {
+                values.push(i);
+            }
+        } else {
+            for (i = min; i < max; i += step) {
+                values.push(i);
+            }
+        }
+    } else {
+        if (!!includeMax) {
+            for (i = min; i >= max; i += step) {
+                values.push(i);
+            }
+        } else {
+            for (i = min; i > max; i += step) {
+                values.push(i);
+            }
+        }
+    }
+    return values;
+};
+
+g.round = function (v, a) {
+    a = a | 0;
+    if (!a) {
+        return Math.round(v);
+    }
+    return Math.round(v / a) * a;
+};
+
+g.sample = function (amount, min, max, circular) {
+    var d,
+        values = [],
+        i;
+    values.length = amount;
+    if (circular) {
+        d = (max - min) / amount;
+    } else {
+        d = (max - min) / (amount - 1);
+    }
+    for (i = 0; i < amount; i += 1) {
+        values[i] = min + i * d;
+    }
+    return values;
+};
+
+g.sineWave = function (v, min, max, period, offset) {
+    if (min === undefined) min = -1;
+    if (max === undefined) max = 1;
+    if (period === undefined) period = 1;
+    if (offset === undefined) offset = 0;
+    var amplitude = (max - min) / 2;
+    return (min + amplitude) + Math.sin((offset + v) * TWO_PI / period) * amplitude;
+};
+
+g.squareWave = function (v, min, max, period, offset) {
+    if (min === undefined) min = -1;
+    if (max === undefined) max = 1;
+    if (period === undefined) period = 1;
+    if (offset === undefined) offset = 0;
+    var halfPeriod = period / 2;
+    var d = (v + offset) % period;
+    if (d < halfPeriod) {
+        return max;
+    } else {
+        return min;
+    }
+};
+
+g.triangleWave = function (v, min, max, period, offset) {
+    if (min === undefined) min = -1;
+    if (max === undefined) max = 1;
+    if (period === undefined) period = 1;
+    if (offset === undefined) offset = 0;
+    var amplitude = (max - min) / 2,
+        frequency = TWO_PI / period,
+        phase = 0,
+        time = v + offset + period / 4;
+    if (time % period !== 0) {
+        phase = (time * frequency) % TWO_PI;
+    }
+    if (phase < 0) { phase += TWO_PI; }
+    return 2 * amplitude * (1 + -Math.abs((phase / TWO_PI) * 2 - 1)) + min;
+};
+
+g.sawtoothWave = function (v, min, max, period, offset) {
+    if (min === undefined) min = -1;
+    if (max === undefined) max = 1;
+    if (period === undefined) period = 1;
+    if (offset === undefined) offset = 0;
+    var amplitude = (max - min) / 2,
+        frequency = TWO_PI / period,
+        phase = 0,
+        time = v + offset;
+    if (time % period !== 0) {
+        phase = (time * frequency) % TWO_PI;
+    }
+    if (phase < 0) { phase += TWO_PI; }
+    return 2 * (phase / TWO_PI) * amplitude + min;
+};
+
+g.sign = function (v) {
+    if (v > 0) {
+        return 1;
+    } else if (v === 0) {
+        return 0;
+    } else {
+        return -1;
+    }
+};
+
+g.sin = Math.sin;
+
+g.sqrt = Math.sqrt;
+
+g.subtract = function (a, b) {
+    var argLength = arguments.length;
+    if (argLength === 2) { return a - b; }
+    else if (argLength === 1) { return -a; }
+    else if (argLength === 0) { throw new Error('Wrong number of arguments'); }
+    return _.reduce([].slice.call(arguments, 1), function(total, n) {
+        return total - n;
+    }, arguments[0]);
+};
+
+g.tan = Math.tan;
+
+g.total = function (values) {
+    if (arguments.length > 1) {
+        values = arguments;
+    } else if (arguments.length === 1 && !Array.isArray(values)) {
+        values = [values];
+    } else if (arguments.length === 0) {
+        values = [];
+    }
+    if (values.length === 0) { return 0; }
+    var i, total = 0;
+    for (i = 0; i < values.length; i += 1) {
+        total += values[i];
+    }
+    return total;
+};
+
+g.xor = function (bool1, bool2) {
+    var argLength = arguments.length;
+    if (argLength === 2) {
+        return !!(bool1 ^ bool2);
+    } else {
+        throw new Error('Wrong number of arguments');
+    }
+};
+
+module.exports = g;
+
+},{"./util":24,"./vg/vg":45,"lodash":4}],23:[function(require,module,exports){
+'use strict';
+
+var g = {};
+
+g.characterAt = function (s, index) {
+    if (!s || s.length === 0) { return null; }
+    s = String(s);
+    index = index % s.length;
+    return s.charAt(index);
+};
+
+g.concatenate = function () {
+    var result = '';
+    for (var i = 0; i < arguments.length; i++) {
+        var s = arguments[i];
+        s = s !== undefined ? String(s) : '';
+        result += s;
+    }
+    return result;
+};
+
+g.endsWith = function (s, value) {
+    if (!s || !value) { return false; }
+    s = String(s);
+    return s.indexOf(value, s.length - value.length) !== -1;
+};
+
+g.reverse = function (l) {
+    return l.slice().reverse();
+};
+
+g.startsWith = function (s, value) {
+    if (!s || !value) { return false; }
+    s = String(s);
+    return s.indexOf(value) === 0;
+};
+
+g.string = String;
+
+g.stringContains = function (s, sub) {
+    if (!s || !sub) { return false; }
+    s = String(s);
+    return s.indexOf(sub) !== -1;
+};
+
+g.stringEquals = function (string1, string2, ignoreCase) {
+    string1 = String(string1);
+    string2 = String(string2);
+    if (!string1 || !string2) {
+        return false;
+    }
+    if (ignoreCase) {
+        return string1.toLowerCase() === string2.toLowerCase();
+    } else {
+        return string1 === string2;
+    }
+};
+
+g.stringLength = function (s) {
+    if (!s) { return 0; }
+    s = String(s);
+    return s.length;
+};
+
+g.stringReplace = function (s, old, new_) {
+    s = String(s);
+    return s.replace(new RegExp(old, 'g'), new_);
+};
+
+g.stringSplit = function (s, separator) {
+    if (!s) { return []; }
+    if (!separator || separator.length === 0) {
+        separator = '';
+    }
+    s = String(s);
+    return s.split(separator);
+};
+
+g.stringTrim = function (s) {
+    if (!s) { return null; }
+    s = String(s);
+    return s.trim();
+};
+
+g.substring = function (s, start, end, endOffset) {
+    if (!s) { return null; }
+    s = String(s);
+    start = start % s.length;
+
+    if (end !== undefined) {
+        if (endOffset) {
+            end = (end % s.length) + 1;
+        } else {
+            end = end % (s.length + 1);
+        }
+    }
+    return s.substring(start, end);
+};
+
+g.toCharacterCodes = function(s) {
+    if (!s) return [];
+    var codes = [];
+    codes.length = s.length;
+    for (var i = 0; i < s.length; i += 1) {
+        codes[i] = s.charCodeAt(i);
+    }
+    return codes;
+};
+
+g.toCharacters = function (s) {
+    if (!s) { return []; }
+    s = String(s);
+    return s.split('');
+};
+
+g.toLowerCase = function (s) {
+    s = String(s);
+    return s.toLowerCase();
+};
+
+g.toTitleCase = function (s) {
+    var c, result = '';
+    s = String(s);
+    for (var i = 0; i < s.length; i += 1) {
+        c = s[i];
+        if (result.length === 0 || result[result.length - 1] === ' ') {
+            result += c.toUpperCase();
+        } else {
+            result += c;
+        }
+    }
+    return result;
+};
+
+g.toUpperCase = function (s) {
+    s = String(s);
+    return s.toUpperCase();
+};
+
+g.wordCount = function (s) {
+    if (!s) { return 0; }
+    s = String(s);
+    var split = s.split(new RegExp('\\w+'));
+    return split.length - 1;
+};
+
+g.toWords = function (s) {
+    var l = s.split(/\W+/);
+    if (l[l.length - 1] === '') {
+        l.pop();
+    }
+    return l;
+};
+
+
+module.exports = g;
+
+},{}],24:[function(require,module,exports){
+'use strict';
+
+var randomGenerator = function (seed) {
+    // Note: the generator didn't work with negative seed values, so here we
+    // transform our original seed into a new (positive) seed value with which we
+    // create a new generator.
+    if (seed < 0) {
+        var gen = randomGenerator(Math.abs(seed));
+        for (var i = 0; i < 23; i += 1) {
+            gen();
+        }
+        return randomGenerator(gen(0, 10000));
+    }
+
+    // Based on random number generator from
+    // http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+    return function (min, max) {
+        min = min || 0;
+        max = max || 1;
+        seed = (seed * 9301 + 49297) % 233280;
+        var v = seed / 233280;
+        return min + v * (max - min);
+    };
+};
+
+exports.randomGenerator = randomGenerator;
+},{}],25:[function(require,module,exports){
 // Draw objects to the canvas
 
 'use strict';
@@ -26668,7 +29130,7 @@ vg.toSVG = function (o, options) {
 
 module.exports = vg;
 
-},{"../objects/color":18}],16:[function(require,module,exports){
+},{"../objects/color":28}],26:[function(require,module,exports){
 // Object creation / manipulation commands
 
 'use strict';
@@ -26686,8 +29148,35 @@ var Path = require('../objects/path');
 var Point = require('../objects/point');
 var Rect = require('../objects/rect');
 var Transform = require('../objects/transform');
+var Transformable = require('../objects/transformable');
+
+function _cloneCommand(cmd) {
+    var newCmd = {type: cmd.type};
+    if (newCmd.type !== bezier.CLOSE) {
+        newCmd.x = cmd.x;
+        newCmd.y = cmd.y;
+    }
+    if (newCmd.type === bezier.QUADTO) {
+        newCmd.x1 = cmd.x1;
+        newCmd.y1 = cmd.y1;
+    } else if (newCmd.type === bezier.CURVETO) {
+        newCmd.x1 = cmd.x1;
+        newCmd.y1 = cmd.y1;
+        newCmd.x2 = cmd.x2;
+        newCmd.y2 = cmd.y2;
+    }
+    return newCmd;
+}
 
 var vg = {};
+
+vg.HORIZONTAL = 'horizontal';
+vg.VERTICAL = 'vertical';
+
+vg.EAST = 'e';
+vg.WEST = 'w';
+vg.NORTH = 'n';
+vg.SOUTH = 's';
 
 vg.bounds = function (o) {
     var r, i, n;
@@ -26753,7 +29242,7 @@ vg.shapePoints = vg.toPoints = function (shape) {
         return [];
     }
     if (shape.commands) {
-        return _.map(_.filter(shape.commands, function (cmd) { if (cmd.x !== undefined) { return true; } return false; }), function (cmd) { return {x: cmd.x, y: cmd.y}; });
+        return _.map(_.filter(shape.commands, function (cmd) { if (cmd.x !== undefined) { return true; } return false; }), function (cmd) { return new Point(cmd.x, cmd.y); });
     }
     var i, points = [];
     for (i = 0; i < shape.shapes.length; i += 1) {
@@ -26772,19 +29261,31 @@ vg.colorize = function (shape, fill, stroke, strokeWidth) {
 };
 
 vg.translate = function (shape, position) {
-    return shape.translate(position);
+    if (shape.translate) {
+        return shape.translate(position);
+    }
+    return Transformable.translate.apply(shape, [position]);
 };
 
 vg.scale = function (shape, scale, origin) {
-    return shape.scale(scale, origin);
+    if (shape.scale) {
+        return shape.scale(scale, origin);
+    }
+    return Transformable.scale.apply(shape, [scale, origin]);
 };
 
 vg.rotate = function (shape, angle, origin) {
-    return shape.rotate(angle, origin);
+    if (shape.rotate) {
+        return shape.rotate(angle, origin);
+    }
+    return Transformable.rotate.apply(shape, [angle, origin]);
 };
 
 vg.skew = function (shape, skew, origin) {
-    return shape.skew(skew, origin);
+    if (shape.skew) {
+        return shape.skew(skew, origin);
+    }
+    return Transformable.skew.apply(shape, [skew, origin]);
 };
 
 vg.copy = function (shape, copies, order, translate, rotate, scale) {
@@ -26807,7 +29308,11 @@ vg.copy = function (shape, copies, order, translate, rotate, scale) {
                 t = t.scale(sx, sy);
             }
         }
-        shapes.push(t.transformShape(shape));
+        if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+            shapes = shapes.concat(t.transformShape(shape));
+        } else {
+            shapes.push(t.transformShape(shape));
+        }
 
         tx += translate.x;
         ty += translate.y;
@@ -26818,13 +29323,13 @@ vg.copy = function (shape, copies, order, translate, rotate, scale) {
     return shapes;
 };
 
-vg.fit = function (shape, position, width, height, keepProportions) {
+vg.fit = function (shape, position, width, height, stretch) {
     if (!shape) {
         return;
     }
-    keepProportions = keepProportions !== undefined ? keepProportions : true;
+    stretch = stretch !== undefined ? stretch : false;
     var t, sx, sy,
-        bounds = shape.bounds(),
+        bounds = vg.bounds(shape),
         bx = bounds.x,
         by = bounds.y,
         bw = bounds.width,
@@ -26838,7 +29343,7 @@ vg.fit = function (shape, position, width, height, keepProportions) {
     t = new Transform();
     t = t.translate(position.x, position.y);
 
-    if (keepProportions) {
+    if (!stretch) {
         // don't scale widths or heights that are equal to zero.
         sx = (bw > 0) ? (width / bw) : Number.MAX_VALUE;
         sy = (bh > 0) ? (height / bh) : Number.MAX_VALUE;
@@ -26855,8 +29360,8 @@ vg.fit = function (shape, position, width, height, keepProportions) {
 };
 
 // Fit the given shape to the bounding shape.
-// If keepProportions = true, the shape will not be stretched.
-vg.fitTo = function (shape, bounding, keepProportions) {
+// If stretch = true, proportions will be distorted.
+vg.fitTo = function (shape, bounding, stretch) {
     if (!shape) {
         return;
     }
@@ -26864,33 +29369,35 @@ vg.fitTo = function (shape, bounding, keepProportions) {
         return;
     }
 
-    var bounds = bounding.bounds(),
+    var bounds = vg.bounds(bounding),
         bx = bounds.x,
         by = bounds.y,
         bw = bounds.width,
         bh = bounds.height;
 
-    return vg.fit(shape, {x: bx + bw / 2, y: by + bh / 2}, bw, bh, keepProportions);
+    return vg.fit(shape, {x: bx + bw / 2, y: by + bh / 2}, bw, bh, stretch);
 };
 
-vg.reflect = function (shape, position, angle, keepOriginal) {
+vg.mirror = function (shape, angle, origin, keepOriginal) {
     if (!shape) {
         return;
     }
-    position = position || new Point();
-    angle = angle || 0;
+    origin = origin || new Point();
+    if (angle !== 0) {
+        angle = angle || 90;
+    }
 
     var f = function (x, y) {
-        var d = geo.distance(x, y, position.x, position.y),
-            a = geo.angle(x, y, position.x, position.y),
-            pt = geo.coordinates(position.x, position.y, d * Math.cos(math.radians(a - angle)), 180 + angle);
+        var d = geo.distance(x, y, origin.x, origin.y),
+            a = geo.angle(x, y, origin.x, origin.y),
+            pt = geo.coordinates(origin.x, origin.y, 180 + angle, d * Math.cos(math.radians(a - angle)));
         d = geo.distance(x, y, pt.x, pt.y);
         a = geo.angle(x, y, pt.x, pt.y);
-        pt = geo.coordinates(x, y, d * 2, a);
+        pt = geo.coordinates(x, y, a, d * 2);
         return new Point(pt.x, pt.y);
     };
 
-    var reflectPath = function (path) {
+    var mirrorPath = function (path) {
         var pt, ctrl1, ctrl2;
         var p = new Path([], path.fill, path.stroke, path.strokeWidth);
         for (var i = 0; i < path.commands.length; i += 1) {
@@ -26915,50 +29422,66 @@ vg.reflect = function (shape, position, angle, keepOriginal) {
         return p;
     };
 
-    var reflectGroup = function (group) {
+    var mirrorPoints = function (points) {
+        return _.map(points, function (point) {
+            return f(point.x, point.y);
+        });
+    };
+
+    var mirrorGroup = function (group) {
         var shapes = _.map(group.shapes, function (shape) {
-            return reflect(shape);
+            return mirror(shape);
         });
         return new Group(shapes);
     };
 
-    var reflect = function (shape) {
-        var fn = (shape.shapes) ? reflectGroup : reflectPath;
+    var mirror = function (shape) {
+        if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+            return mirrorPoints(shape);
+        }
+        var fn = (shape.shapes) ? mirrorGroup : mirrorPath;
         return fn(shape);
     };
 
-    var newShape = reflect(shape);
+    var newShape = mirror(shape);
 
     if (keepOriginal) {
+        if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+            return shape.concat(newShape);
+        }
         return new Group([shape, newShape]);
     } else {
         return newShape;
     }
 };
 
-vg.resample = function (shape, method, length, points, perContour) {
-    if (!shape) {
-        return;
+vg.pathLength = function (shape, options) {
+    var precision = 20;
+    if (options && options.precision) {
+        precision = options.precision;
     }
-    if (method === 'length') {
-        return shape.resampleByLength(length);
-    } else {
-        return shape.resampleByAmount(points, perContour);
-    }
+    return shape.length(precision);
 };
 
-vg.wiggle = function (shape, scope, offset, seed) {
-    var rand, wigglePoints, wigglePaths, wiggleContours;
-    scope = scope || 'points';
+vg.resampleByLength = function (shape, maxLength) {
+    if (!shape) { return; }
+    return shape.resampleByLength(maxLength);
+};
+
+vg.resampleByAmount = function (shape, amount, perContour) {
+    if (!shape) { return; }
+    return shape.resampleByAmount(amount, perContour);
+};
+
+vg.wigglePoints = function (shape, offset, seed) {
+    seed = seed !== undefined ? seed : Math.random();
+    var rand = random.generator(seed);
     if (offset === undefined) {
         offset = {x: 10, y: 10};
     } else if (typeof offset === 'number') {
         offset = {x: offset, y: offset};
     }
-    seed = seed !== undefined ? seed : Math.random();
-    rand = random.generator(seed);
-
-    wigglePoints = function (shape) {
+    var wigglePoints = function (shape) {
         var i, dx, dy;
         if (shape.commands) {
             var p = new Path([], shape.fill, shape.stroke, shape.strokeWidth);
@@ -26991,33 +29514,21 @@ vg.wiggle = function (shape, scope, offset, seed) {
             return _.map(shape, wigglePoints);
         }
     };
+    return wigglePoints(shape);
+};
 
-    wigglePaths = function (shape) {
-        if (shape.commands) {
-            return shape;
-        } else if (shape.shapes) {
-            var i, subShape, dx, dy, t, newShapes = [];
-            for (i = 0; i < shape.shapes.length; i += 1) {
-                subShape = shape.shapes[i];
-                if (subShape.commands) {
-                    dx = (rand(0, 1) - 0.5) * offset.x * 2;
-                    dy = (rand(0, 1) - 0.5) * offset.y * 2;
-                    t = new Transform().translate(dx, dy);
-                    newShapes.push(t.transformShape(subShape));
-                } else if (subShape.shapes) {
-                    newShapes.push(wigglePaths(subShape));
-                }
-            }
-            return new Group(newShapes);
-        } else {
-            return _.map(shape, wigglePaths);
-        }
-    };
-
-    wiggleContours = function (shape) {
+vg.wiggleContours = function (shape, offset, seed) {
+    seed = seed !== undefined ? seed : Math.random();
+    var rand = random.generator(seed);
+    if (offset === undefined) {
+        offset = {x: 10, y: 10};
+    } else if (typeof offset === 'number') {
+        offset = {x: offset, y: offset};
+    }
+    var wiggleContours = function (shape) {
         if (shape.commands) {
             var i, dx, dy, t,
-                subPaths = vg.getContours(shape),
+                subPaths = shape.contours(),
                 commands = [];
             for (i = 0; i < subPaths.length; i += 1) {
                 dx = (rand(0, 1) - 0.5) * offset.x * 2;
@@ -27032,19 +29543,44 @@ vg.wiggle = function (shape, scope, offset, seed) {
             return _.map(shape, wiggleContours);
         }
     };
-
-    if (scope === 'points') {
-        return wigglePoints(shape);
-    } else if (scope === 'paths') {
-        return wigglePaths(shape);
-    } else if (scope === 'contours') {
-        return wiggleContours(shape);
-    } else {
-        throw new Error('Invalid scope.');
-    }
+    return wiggleContours(shape);
 };
 
-vg.scatter = function (shape, amount, seed) {
+vg.wigglePaths = function (shape, offset, seed) {
+    seed = seed !== undefined ? seed : Math.random();
+    var rand = random.generator(seed);
+    if (offset === undefined) {
+        offset = {x: 10, y: 10};
+    } else if (typeof offset === 'number') {
+        offset = {x: offset, y: offset};
+    }
+
+    var wigglePaths = function (shape) {
+        if (shape.commands) {
+            return shape;
+        } else if (shape.shapes) {
+            return new Group(wigglePaths(shape.shapes));
+        } else if (Array.isArray(shape)) {
+            var subShape, dx, dy, t, newShapes = [];
+            for (var i = 0; i < shape.length; i += 1) {
+                subShape = shape[i];
+                if (subShape.commands) {
+                    dx = (rand(0, 1) - 0.5) * offset.x * 2;
+                    dy = (rand(0, 1) - 0.5) * offset.y * 2;
+                    t = new Transform().translate(dx, dy);
+                    newShapes.push(t.transformShape(subShape));
+                } else if (subShape.shapes) {
+                    newShapes.push(wigglePaths(subShape));
+                }
+            }
+            return newShapes;
+        }
+    };
+
+    return wigglePaths(shape);
+};
+
+vg.scatterPoints = function (shape, amount, seed) {
     // Generate points within the boundaries of a shape.
     if (!shape) {
         return;
@@ -27089,7 +29625,7 @@ vg.scatter = function (shape, amount, seed) {
     return points;
 };
 
-vg.connect = function (points, closed) {
+vg.connectPoints = function (points, closed) {
     if (!points) {
         return;
     }
@@ -27117,7 +29653,7 @@ vg.align = function (shape, position, hAlign, vAlign) {
     var dx, dy, t,
         x = position.x,
         y = position.y,
-        bounds = shape.bounds();
+        bounds = vg.bounds(shape);
     if (hAlign === 'left') {
         dx = x - bounds.x;
     } else if (hAlign === 'right') {
@@ -27142,13 +29678,12 @@ vg.align = function (shape, position, hAlign, vAlign) {
 };
 
 // Snap geometry to a grid.
-vg.snap = function (shape, distance, strength, position) {
+vg.snap = function (shape, distance, strength, center) {
     if (!shape) {
         return;
     }
-    strength = strength !== undefined ? strength : 100;
-    strength /= 100;
-    position = position || Point.ZERO;
+    strength = strength !== undefined ? strength : 1;
+    center = center || Point.ZERO;
 
     var snapShape = function (shape) {
         if (shape.commands) {
@@ -27156,17 +29691,17 @@ vg.snap = function (shape, distance, strength, position) {
             for (var i = 0; i < shape.commands.length; i += 1) {
                 var cmd = shape.commands[i];
                 if (cmd.type === bezier.MOVETO || cmd.type === bezier.LINETO || cmd.type === bezier.CURVETO) {
-                    var x = math.snap(cmd.x + position.x, distance, strength) - position.x;
-                    var y = math.snap(cmd.y + position.y, distance, strength) - position.y;
+                    var x = math.snap(cmd.x + center.x, distance, strength) - center.x;
+                    var y = math.snap(cmd.y + center.y, distance, strength) - center.y;
                     if (cmd.type === bezier.MOVETO) {
                         p.moveTo(x, y);
                     } else if (cmd.type === bezier.LINETO) {
                         p.lineTo(x, y);
                     } else if (cmd.type === bezier.CURVETO) {
-                        var x1 = math.snap(cmd.x1 + position.x, distance, strength) - position.x;
-                        var y1 = math.snap(cmd.y1 + position.y, distance, strength) - position.y;
-                        var x2 = math.snap(cmd.x2 + position.x, distance, strength) - position.x;
-                        var y2 = math.snap(cmd.y2 + position.y, distance, strength) - position.y;
+                        var x1 = math.snap(cmd.x1 + center.x, distance, strength) - center.x;
+                        var y1 = math.snap(cmd.y1 + center.y, distance, strength) - center.y;
+                        var x2 = math.snap(cmd.x2 + center.x, distance, strength) - center.x;
+                        var y2 = math.snap(cmd.y2 + center.y, distance, strength) - center.y;
                         p.curveTo(x1, y1, x2, y2, x, y);
                     }
                 } else if (cmd.type === bezier.CLOSE) {
@@ -27178,6 +29713,12 @@ vg.snap = function (shape, distance, strength, position) {
             return p;
         } else if (shape.shapes) {
             return new Group(_.map(shape.shapes, snapShape));
+        } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+            return _.map(shape, function (point) {
+                var x = math.snap(point.x + center.x, distance, strength) - center.x;
+                var y = math.snap(point.y + center.y, distance, strength) - center.y;
+                return new Point(x, y);
+            });
         } else {
             return _.map(shape, snapShape);
         }
@@ -27186,17 +29727,26 @@ vg.snap = function (shape, distance, strength, position) {
     return snapShape(shape);
 };
 
-vg.deletePoints = function (shape, bounding, deleteSelected) {
+vg.deletePoints = function (shape, bounding, invert) {
     var deletePoints = function (shape) {
         var i, cmd, commands = [];
         var pt, points = [];
         if (shape.commands) {
+            var newCurve = true;
             for (i = 0; i < shape.commands.length; i += 1) {
-                cmd = shape.commands[i];
+                cmd = _cloneCommand(shape.commands[i]);
                 if (cmd.x === undefined ||
-                        (!deleteSelected && bounding.contains(cmd.x, cmd.y)) ||
-                        (deleteSelected && !bounding.contains(cmd.x, cmd.y))) {
+                        (invert && bounding.contains(cmd.x, cmd.y)) ||
+                        (!invert && !bounding.contains(cmd.x, cmd.y))) {
+                    if (newCurve && cmd.type !== bezier.MOVETO) {
+                        cmd.type = bezier.MOVETO;
+                    }
                     commands.push(cmd);
+                    if (cmd.type === bezier.MOVETO) {
+                        newCurve = false;
+                    } else if (cmd.type === bezier.CLOSE) {
+                        newCurve = true;
+                    }
                 }
             }
             return new Path(commands, shape.fill, shape.stroke, shape.strokeWidth);
@@ -27205,9 +29755,9 @@ vg.deletePoints = function (shape, bounding, deleteSelected) {
         } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined){
             for (i = 0; i < shape.length; i += 1) {
                 pt = shape[i];
-                if ((!deleteSelected && bounding.contains(pt.x, pt.y)) ||
-                   (deleteSelected && !bounding.contains(pt.x, pt.y))) {
-                    points.push(pt);
+                if ((invert && bounding.contains(pt.x, pt.y)) ||
+                   (!invert && !bounding.contains(pt.x, pt.y))) {
+                    points.push(_cloneCommand(pt));
                 }
             }
             return points;
@@ -27219,14 +29769,17 @@ vg.deletePoints = function (shape, bounding, deleteSelected) {
     return deletePoints(shape);
 };
 
-vg.deletePaths = function (shape, bounding, deleteSelected) {
+vg.deletePaths = function (shape, bounding, invert) {
     var deletePaths = function (shape) {
         if (shape.commands) {
             return null;
         } else if (shape.shapes) {
-            var i, j, s, selected, cmd, subShapes, newShapes = [];
-            for (i = 0; i < shape.shapes.length; i += 1) {
-                s = shape.shapes[i];
+            return new Group(deletePaths(shape.shapes));
+        } else if (Array.isArray(shape)) {
+            var j, s, selected, cmd, subShapes, newShapes = [];
+            var shapes = shape;
+            for (var i = 0; i < shapes.length; i += 1) {
+                s = shapes[i];
                 if (s.commands) {
                     selected = false;
                     for (j = 0; j < s.commands.length; j += 1) {
@@ -27236,7 +29789,7 @@ vg.deletePaths = function (shape, bounding, deleteSelected) {
                             break;
                         }
                     }
-                    if (selected !== deleteSelected) {
+                    if (!((invert && !selected) || (selected && !invert))) {
                         newShapes.push(s);
                     }
                 } else if (s.shapes) {
@@ -27246,36 +29799,36 @@ vg.deletePaths = function (shape, bounding, deleteSelected) {
                     }
                 }
             }
-            return new Group(newShapes);
-        } else {
-            return _.map(shape, deletePaths);
+            return newShapes;
         }
     };
 
     return deletePaths(shape);
 };
 
-vg['delete'] = function (shape, bounding, scope, deleteSelected) {
+vg['delete'] = function (shape, bounding, scope, invert) {
     if (shape === null || bounding === null) { return null; }
-    if (scope === 'points') { return vg.deletePoints(shape, bounding, deleteSelected); }
-    if (scope === 'paths') { return vg.deletePaths(shape, bounding, deleteSelected); }
+    if (scope === 'points') { return vg.deletePoints(shape, bounding, invert); }
+    if (scope === 'paths') { return vg.deletePaths(shape, bounding, invert); }
     throw new Error('Invalid scope.');
 };
 
 vg.pointOnPath = function (shape, t) {
-    var pt;
     if (!shape) {
         return;
     }
     if (shape.shapes) {
         shape = new Path(vg.combinePaths(shape));
     }
-    t = Math.abs(t % 100);
-    pt = shape.point(t / 100);
-    return {x: pt.x, y: pt.x};
+    t = t % 1;
+    if (t < 0) {
+        t = 1 + t;
+    }
+    var pt = shape.point(t);
+    return new Point(pt.x, pt.y);
 };
 
-vg.shapeOnPath = function (shapes, path, amount, alignment, spacing, margin, baselineOffset) {
+/*vg.shapeOnPath = function (shapes, path, amount, alignment, spacing, margin, baselineOffset) {
     if (!shapes) { return []; }
     if (path === null) { return []; }
 
@@ -27308,7 +29861,7 @@ vg.shapeOnPath = function (shapes, path, amount, alignment, spacing, margin, bas
         p2 = path.point(pos + 0.0000001);
         a = geo.angle(p1.x, p1.y, p2.x, p2.y);
         if (baselineOffset) {
-            p1 = geo.coordinates(p1.x, p1.y, baselineOffset, a - 90);
+            p1 = geo.coordinates(p1.x, p1.y, a - 90, baselineOffset);
         }
         t = new Transform();
         t = t.translate(p1.x, p1.y);
@@ -27321,7 +29874,7 @@ vg.shapeOnPath = function (shapes, path, amount, alignment, spacing, margin, bas
         _.each(shapes, putOnPath);
     }
     return newShapes;
-};
+};*/
 
 vg._x = function (shape) {
     if (shape.x !== undefined) {
@@ -27344,8 +29897,8 @@ vg._angleToPoint = function (point) {
         if (shape.x !== undefined && shape.y !== undefined) {
             return geo.angle(shape.x, shape.y, point.x, point.y);
         } else {
-            var centroid = shape.bounds().centroid();
-            return geo.angle(centroid.x, centroid.y, point.x, point.y);
+            var centerPoint = shape.bounds().centerPoint();
+            return geo.angle(centerPoint.x, centerPoint.y, point.x, point.y);
         }
     };
 };
@@ -27355,29 +29908,30 @@ vg._distanceToPoint = function (point) {
         if (shape.x !== undefined && shape.y !== undefined) {
             return geo.distance(shape.x, shape.y, point.x, point.y);
         } else {
-            var centroid = shape.bounds().centroid();
-            return geo.distance(centroid.x, centroid.y, point.x, point.y);
+            var centerPoint = shape.bounds().centerPoint();
+            return geo.distance(centerPoint.x, centerPoint.y, point.x, point.y);
         }
     };
 };
 
-vg.sort = function (shapes, orderBy, point) {
+vg.shapeSort = function (shapes, method, origin) {
     if (!shapes) {
         return;
     }
-    var methods, sortMethod, newShapes;
-    methods = {
+    origin = origin || Point.ZERO;
+
+    var methods = {
         x: vg._x,
         y: vg._y,
-        angle: vg._angleToPoint(point),
-        distance: vg._distanceToPoint(point)
+        angle: vg._angleToPoint(origin),
+        distance: vg._distanceToPoint(origin)
     };
-    sortMethod = methods[orderBy];
-    if (sortMethod === undefined) { return shapes; }
-    newShapes = shapes.slice(0);
+    method = methods[method];
+    if (method === undefined) { return shapes; }
+    var newShapes = shapes.slice(0);
     newShapes.sort(function (a, b) {
-        var _a = sortMethod(a),
-            _b = sortMethod(b);
+        var _a = method(a),
+            _b = method(b);
         if (_a < _b) { return -1; }
         if (_a > _b) { return 1; }
         return 0;
@@ -27410,11 +29964,11 @@ vg.ungroup = function (shape) {
     }
 };
 
-vg.centroid = function (shape) {
+vg.centerPoint = function (shape) {
     if (!shape) {
         return Point.ZERO;
     }
-    var r = shape.bounds();
+    var r = vg.bounds(shape);
     return new Point(r.x + r.width / 2, r.y + r.height / 2);
 };
 
@@ -27426,7 +29980,7 @@ vg.link = function (shape1, shape2, orientation) {
     var p = new Path();
     var a = shape1.bounds();
     var b = shape2.bounds();
-    if (orientation === 'horizontal') {
+    if (orientation === vg.HORIZONTAL) {
         var hw = (b.x - (a.x + a.width)) / 2;
         p.moveTo(a.x + a.width, a.y);
         p.curveTo(a.x + a.width + hw, a.y, b.x - hw, b.y, b.x, b.y);
@@ -27454,7 +30008,8 @@ vg.stack = function (shapes, direction, margin) {
     var tx, ty, t, bounds,
         firstBounds = shapes[0].bounds(),
         newShapes = [];
-    if (direction === 'e') {
+    margin = margin || 0;
+    if (direction === vg.EAST) {
         tx = -(firstBounds.width / 2);
         _.each(shapes, function (shape) {
             bounds = shape.bounds();
@@ -27462,7 +30017,7 @@ vg.stack = function (shapes, direction, margin) {
             newShapes.push(t.transformShape(shape));
             tx += bounds.width + margin;
         });
-    } else if (direction === 'w') {
+    } else if (direction === vg.WEST) {
         tx = firstBounds.width / 2;
         _.each(shapes, function (shape) {
             bounds = shape.bounds();
@@ -27470,7 +30025,7 @@ vg.stack = function (shapes, direction, margin) {
             newShapes.push(t.transformShape(shape));
             tx -= bounds.width + margin;
         });
-    } else if (direction === 'n') {
+    } else if (direction === vg.NORTH) {
         ty = firstBounds.height / 2;
         _.each(shapes, function (shape) {
             bounds = shape.bounds();
@@ -27478,7 +30033,7 @@ vg.stack = function (shapes, direction, margin) {
             newShapes.push(t.transformShape(shape));
             ty -= bounds.height + margin;
         });
-    } else if (direction === 's') {
+    } else if (direction === vg.SOUTH) {
         ty = -(firstBounds.height / 2);
         _.each(shapes, function (shape) {
             bounds = shape.bounds();
@@ -27488,28 +30043,6 @@ vg.stack = function (shapes, direction, margin) {
         });
     }
     return newShapes;
-};
-
-vg.colorLookup = function (c, comp) {
-    c = Color.parse(c);
-    switch(comp) {
-        case 'r':
-            return c.r;
-        case 'g':
-            return c.g;
-        case 'b':
-            return c.b;
-        case 'a':
-            return c.a;
-        case 'h':
-            return c.h;
-        case 's':
-            return c.s;
-        case 'v':
-            return c.v;
-        default:
-            throw new Error('Unknown component ' + comp);
-    }
 };
 
 vg.compound = function (shape1, shape2, method) {
@@ -27576,7 +30109,7 @@ vg.compound = function (shape1, shape2, method) {
 
 module.exports = vg;
 
-},{"../objects/color":18,"../objects/group":19,"../objects/path":21,"../objects/point":22,"../objects/rect":23,"../objects/transform":25,"../util/bezier":28,"../util/geo":30,"../util/math":32,"../util/random":33,"js-clipper":10,"lodash":11}],17:[function(require,module,exports){
+},{"../objects/color":28,"../objects/group":29,"../objects/path":31,"../objects/point":32,"../objects/rect":33,"../objects/transform":35,"../objects/transformable":36,"../util/bezier":38,"../util/geo":40,"../util/math":42,"../util/random":43,"js-clipper":3,"lodash":4}],27:[function(require,module,exports){
 // Basic shapes
 
 'use strict';
@@ -27661,12 +30194,11 @@ vg.ellipse = function (position, width, height) {
     return p;
 };
 
-vg.line = function (point1, point2, nPoints) {
+vg.line = function (point1, point2) {
     var args = arguments;
-    if (args.length >= 4) {
+    if (args.length === 4) {
         point1 = Point.read(args[0], args[1]);
         point2 = Point.read(args[2], args[3]);
-        nPoints = args[4];
     } else {
         point1 = Point.read(point1);
         point2 = Point.read(point2);
@@ -27675,13 +30207,10 @@ vg.line = function (point1, point2, nPoints) {
     line.addLine(point1.x, point1.y, point2.x, point2.y);
     line.fill = null;
     line.stroke = 'black';
-    if (nPoints !== undefined && nPoints > 2) {
-        line = line.resampleByAmount(nPoints, false);
-    }
     return line;
 };
 
-vg.lineAngle = function (point, distance, angle) {
+vg.lineAngle = function (point, angle, distance) {
     var args = arguments;
     if (args.length === 4) {
         point = Point.read(args[0], args[1]);
@@ -27690,7 +30219,7 @@ vg.lineAngle = function (point, distance, angle) {
     } else {
         point = Point.read(point);
     }
-    var point2 = geo.coordinates(point.x, point.y, distance, angle);
+    var point2 = geo.coordinates(point.x, point.y, angle, distance);
     return vg.line(point, point2);
 };
 
@@ -27711,7 +30240,7 @@ vg.arc = function (position, width, height, startAngle, degrees, arcType) {
     return p;
 };
 
-vg.quadCurve = function (pt1, pt2, t, distance) {
+vg.curve = function (pt1, pt2, t, distance) {
     var args = arguments;
     if (args.length === 6) {
         pt1 = Point.read(args[0], args[1]);
@@ -27723,11 +30252,10 @@ vg.quadCurve = function (pt1, pt2, t, distance) {
         pt2 = Point.read(pt2);
     }
 
-    t /= 100.0;
     var cx = pt1.x + t * (pt2.x - pt1.x),
         cy = pt1.y + t * (pt2.y - pt1.y),
         a = geo.angle(pt1.x, pt1.y, pt2.x, pt2.y) + 90,
-        q = geo.coordinates(cx, cy, distance, a),
+        q = geo.coordinates(cx, cy, a, distance),
         qx = q.x,
         qy = q.y,
 
@@ -27765,13 +30293,13 @@ vg.polygon = function (position, radius, sides, align) {
         a = 360.0 / sides,
         da = 0;
     if (align === true) {
-        c0 = geo.coordinates(x, y, r, 0);
-        c1 = geo.coordinates(x, y, r, a);
+        c0 = geo.coordinates(x, y, 0, r);
+        c1 = geo.coordinates(x, y, a, r);
         da = -geo.angle(c1.x, c1.y, c0.x, c0.y);
     }
     var p = new Path();
     for (i = 0; i < sides; i += 1) {
-        c = geo.coordinates(x, y, r, (a * i) + da);
+        c = geo.coordinates(x, y, (a * i) + da, r);
         if (i === 0) {
             p.moveTo(c.x, c.y);
         } else {
@@ -27835,29 +30363,29 @@ vg.freehand = function (pathString) {
 };
 
 // Create a grid of points.
-vg.grid = function (columns, rows, width, height, position) {
-    var columnSize, left, rowSize, top, rowIndex, colIndex, x, y, i,
+vg.grid = function (columns, rows, columnWidth, rowHeight, position) {
+    var gridWidth, left, gridHeight, top, rowIndex, colIndex, x, y, i,
         points = [];
     points.length = columns * rows;
     position = position !== undefined ? position : Point.ZERO;
     if (columns > 1) {
-        columnSize = width / (columns - 1);
-        left = position.x - width / 2;
+        gridWidth = columnWidth * (columns - 1);
+        left = position.x - gridWidth / 2;
     } else {
-        columnSize = left = position.x;
+        left = position.x;
     }
     if (rows > 1) {
-        rowSize = height / (rows - 1);
-        top = position.y - height / 2;
+        gridHeight = rowHeight * (rows - 1);
+        top = position.y - gridHeight / 2;
     } else {
-        rowSize = top = position.y;
+        top = position.y;
     }
 
     i = 0;
     for (rowIndex = 0; rowIndex < rows; rowIndex += 1) {
         for (colIndex = 0; colIndex < columns; colIndex += 1) {
-            x = left + colIndex * columnSize;
-            y = top + rowIndex * rowSize;
+            x = left + colIndex * columnWidth;
+            y = top + rowIndex * rowHeight;
             points[i] = new Point(x, y);
             i += 1;
         }
@@ -27892,7 +30420,7 @@ vg.demoEllipse = function () {
 
 module.exports = vg;
 
-},{"../objects/color":18,"../objects/path":21,"../objects/point":22,"../objects/text":24,"../util/geo":30,"lodash":11}],18:[function(require,module,exports){
+},{"../objects/color":28,"../objects/path":31,"../objects/point":32,"../objects/text":34,"../util/geo":40,"lodash":4}],28:[function(require,module,exports){
 // Color object
 
 'use strict';
@@ -27903,6 +30431,7 @@ var js = require('../util/js');
 
 // var RGB = 'RGB';
 var HSB = 'HSB';
+var HSL = 'HSL';
 var HEX = 'HEX';
 
 var Color = function (v1, v2, v3, v4, v5) {
@@ -27992,6 +30521,15 @@ var Color = function (v1, v2, v3, v4, v5) {
         _r = rgb[0];
         _g = rgb[1];
         _b = rgb[2];
+    // Convert HSL colors to RGB
+    } else if (options.mode === HSL) {
+        v1 = math.clamp(v1, 0, 1);
+        v2 = math.clamp(v2, 0, 1);
+        v3 = math.clamp(v3, 0, 1);
+        rgb = color.hsl2rgb(v1, v2, v3);
+        _r = rgb[0];
+        _g = rgb[1];
+        _b = rgb[2];
     } else if (options.mode === HEX) {
         rgb = color.hex2rgb(v1);
         _r = rgb[0];
@@ -28014,22 +30552,24 @@ js.defineAlias(Color, 'g', 'green');
 js.defineAlias(Color, 'b', 'blue');
 js.defineAlias(Color, 'a', 'alpha');
 
+// The hue of the color, in HSL color mode. (Although hue is the same in HSL and HSB).
 js.defineGetter(Color, 'h', function () {
-    return color.rgb2hsb(this.r, this.g, this.b)[0];
+    return color.rgb2hsl(this.r, this.g, this.b)[0];
 });
 
+// The saturation of the color, in HSL color mode. (Saturation is different in HSL and HSB).
 js.defineGetter(Color, 's', function () {
-    return color.rgb2hsb(this.r, this.g, this.b)[1];
+    return color.rgb2hsl(this.r, this.g, this.b)[1];
 });
 
-js.defineGetter(Color, 'v', function () {
-    return color.rgb2hsb(this.r, this.g, this.b)[2];
+// The lightness of the color, in HSL color mode. (Lightness in HSL is different from brightness in HSB).
+js.defineGetter(Color, 'l', function () {
+    return color.rgb2hsl(this.r, this.g, this.b)[2];
 });
 
 js.defineAlias(Color, 'h', 'hue');
 js.defineAlias(Color, 's', 'saturation');
-js.defineAlias(Color, 'v', 'value');
-js.defineAlias(Color, 'v', 'brightness');
+js.defineAlias(Color, 'l', 'lightness');
 
 
 js.defineGetter(Color, 'rgb', function () {
@@ -28048,6 +30588,14 @@ js.defineGetter(Color, 'hsba', function () {
     return color.rgb2hsb(this.r, this.g, this.b).concat([this.a]);
 });
 
+js.defineGetter(Color, 'hsl', function () {
+    return color.rgb2hsl(this.r, this.g, this.b);
+});
+
+js.defineGetter(Color, 'hsla', function () {
+    return color.rgb2hsl(this.r, this.g, this.b).concat([this.a]);
+});
+
 Color.prototype.toCSS = function () {
     return Color.toCSS(this);
 };
@@ -28060,10 +30608,20 @@ Color.prototype.toHex = function () {
     }
 };
 
-Color.prototype.desaturate = function () {
+Color.prototype.desaturate = function (options) {
     if (this.r === this.g && this.g === this.b) { return this; }
-    var gray = this.r * 0.3 + this.g * 0.59 + this.b * 0.11;
+    var rCoeff, gCoeff, bCoeff;
+    if (options === undefined || !options.method || options.method === 'ITU-R BT.601') {
+        rCoeff = 0.3; gCoeff = 0.59; bCoeff = 0.11;
+    } else if (options.method === 'ITU-R BT.709') {
+        rCoeff = 0.2125; gCoeff = 0.7154; bCoeff = 0.0721;
+    }
+    var gray = this.r * rCoeff + this.g * gCoeff + this.b * bCoeff;
     return new Color(gray, gray, gray, this.a);
+};
+
+Color.prototype.invert = function () {
+    return new Color(1 - this.r, 1 - this.g, 1 - this.b, this.a);
 };
 
 Color.clone = function (c) {
@@ -28111,6 +30669,13 @@ Color.make = function () {
 };
 
 Color.parse = function (s) {
+    function startsWith (s, value) {
+        if (!s || !value) { return false; }
+        s = String(s);
+        return s.indexOf(value) === 0;
+    }
+
+    var m;
     if (s === undefined || s === null) {
         return new Color(0, 0, 0, 0);
     } else if (s instanceof Color) {
@@ -28119,7 +30684,41 @@ Color.parse = function (s) {
         return Color.make.apply(null, color.namedColors[s]);
     } else if (s[0] === '#') {
         return new Color(s, 0, 0, 0, { mode: HEX });
-    } else if (s === 'none') {
+    } else if (startsWith(s, 'rgba')) {
+        m = s.match(/^rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+|\d+.\d+)\s*\)$/i);
+        if (m) {
+            return new Color(parseInt(m[1]) / 255, parseInt(m[2]) / 255, parseInt(m[3]) / 255, parseFloat(m[4]));
+        } else {
+            m = s.match(/^rgba\s*\(\s*(\d+|\d+.\d+)%\s*,\s*(\d+|\d+.\d+)%\s*,\s*(\d+|\d+.\d+)%\s*,\s*(\d+|\d+.\d+)\s*\)$/i);
+            if (m) {
+                return new Color(parseFloat(m[1]) / 100, parseFloat(m[2]) / 100, parseFloat(m[3]) / 100, parseFloat(m[4]));
+            }
+        }
+        return new Color(0, 0, 0, 0);
+    } else if (startsWith(s, 'rgb')) {
+        m = s.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
+        if (m) {
+            return new Color(parseInt(m[1]) / 255, parseInt(m[2]) / 255, parseInt(m[3]) / 255);
+        } else {
+            m = s.match(/^rgb\s*\(\s*(\d+|\d+.\d+)%\s*,\s*(\d+|\d+.\d+)%\s*,\s*(\d+|\d+.\d+)%\s*\)$/i);
+            if (m) {
+                return new Color(parseFloat(m[1]) / 100, parseFloat(m[2]) / 100, parseFloat(m[3]) / 100);
+            }
+        }
+        return new Color(0, 0, 0, 0);
+    } else if (startsWith(s, 'hsla')) {
+        m = s.match(/^hsla\s*\(\s*(\d+|\d+.\d+)\s*,\s*(\d+|\d+.\d+)%\s*,\s*(\d+|\d+.\d+)%\s*,\s*(\d+|\d+.\d+)\s*\)$/i);
+        if (m) {
+            return new Color(parseFloat(m[1]) / 360, parseFloat(m[2]) / 100, parseFloat(m[3]) / 100, parseFloat(m[4]));
+        }
+        return new Color(0, 0, 0, 0);
+    } else if (startsWith(s, 'hsl')) {
+        m = s.match(/^hsl\s*\(\s*(\d+|\d+.\d+)\s*,\s*(\d+|\d+.\d+)%\s*,\s*(\d+|\d+.\d+)%\s*\)$/i);
+        if (m) {
+            return new Color(parseFloat(m[1]) / 360, parseFloat(m[2]) / 100, parseFloat(m[3]) / 100);
+        }
+        return new Color(0, 0, 0, 0);
+    } else if (s === 'none' || s === 'null' || startsWith(s, 'url(')) {
         return new Color(0, 0, 0, 0);
     } else {
         throw new Error('Color ' + s + 'can not be parsed');
@@ -28141,9 +30740,14 @@ Color.hsb = function (hue, saturation, brightness, alpha, range) {
     return new Color(hue / range, saturation / range, brightness / range, alpha / range, { mode: HSB });
 };
 
+Color.hsl = function (hue, saturation, lightness, alpha, range) {
+    range = Math.max(range, 1);
+    return new Color(hue / range, saturation / range, lightness / range, alpha / range, { mode: HSL });
+};
+
 module.exports = Color;
 
-},{"../util/color":29,"../util/js":31,"../util/math":32}],19:[function(require,module,exports){
+},{"../util/color":39,"../util/js":41,"../util/math":42}],29:[function(require,module,exports){
 // Shape group object
 
 'use strict';
@@ -28152,6 +30756,7 @@ var _ = require('lodash');
 
 var Path = require('../objects/path');
 var Rect = require('../objects/rect');
+var Color = require('../objects/color');
 
 var Group = function (shapes) {
     if (!shapes) {
@@ -28178,16 +30783,30 @@ Group.prototype.clone = function () {
     return new Group(newShapes);
 };
 
-Group.prototype.colorize = function (fill, stroke, strokeWidth) {
+Group.prototype.colorize = function (options) {
+    var args = arguments;
+    if (typeof options !== 'object' || options instanceof Color) {
+        options = {};
+        if (args[0] !== undefined) { options.fill = args[0]; }
+        if (args[1] !== undefined) { options.stroke = args[1]; }
+        if (args[2] !== undefined) { options.strokeWidth = args[2]; }
+    }
     var shapes = _.map(this.shapes, function (shape) {
-        return shape.colorize(fill, stroke, strokeWidth);
+        return shape.colorize(options);
     });
     return new Group(shapes);
 };
 
-Group.prototype.desaturate = function () {
+Group.prototype.desaturate = function (options) {
     var shapes = _.map(this.shapes, function (shape) {
-        return shape.desaturate();
+        return shape.desaturate(options);
+    });
+    return new Group(shapes);
+};
+
+Group.prototype.invert = function () {
+    var shapes = _.map(this.shapes, function (shape) {
+        return shape.invert();
     });
     return new Group(shapes);
 };
@@ -28202,7 +30821,7 @@ Group.prototype.bounds = function () {
             r = shape.bounds();
         }
         if ((shape.shapes && shape.shapes.length !== 0) ||
-                (shape.commands && shape.commands.length !== 0)) {
+            (shape.commands && shape.commands.length !== 0)) {
             r = r.unite(shape.bounds());
         }
     }
@@ -28219,6 +30838,16 @@ Group.prototype.contains = function (x, y, precision) {
         }
     }
     return false;
+};
+
+Group.prototype.length = function (precision) {
+    if (precision === undefined) { precision = 10; }
+    var sum = 0;
+    var shapes = this.shapes;
+    for (var i = 0; i < shapes.length; i += 1) {
+        sum += shapes[i].length(precision);
+    }
+    return sum;
 };
 
 Group.prototype.resampleByAmount = function (points, perContour) {
@@ -28259,7 +30888,7 @@ Group.prototype.draw = function (ctx) {
 
 module.exports = Group;
 
-},{"../objects/path":21,"../objects/rect":23,"lodash":11}],20:[function(require,module,exports){
+},{"../objects/color":28,"../objects/path":31,"../objects/rect":33,"lodash":4}],30:[function(require,module,exports){
 // 3-dimensional matrix
 
 'use strict';
@@ -28443,7 +31072,7 @@ Matrix4.prototype.translate = function (tx, ty, tz) {
 };
 
 module.exports = Matrix4;
-},{"../objects/vec3":27}],21:[function(require,module,exports){
+},{"../objects/vec3":37}],31:[function(require,module,exports){
 // Bézier path object
 
 'use strict';
@@ -28683,15 +31312,28 @@ Path.prototype.addArc = function (x, y, width, height, startAngle, degrees, arcT
     }
 };
 
-Path.prototype.colorize = function (fill, stroke, strokeWidth) {
+Path.prototype.colorize = function (options) {
+    var args = arguments;
+    if (typeof options !== 'object' || options instanceof Color) {
+        options = {};
+        if (args[0] !== undefined) { options.fill = args[0]; }
+        if (args[1] !== undefined) { options.stroke = args[1]; }
+        if (args[2] !== undefined) { options.strokeWidth = args[2]; }
+    }
     var p = this.clone();
-    p.fill = Color.clone(fill);
-    p.stroke = Color.clone(stroke);
-    p.strokeWidth = strokeWidth;
+    if (options.fill) {
+        p.fill = Color.clone(options.fill);
+    }
+    if (options.stroke) {
+        p.stroke = Color.clone(options.stroke);
+    }
+    if (options.strokeWidth || options.strokeWidth === 0) {
+        p.strokeWidth = options.strokeWidth;
+    }
     return p;
 };
 
-Path.prototype.desaturate = function () {
+Path.prototype.desaturate = function (options) {
     var p = this.clone();
     var fill = p.fill;
     var stroke = p.stroke;
@@ -28701,8 +31343,23 @@ Path.prototype.desaturate = function () {
     if (!(stroke instanceof Color)) {
         stroke = Color.parse(stroke);
     }
-    p.fill = fill.desaturate();
-    p.stroke = stroke.desaturate();
+    p.fill = fill.desaturate(options);
+    p.stroke = stroke.desaturate(options);
+    return p;
+};
+
+Path.prototype.invert = function () {
+    var p = this.clone();
+    var fill = p.fill;
+    var stroke = p.stroke;
+    if (!(fill instanceof Color)) {
+        fill = Color.parse(fill);
+    }
+    if (!(stroke instanceof Color)) {
+        stroke = Color.parse(stroke);
+    }
+    p.fill = fill.invert();
+    p.stroke = stroke.invert();
     return p;
 };
 
@@ -28801,7 +31458,7 @@ Path.prototype.points = function (amount, options) {
 
 // Returns an approximation of the total length of the path.
 Path.prototype.length = function (precision) {
-    if (precision === undefined) { precision = 10; }
+    if (precision === undefined) { precision = 20; }
     return bezier.length(this, precision);
 };
 
@@ -28897,27 +31554,50 @@ Path.prototype.toSVG = function () {
     var svg = '<path d="';
     svg += this.toPathData();
     svg += '"';
+
+    var style = '';
+
     var fill;
-    if (this.fill && this.fill.r !== undefined) {
-        fill = Color.toCSS(this.fill);
-    } else {
-        fill = this.fill;
+    var fillOpacity;
+    if (this.fill) {
+        fill = Color.parse(this.fill);
+        if (fill.a < 1) {
+            fillOpacity = fill.a;
+        }
+        fill = Color.toHex(fill).substring(0, 7);
     }
-    if (fill !== 'black') {
-        if (fill === null) {
-            svg += ' fill="none"';
+
+    if (fill !== 'black' && fill !== '#000000') {
+        if (fill === null || fill === undefined) {
+            style += 'fill:none;';
         } else {
-            svg += ' fill="' + fill + '"';
+            style += 'fill:' + fill + ';';
         }
     }
+
+    if (fillOpacity !== undefined) {
+        style += 'fill-opacity:' + fillOpacity + ';';
+    }
+
     var stroke;
-    if (this.stroke && this.stroke.r !== undefined) {
-        stroke = Color.toCSS(this.stroke);
-    } else {
-        stroke = this.stroke;
+    var strokeOpacity;
+
+    if (this.stroke) {
+        stroke = Color.parse(this.stroke);
+        if (stroke.a < 1) {
+            strokeOpacity = stroke.a;
+        }
+        stroke = Color.toHex(stroke).substring(0, 7);
     }
     if (stroke) {
-        svg += ' stroke="' + stroke + '" stroke-width="' + this.strokeWidth + '"';
+        style += 'stroke:' + stroke + ';';
+        style += 'stroke-width:' + this.strokeWidth + ';';
+    }
+    if (strokeOpacity !== undefined) {
+        style += 'stroke-opacity:' + strokeOpacity + ';';
+    }
+    if (style) {
+        svg += ' style="' + style + '"';
     }
     svg += '/>';
     return svg;
@@ -28942,11 +31622,11 @@ Path.prototype.draw = function (ctx) {
             ctx.closePath();
         }
     }
-    if (this.fill !== null) {
+    if (this.fill !== null && this.fill !== undefined) {
         ctx.fillStyle = Color.toCSS(this.fill);
         ctx.fill();
     }
-    if (this.stroke !== null && this.strokeWidth !== null && this.strokeWidth > 0) {
+    if (this.stroke !== null && this.stroke !== undefined && this.strokeWidth !== null && this.strokeWidth > 0) {
         ctx.strokeStyle = Color.toCSS(this.stroke);
         ctx.lineWidth = this.strokeWidth;
         ctx.stroke();
@@ -28969,7 +31649,7 @@ Path.combine = function () {
 
 module.exports = Path;
 
-},{"../objects/color":18,"../objects/rect":23,"../util/bezier":28,"../util/geo":30,"../util/math":32,"lodash":11}],22:[function(require,module,exports){
+},{"../objects/color":28,"../objects/rect":33,"../util/bezier":38,"../util/geo":40,"../util/math":42,"lodash":4}],32:[function(require,module,exports){
 // 2-dimensional point object.
 
 'use strict';
@@ -29072,7 +31752,7 @@ Point.prototype.toString = function () {
 };
 
 module.exports = Point;
-},{}],23:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 // Rectangle object
 
 'use strict';
@@ -29164,12 +31844,12 @@ Rect.prototype.addPoint = function (x, y) {
     return new Rect(_x, _y, width, height);
 };
 
-Rect.prototype.centroid = function () {
+Rect.prototype.centerPoint = function () {
     return new Point(this.x + this.width / 2, this.y + this.height / 2);
 };
 
 module.exports = Rect;
-},{"../objects/point":22}],24:[function(require,module,exports){
+},{"../objects/point":32}],34:[function(require,module,exports){
 // Text object
 
 // Internally the object is called "gText" to avoid conflicts with the DOM Text object.
@@ -29353,7 +32033,7 @@ gText.prototype.toSVG = function () {
 };
 
 module.exports = gText;
-},{"../objects/color":18,"../objects/rect":23,"../objects/transform":25}],25:[function(require,module,exports){
+},{"../objects/color":28,"../objects/rect":33,"../objects/transform":35}],35:[function(require,module,exports){
 // 2-dimensional transformation matrix
 
 'use strict';
@@ -29405,6 +32085,11 @@ Transform._mmult = function (a, b) {
         a[6] * b[0] + a[7] * b[3] + b[6],
         a[6] * b[1] + a[7] * b[4] + b[7], 1
     ]);
+};
+
+Transform.prototype.isIdentity = function () {
+    var m = this.m;
+    return (m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 0 && m[4] === 1 && m[5] === 0 && m[6] === 0 && m[7] === 0 && m[8] === 1);
 };
 
 Transform.prototype.prepend = function (matrix) {
@@ -29515,19 +32200,33 @@ Transform.prototype.transformShape = function (shape) {
     var fn;
     if (shape.shapes) {
         fn = this.transformGroup;
+    } else if (shape.commands) {
+        fn = this.transformPath;
     } else if (shape.text) {
         fn = this.transformText;
-    } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
-        fn = this.transformPoints;
+    } else if (shape.x !== undefined && shape.y !== undefined) {
+        fn = this.transformPoint;
+    } else if (shape._transform !== undefined) {
+        return shape._transform(this.m);
+    } else if (Array.isArray(shape) && shape.length > 0) {
+        if (shape[0].x !== undefined && shape[0].y !== undefined) {
+            fn = this.transformPoints;
+        } else {
+            var l = [];
+            for (var i = 0; i < shape.length; i += 1) {
+                l.push(this.transformShape(shape[i]));
+            }
+            return l;
+        }
     } else {
-        fn = this.transformPath;
+        throw new Error('Don\'t know how to transform ' + shape);
     }
     return fn.call(this, shape);
 };
 
 module.exports = Transform;
 
-},{"../objects/group":19,"../objects/path":21,"../objects/point":22,"../util/bezier":28,"../util/math":32,"lodash":11}],26:[function(require,module,exports){
+},{"../objects/group":29,"../objects/path":31,"../objects/point":32,"../util/bezier":38,"../util/math":42,"lodash":4}],36:[function(require,module,exports){
 // Mixin for Path and Group
 
 'use strict';
@@ -29554,7 +32253,7 @@ var Transformable = {
         }
         var t = new Transform();
         t = t.translate(origin.x, origin.y);
-        t = t.scale(sx / 100, sy / 100);
+        t = t.scale(sx, sy);
         t = t.translate(-origin.x, -origin.y);
         return t.transformShape(this);
     },
@@ -29579,7 +32278,8 @@ var Transformable = {
 };
 
 module.exports = Transformable;
-},{"../objects/point":22,"../objects/transform":25}],27:[function(require,module,exports){
+
+},{"../objects/point":32,"../objects/transform":35}],37:[function(require,module,exports){
 //// VECTORS AND MATRICES ///////////////////////////////////////////////
 
 'use strict';
@@ -29666,7 +32366,7 @@ Vec3.prototype.transform = function (matrix4) {
 };
 
 module.exports = Vec3;
-},{}],28:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 // Bézier Math
 // Thanks to Prof. F. De Smedt at the Vrije Universiteit Brussel, 2006.
 
@@ -29946,7 +32646,7 @@ bezier.extrema = function (x1, y1, x2, y2, x3, y3, x4, y4) {
 
 module.exports = bezier;
 
-},{"../objects/point":22,"../objects/rect":23,"../util/math":32,"lodash":11}],29:[function(require,module,exports){
+},{"../objects/point":32,"../objects/rect":33,"../util/math":42,"lodash":4}],39:[function(require,module,exports){
 // Color conversion functions
 
 'use strict';
@@ -30187,9 +32887,89 @@ color.hsb2rgb = function (h, s, v) {
     return [[v, z, x], [y, v, x], [x, v, z], [x, y, v], [z, x, v]][parseInt(i, 10)];
 };
 
+// Converts the given R,G,B values to H,S,L (between 0.0-1.0).
+// Code adapted from http://github.com/mattdesl/float-rgb2hsl
+color.rgb2hsl = function (r, g, b) {
+    var min = Math.min(r, g, b),
+        max = Math.max(r, g, b),
+        delta = max - min,
+        h, s, l;
+
+    if (max === min) {
+        h = 0;
+    } else if (r === max) {
+        h = (g - b) / delta;
+    } else if (g === max) {
+        h = 2 + (b - r) / delta;
+    } else if (b === max) {
+        h = 4 + (r - g) / delta;
+    }
+
+    h = Math.min(h * 60, 360);
+
+    if (h < 0) {
+        h += 360;
+    }
+
+    l = (min + max) / 2;
+
+    if (max === min) {
+        s = 0;
+    } else if (l <= 0.5) {
+        s = delta / (max + min);
+    } else {
+        s = delta / (2 - max - min);
+    }
+
+    return [h / 360, s, l];
+};
+
+// Converts the given H,S,L color values to R,G,B (between 0.0-1.0).
+// Code adapted from http://github.com/mattdesl/float-hsl2rgb
+color.hsl2rgb = function (h, s, l) {
+    var t1, t2, t3, rgb, val;
+
+    if (s === 0) {
+        val = l;
+        return [val, val, val];
+    }
+
+    if (l < 0.5) {
+        t2 = l * (1 + s);
+    } else {
+        t2 = l + s - l * s;
+    }
+    t1 = 2 * l - t2;
+
+    rgb = [0, 0, 0];
+    for (var i = 0; i < 3; i++) {
+        t3 = h + 1 / 3 * -(i - 1);
+        if (t3 < 0) {
+            t3 += 1;
+        }
+        if (t3 > 1) {
+            t3 -= 1;
+        }
+
+        if (6 * t3 < 1) {
+            val = t1 + (t2 - t1) * 6 * t3;
+        } else if (2 * t3 < 1) {
+            val = t2;
+        } else if (3 * t3 < 2) {
+            val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
+        } else {
+            val = t1;
+        }
+
+        rgb[i] = val;
+    }
+
+    return rgb;
+};
+
 module.exports = color;
 
-},{}],30:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 // Geometry
 
 'use strict';
@@ -30211,7 +32991,7 @@ geo.distance = function (x0, y0, x1, y1) {
 };
 
 // Returns the location of a point by rotating around origin (x0,y0).
-geo.coordinates = function (x0, y0, distance, angle) {
+geo.coordinates = function (x0, y0, angle, distance) {
     var x = x0 + Math.cos(math.radians(angle)) * distance,
         y = y0 + Math.sin(math.radians(angle)) * distance;
     return new Point(x, y);
@@ -30249,7 +33029,7 @@ geo.pointInPolygon = function (points, x, y) {
 
 module.exports = geo;
 
-},{"../objects/point":22,"../util/math":32}],31:[function(require,module,exports){
+},{"../objects/point":32,"../util/math":42}],41:[function(require,module,exports){
 // Generic JavaScript utility methods
 
 'use strict';
@@ -30274,7 +33054,7 @@ exports.defineGetter = function (cls, property, getterFn) {
     });
 };
 
-},{}],32:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 // Math Utility functions
 
 'use strict';
@@ -30426,7 +33206,7 @@ math.noise = function (x, y, z) {
 
 module.exports = math;
 
-},{}],33:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 // Pseudo-random generator
 
 'use strict';
@@ -30457,7 +33237,7 @@ function generator(seed) {
 
 exports.generator = generator;
 
-},{}],34:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 // SVG Parser
 
 // The SVG engine uses code from the following libraries:
@@ -30507,11 +33287,13 @@ var toNumberArray = function (s) {
     return a;
 };
 
-var applySvgAttributes = function (node, shape) {
-    var fill, stroke, strokeWidth, transforms, types, transform, i;
+var readSvgAttributes = function (node, parentAttributes) {
+    var fill, fillOpacity, stroke, strokeOpacity, strokeWidth, opacity, color, transforms, types, transform, i, attributes;
 
-    if (shape.commands) {
-        fill = 'black';
+    if (parentAttributes) {
+        attributes = Object.create(parentAttributes);
+    } else {
+        attributes = {};
     }
 
     transforms = [];
@@ -30546,7 +33328,7 @@ var applySvgAttributes = function (node, shape) {
 
     types.matrix = function (s) {
         var m = toNumberArray(s);
-        return [m[0], m[1], 0, m[2], m[3], 0, m[4], m[5], 1];
+        return new Transform([m[0], m[1], 0, m[2], m[3], 0, m[4], m[5], 1]);
     };
 
     _.each(node.attributes, function (v) {
@@ -30576,18 +33358,25 @@ var applySvgAttributes = function (node, shape) {
 //          elem.miter = v.nodeValue;
             break;
         case 'stroke-width':
-//          elem.linewidth = parseFloat(v.nodeValue);
             strokeWidth = parseFloat(v.nodeValue);
             break;
         case 'stroke-opacity':
+            strokeOpacity = parseFloat(v.nodeValue);
+            break;
         case 'fill-opacity':
-//          elem.opacity = v.nodeValue;
+            fillOpacity = parseFloat(v.nodeValue);
             break;
         case 'fill':
             fill = v.nodeValue;
             break;
         case 'stroke':
             stroke = v.nodeValue;
+            break;
+        case 'opacity':
+            opacity = parseFloat(v.nodeValue);
+            break;
+        case 'color':
+            color = v.nodeValue;
             break;
         case 'style':
             d = {};
@@ -30601,38 +33390,114 @@ var applySvgAttributes = function (node, shape) {
             if (d.stroke) {
                 stroke = d.stroke;
             }
-            if (d['stroke-width']) {
+            if (d['stroke-width'] !== undefined) {
                 strokeWidth = parseFloat(d['stroke-width']);
+            }
+            if (d['stroke-opacity'] !== undefined) {
+                strokeOpacity = parseFloat(d['stroke-opacity']);
+            }
+            if (d['fill-opacity'] !== undefined) {
+                fillOpacity = parseFloat(d['fill-opacity']);
+            }
+            if (d.opacity !== undefined) {
+                opacity = parseFloat(d.opacity);
+            }
+            if (d.color) {
+                color = d.color;
             }
             break;
         }
     });
 
-
-    fill = fill === undefined ? fill : Color.parse(fill);
-    stroke = stroke === undefined ? stroke : Color.parse(stroke);
-
-    transform = new Transform();
-    for (i = 0; i < transforms.length; i += 1) {
-        transform = transform.append(transforms[i]);
+    if (fill !== undefined) {
+        attributes.fill = fill;
     }
-
-    function applyAttributes(shape) {
-        if (shape.commands) {
-            var commands = transform.transformShape(shape).commands,
-                f = (fill === undefined) ? shape.fill : fill,
-                s = (stroke === undefined) ? shape.stroke : stroke,
-                sw = (strokeWidth === undefined) ? shape.strokeWidth : strokeWidth;
-            if (sw !== undefined) {
-                sw *= transform[0];
+    if (stroke !== undefined) {
+        attributes.stroke = stroke;
+    }
+    if (fillOpacity !== undefined) {
+        attributes.fillOpacity = fillOpacity;
+    }
+    if (strokeOpacity !== undefined) {
+        attributes.strokeOpacity = strokeOpacity;
+    }
+    if (strokeWidth !== undefined) {
+        attributes.strokeWidth = strokeWidth;
+    }
+    if (opacity !== undefined) {
+        attributes.opacity = opacity;
+    }
+    if (color !== undefined && color !== 'currentColor') {
+        attributes.color = color;
+    }
+    if (transforms.length > 0) {
+        transform = new Transform();
+        for (i = 0; i < transforms.length; i += 1) {
+            transform = transform.append(transforms[i]);
+        }
+        if (!transform.isIdentity()) {
+            if (attributes.transform) {
+                attributes.transform = attributes.transform.append(transform);
+            } else {
+                attributes.transform = transform;
             }
-            return new Path(commands, f, s, sw);
-        } else if (shape.shapes) {
-            return new Group(_.map(shape.shapes, applyAttributes));
+        }
+    }
+    return attributes;
+};
+
+var applySvgAttributes = function (shape, attributes) {
+    var fill = attributes.fill;
+    if (shape.commands && shape.commands.length > 0 && fill === undefined) {
+        fill = 'black';
+    }
+    var fillOpacity = attributes.fillOpacity;
+    var stroke = attributes.stroke;
+    var strokeOpacity = attributes.strokeOpacity;
+    var opacity = attributes.opacity;
+    var strokeWidth = attributes.strokeWidth;
+    var transform = attributes.transform;
+    var color = attributes.color;
+
+    if (fill === 'currentColor') {
+        fill = color === undefined ? 'black' : color;
+    }
+    if (fill !== undefined) {
+        fill = Color.parse(fill);
+        if (fillOpacity !== undefined) {
+            fill.a *= fillOpacity;
+        }
+        if (opacity !== undefined) {
+            fill.a *= opacity;
         }
     }
 
-    return applyAttributes(shape);
+    if (stroke === 'currentColor') {
+        stroke = color === undefined ? 'black' : color;
+    }
+    if (stroke !== undefined) {
+        stroke = Color.parse(stroke);
+        if (strokeOpacity !== undefined) {
+            stroke.a *= strokeOpacity;
+        }
+        if (opacity !== undefined) {
+            stroke.a *= opacity;
+        }
+    }
+
+    var commands;
+    if (transform) {
+        commands = transform.transformShape(shape).commands;
+    } else {
+        commands = shape.commands;
+    }
+    var f = (fill === undefined) ? shape.fill : fill,
+        s = (stroke === undefined) ? shape.stroke : stroke,
+        sw = (strokeWidth === undefined) ? shape.strokeWidth : strokeWidth;
+    if (sw !== undefined && transform !== undefined) {
+        sw *= transform.m[0];
+    }
+    return new Path(commands, f, s, sw);
 };
 
 var arcToSegments = function (x, y, rx, ry, large, sweep, rotateX, ox, oy) {
@@ -30735,9 +33600,9 @@ var read = {
         return read.g.apply(this, arguments);
     },
 
-    g: function (node) {
-
+    g: function (node, parentAttributes) {
         var shapes = [];
+        var attributes = readSvgAttributes(node, parentAttributes);
 
         _.each(node.childNodes, function (n) {
 
@@ -30746,15 +33611,15 @@ var read = {
             if (!tag) { return; }
             tagName = tag.replace(/svg\:/ig, '').toLowerCase();
             if (read[tagName] !== undefined) {
-                o = read[tagName].call(this, n);
+                o = read[tagName].call(this, n, attributes);
                 shapes.push(o);
             }
         });
 
-        return applySvgAttributes(node, new Group(shapes));
+        return new Group(shapes);
     },
 
-    polygon: function (node, open) {
+    _polyline: function (node) {
         var points = node.getAttribute('points');
         var p = new Path();
         points.replace(/([\d\.?]+),([\d\.?]+)/g, function (match, p1, p2) {
@@ -30766,56 +33631,123 @@ var read = {
                 p.lineTo(x, y);
             }
         });
-        if (!open) {
-            p.close();
-        }
-        return applySvgAttributes(node, p);
+        return p;
     },
 
-    polyline: function (node) {
-        return read.polygon(node, true);
+    polygon: function (node, parentAttributes) {
+        var attributes = readSvgAttributes(node, parentAttributes);
+        var p = read._polyline(node);
+        p.close();
+        return applySvgAttributes(p, attributes);
     },
 
-    rect: function (node) {
+    polyline: function (node, parentAttributes) {
+        var attributes = readSvgAttributes(node, parentAttributes);
+        var p = read._polyline(node);
+        return applySvgAttributes(p, attributes);
+    },
+
+    rect: function (node, parentAttributes) {
+        var attributes = readSvgAttributes(node, parentAttributes);
         var x = parseFloat(node.getAttribute('x'));
         var y = parseFloat(node.getAttribute('y'));
+        if (!x) { x = 0; }
+        if (!y) { y = 0; }
         var width = parseFloat(node.getAttribute('width'));
         var height = parseFloat(node.getAttribute('height'));
-        var p = new Path();
-        p.addRect(x, y, width, height);
-        return applySvgAttributes(node, p);
-    },
-
-    ellipse: function (node) {
-        var cx = parseFloat(node.getAttribute('cx'));
-        var cy = parseFloat(node.getAttribute('cy'));
+        if (!width) { width = 0; }
+        if (!height) { height = 0; }
+        if (width < 0) {
+            console.error('Error: invalid negative value for <rect> attribute width="' + width + '"');
+            width = 0;
+        }
+        if (height < 0) {
+            console.error('Error: invalid negative value for <rect> attribute height="' + height + '"');
+            height = 0;
+        }
         var rx = parseFloat(node.getAttribute('rx'));
         var ry = parseFloat(node.getAttribute('ry'));
+        if (!rx) { rx = 0; }
+        if (!ry) { ry = 0; }
+        if (rx < 0) {
+            console.error('Error: invalid negative value for <rect> attribute rx="' + rx + '"');
+            rx = 0;
+        }
+        if (ry < 0) {
+            console.error('Error: invalid negative value for <rect> attribute ry="' + ry + '"');
+            ry = 0;
+        }
+        if (!rx || !ry) {
+            rx = ry = Math.max(rx, ry);
+        }
+        if (rx > width / 2) { rx = width / 2; }
+        if (ry > height / 2) { ry = height / 2; }
         var p = new Path();
-        p.addEllipse(cx - rx, cy - ry, rx * 2, ry * 2);
-        return applySvgAttributes(node, p);
+        if (rx && ry) {
+            p.addRoundedRect(x, y, width, height, rx, ry);
+        } else {
+            p.addRect(x, y, width, height);
+        }
+        return applySvgAttributes(p, attributes);
     },
 
-    circle: function (node) {
+    ellipse: function (node, parentAttributes) {
+        var attributes = readSvgAttributes(node, parentAttributes);
         var cx = parseFloat(node.getAttribute('cx'));
         var cy = parseFloat(node.getAttribute('cy'));
-        var r = parseFloat(node.getAttribute('r'));
+        if (!cx) { cx = 0; }
+        if (!cy) { cy = 0; }
+        var rx = parseFloat(node.getAttribute('rx'));
+        var ry = parseFloat(node.getAttribute('ry'));
+        if (!rx) { rx = 0; }
+        if (!ry) { ry = 0; }
+        if (rx < 0) {
+            console.error('Error: invalid negative value for <ellipse> attribute rx="' + rx + '"');
+            rx = 0;
+        }
+        if (ry < 0) {
+            console.error('Error: invalid negative value for <ellipse> attribute ry="' + ry + '"');
+            ry = 0;
+        }
         var p = new Path();
-        p.addEllipse(cx - r, cy - r, r * 2, r * 2);
-        return applySvgAttributes(node, p);
+        p.addEllipse(cx - rx, cy - ry, rx * 2, ry * 2);
+        return applySvgAttributes(p, attributes);
     },
 
-    line: function (node) {
+    circle: function (node, parentAttributes) {
+        var attributes = readSvgAttributes(node, parentAttributes);
+        var cx = parseFloat(node.getAttribute('cx'));
+        var cy = parseFloat(node.getAttribute('cy'));
+        if (!cx) { cx = 0; }
+        if (!cy) { cy = 0; }
+        var r = parseFloat(node.getAttribute('r'));
+        if (!r) { r = 0; }
+        if (r < 0) {
+            console.error('Error: invalid negative value for <circle> attribute r="' + r + '"');
+            r = 0;
+        }
+        var p = new Path();
+        p.addEllipse(cx - r, cy - r, r * 2, r * 2);
+        return applySvgAttributes(p, attributes);
+    },
+
+    line: function (node, parentAttributes) {
+        var attributes = readSvgAttributes(node, parentAttributes);
         var x1 = parseFloat(node.getAttribute('x1'));
         var y1 = parseFloat(node.getAttribute('y1'));
         var x2 = parseFloat(node.getAttribute('x2'));
         var y2 = parseFloat(node.getAttribute('y2'));
+        if (!x1) { x1 = 0; }
+        if (!y1) { y1 = 0; }
+        if (!x2) { x2 = 0; }
+        if (!y2) { y2 = 0; }
         var p = new Path();
         p.addLine(x1, y1, x2, y2);
-        return applySvgAttributes(node, p);
+        return applySvgAttributes(p, attributes);
     },
 
-    path: function (node) {
+    path: function (node, parentAttributes) {
+        var attributes = readSvgAttributes(node, parentAttributes);
         var d, PathParser, pp,
             pt, newP, curr, p1, cntrl, cp, cp1x, cp1y, cp2x, cp2y,
             rx, ry, rot, large, sweep, ex, ey, segs, i, bez;
@@ -31027,7 +33959,7 @@ var read = {
                     segs = arcToSegments(ex, ey, rx, ry, large, sweep, rot, curr.x, curr.y);
                     for (i = 0; i < segs.length; i += 1) {
                         bez = segmentToBezier.apply(this, segs[i]);
-                        p.curveTo.apply(this, bez);
+                        p.curveTo.apply(p, bez);
                     }
                 }
                 break;
@@ -31038,7 +33970,7 @@ var read = {
                 break;
             }
         }
-        return applySvgAttributes(node, p);
+        return applySvgAttributes(p, attributes);
     }
 };
 
@@ -31060,7 +33992,7 @@ exports.parseString = function (s) {
     }
 };
 
-},{"../objects/color":18,"../objects/group":19,"../objects/path":21,"../objects/point":22,"../objects/transform":25,"lodash":11,"xmldom":12}],35:[function(require,module,exports){
+},{"../objects/color":28,"../objects/group":29,"../objects/path":31,"../objects/point":32,"../objects/transform":35,"lodash":4,"xmldom":6}],45:[function(require,module,exports){
 // vg.js
 // JavaScript library for vector graphics
 // https://github.com/nodebox/vg.js
@@ -31102,42 +34034,15 @@ function importCommands(module) {
 }
 
 var Transformable = require('./objects/transformable');
+_.extend(vg.Point.prototype, Transformable);
 _.extend(vg.Path.prototype, Transformable);
 _.extend(vg.Group.prototype, Transformable);
+_.extend(vg.Text.prototype, Transformable);
 
 importCommands(require('./commands/draw'));
 importCommands(require('./commands/filters'));
 importCommands(require('./commands/shapes'));
 
 module.exports = vg;
-},{"./commands/draw":15,"./commands/filters":16,"./commands/shapes":17,"./objects/color":18,"./objects/group":19,"./objects/matrix4":20,"./objects/path":21,"./objects/point":22,"./objects/rect":23,"./objects/text":24,"./objects/transform":25,"./objects/transformable":26,"./objects/vec3":27,"./util/bezier":28,"./util/color":29,"./util/geo":30,"./util/math":32,"./util/random":33,"./util/svg":34,"lodash":11}],36:[function(require,module,exports){
-'use strict';
-
-var vg = require('vg.js');
-var img = require('img.js');
-
-var grob = {};
-
-for (var k in vg) {
-    grob[k] = vg[k];
-}
-
-for (var k in img) {
-    grob[k] = img[k];
-}
-
-grob.merge = function(objects) {
-    if (Array.isArray(objects) && objects.length > 0) {
-        var o = objects[0];
-        if (o && (o.commands || o.shapes)) {
-            return vg.merge(objects);
-        } else if (o instanceof img.Img) {
-            return img.merge(objects);
-        }
-    }
-    return null;
-};
-
-module.exports = grob;
-},{"img.js":7,"vg.js":35}]},{},[36])(36)
+},{"./commands/draw":25,"./commands/filters":26,"./commands/shapes":27,"./objects/color":28,"./objects/group":29,"./objects/matrix4":30,"./objects/path":31,"./objects/point":32,"./objects/rect":33,"./objects/text":34,"./objects/transform":35,"./objects/transformable":36,"./objects/vec3":37,"./util/bezier":38,"./util/color":39,"./util/geo":40,"./util/math":42,"./util/random":43,"./util/svg":44,"lodash":4}]},{},[9])(9)
 });
