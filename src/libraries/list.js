@@ -27,9 +27,9 @@ g.contains = function (l, value) {
 g.cycle = function (l, length) {
     if (!l || length <= 0) { return []; }
     var newList = [];
-    var length = l.length;
+    var ll = l.length;
     for (var i = 0; i < length; i += 1) {
-        newList.push(l[i % length]);
+        newList.push(l[i % ll]);
     }
     return newList;
 };
