@@ -1,6 +1,6 @@
 // Text object
 
-// Internally the object is called "gText" to avoid conflicts with the DOM Text object.
+// Internally the object is called "GText" to avoid conflicts with the DOM Text object.
 // Externally it is exposed as g.Text.
 
 'use strict';
@@ -21,7 +21,7 @@ var _dummyContext = null;
 //     new g.Text('Hello', [0, 0], {fontFamily: 'Helvetica', fontSize: 12, textAlign: 'center'});
 //     new g.Text('Hello', 0, 0, {fontFamily: 'Helvetica', fontSize: 12});  // align: center is the default.
 //     new g.Text('Hello', {fontFamily: 'Helvetica', fontSize: 12}); // the position defaults to 0,0.
-var gText = function (text) {
+var GText = function (text) {
     var args = Array.prototype.slice.call(arguments, 1),
         secondArg = arguments[1],
         thirdArg = arguments[2],
@@ -86,8 +86,8 @@ var gText = function (text) {
     this.transform = new Transform();
 };
 
-gText.prototype.clone = function () {
-    var t = new gText();
+GText.prototype.clone = function () {
+    var t = new GText();
     t.text = this.text;
     t.x = this.x;
     t.y = this.y;
@@ -101,7 +101,7 @@ gText.prototype.clone = function () {
 
 // The `measureWidth` function requires a canvas, so we set up a dummy one
 // that we re-use for the duration of the page.
-gText._getDummyContext = function () {
+GText._getDummyContext = function () {
     if (!_dummyContext) {
         if (typeof document !== 'undefined') {
             _dummyContext = document.createElement('canvas').getContext('2d');
@@ -120,17 +120,17 @@ gText._getDummyContext = function () {
     return _dummyContext;
 };
 
-gText.prototype._getFont = function () {
+GText.prototype._getFont = function () {
     return this.fontSize + 'px ' + this.fontFamily;
 };
 
-gText.prototype.colorize = function (fill) {
+GText.prototype.colorize = function (fill) {
     var t = this.clone();
     t.fill = Color.clone(fill);
     return t;
 };
 
-gText.prototype.draw = function (ctx) {
+GText.prototype.draw = function (ctx) {
     ctx.save();
     ctx.font = this._getFont();
     ctx.textAlign = this.textAlign;
@@ -141,8 +141,8 @@ gText.prototype.draw = function (ctx) {
     ctx.restore();
 };
 
-gText.prototype.bounds = function () {
-    var ctx = gText._getDummyContext(),
+GText.prototype.bounds = function () {
+    var ctx = GText._getDummyContext(),
         metrics,
         x = this.x;
     ctx.font = this._getFont();
@@ -156,7 +156,7 @@ gText.prototype.bounds = function () {
     return new Rect(x, this.y - this.fontSize, metrics.width, this.fontSize * 1.2);
 };
 
-gText.prototype.toSVG = function () {
+GText.prototype.toSVG = function () {
     var svg = '<text';
     svg += ' x="' + this.x + '"';
     svg += ' y="' + this.y + '"';
@@ -180,4 +180,4 @@ gText.prototype.toSVG = function () {
     return svg;
 };
 
-module.exports = gText;
+module.exports = GText;
