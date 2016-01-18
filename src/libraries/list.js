@@ -24,6 +24,16 @@ g.contains = function (l, value) {
     return false;
 };
 
+g.cycle = function (l, length) {
+    if (!l || length <= 0) { return []; }
+    var newList = [];
+    var length = l.length;
+    for (var i = 0; i < length; i += 1) {
+        newList.push(l[i % length]);
+    }
+    return newList;
+};
+
 g.equals = function (o1, o2) {
     return deepEqual.deepEqual(o1, o2);
 };
