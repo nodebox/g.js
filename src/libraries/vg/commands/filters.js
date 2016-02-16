@@ -867,53 +867,6 @@ vg.link = function (shape1, shape2, orientation) {
     return p;
 };
 
-vg.stack = function (shapes, direction, margin) {
-    if (!shapes) {
-        return [];
-    }
-    if (shapes.length <= 1) {
-        return shapes;
-    }
-    var tx, ty, t, bounds,
-        firstBounds = shapes[0].bounds(),
-        newShapes = [];
-    margin = margin || 0;
-    if (direction === vg.EAST) {
-        tx = -(firstBounds.width / 2);
-        _.each(shapes, function (shape) {
-            bounds = shape.bounds();
-            t = new Transform().translate(tx - bounds.x, 0);
-            newShapes.push(t.transformShape(shape));
-            tx += bounds.width + margin;
-        });
-    } else if (direction === vg.WEST) {
-        tx = firstBounds.width / 2;
-        _.each(shapes, function (shape) {
-            bounds = shape.bounds();
-            t = new Transform().translate(tx + bounds.x, 0);
-            newShapes.push(t.transformShape(shape));
-            tx -= bounds.width + margin;
-        });
-    } else if (direction === vg.NORTH) {
-        ty = firstBounds.height / 2;
-        _.each(shapes, function (shape) {
-            bounds = shape.bounds();
-            t = new Transform().translate(0, ty + bounds.y);
-            newShapes.push(t.transformShape(shape));
-            ty -= bounds.height + margin;
-        });
-    } else if (direction === vg.SOUTH) {
-        ty = -(firstBounds.height / 2);
-        _.each(shapes, function (shape) {
-            bounds = shape.bounds();
-            t = new Transform().translate(0, ty - bounds.y);
-            newShapes.push(t.transformShape(shape));
-            ty += bounds.height + margin;
-        });
-    }
-    return newShapes;
-};
-
 vg.compound = function (shape1, shape2, method) {
     var methods = {
         'union': ClipperLib.ClipType.ctUnion,
