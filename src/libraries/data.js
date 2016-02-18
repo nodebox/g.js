@@ -30,26 +30,61 @@ g.convert = function (v, inMin, inMax, outMin, outMax) {
 };
 
 g.filterData = function (data, key, op, value) {
+    var i, l, row, obj;
     if (value === null || value === undefined) {
         return data;
     }
     var results = [];
-    for (var i = 0; i < data.length; i += 1) {
-        var row = data[i];
-        var obj = row[key];
-        if (op === '==' && obj == value) { // jshint ignore:line
-            results.push(row);
-        } else if (op === '!=' && obj != value) { // jshint ignore:line
-            results.push(row);
-        } else if (op === '>' && obj > value) {
-            results.push(row);
-        } else if (op === '>=' && obj >= value) {
-            results.push(row);
-        } else if (op === '<' && obj < value) {
-            results.push(row);
-        } else if (op === '<=' && obj <= value) {
-            results.push(row);
+    if (op === '==') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj == value) { // jshint ignore:line
+                results.push(row);
+            }
         }
+    } else if (op === '!=') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj != value) { // jshint ignore:line
+                results.push(row);
+            }
+        }
+    } else if (op === '>') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj > value) {
+                results.push(row);
+            }
+        }
+    } else if (op === '>=') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj >= value) {
+                results.push(row);
+            }
+        }
+    } else if (op === '<') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj < value) {
+                results.push(row);
+            }
+        }
+    } else if (op === '<=') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj <= value) {
+                results.push(row);
+            }
+        }
+    } else {
+        throw new Error('Invalid op ' + op);
     }
     return results;
 };
