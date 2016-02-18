@@ -117,32 +117,47 @@ Transform.prototype.transformPoints = function (points) {
 };
 
 Transform.prototype.transformPath = function (path) {
-    var _this = this,
-        point,
-        ctrl1,
-        ctrl2,
-        commands = _.map(path.commands, function (cmd) {
-            if (cmd.type === MOVETO) {
-                point = _this.transformPoint({x: cmd.x, y: cmd.y});
-                return { type: MOVETO, x: point.x, y: point.y };
-            } else if (cmd.type === LINETO) {
-                point = _this.transformPoint({x: cmd.x, y: cmd.y});
-                return { type: LINETO, x: point.x, y: point.y };
-            } else if (cmd.type === QUADTO) {
-                point = _this.transformPoint({x: cmd.x, y: cmd.y});
-                ctrl1 = _this.transformPoint({x: cmd.x1, y: cmd.y1});
-                return { type: QUADTO, x1: ctrl1.x, y1: ctrl1.y, x: point.x, y: point.y };
-            } else if (cmd.type === CURVETO) {
-                point = _this.transformPoint({x: cmd.x, y: cmd.y});
-                ctrl1 = _this.transformPoint({x: cmd.x1, y: cmd.y1});
-                ctrl2 = _this.transformPoint({x: cmd.x2, y: cmd.y2});
-                return { type: CURVETO, x1: ctrl1.x, y1: ctrl1.y, x2: ctrl2.x, y2: ctrl2.y, x: point.x, y: point.y };
-            } else if (cmd.type === CLOSE) {
-                return cmd;
-            } else {
+    var m = this.m;
+    var commands = [];
+    commands.length = path.commands.length;
+    for (var i = 0, l = path.commands.length; i < l; i++) {
+        var cmd = path.commands[i];
+        switch(cmd.type) {
+            case MOVETO:
+            case LINETO:
+                commands[i] = {
+                    type: cmd.type,
+                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
+                    y: cmd.x * m[1] + cmd.y * m[4] + m[7]
+                };
+                break;
+            case QUADTO:
+                commands[i] = {
+                    type: QUADTO,
+                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
+                    y: cmd.x * m[1] + cmd.y * m[4] + m[7],
+                    x1: cmd.x1 * m[0] + cmd.y1 * m[3] + m[6],
+                    y1: cmd.x1 * m[1] + cmd.y1 * m[4] + m[7]
+                };
+                break;
+            case CURVETO:
+                commands[i] = {
+                    type: CURVETO,
+                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
+                    y: cmd.x * m[1] + cmd.y * m[4] + m[7],
+                    x1: cmd.x1 * m[0] + cmd.y1 * m[3] + m[6],
+                    y1: cmd.x1 * m[1] + cmd.y1 * m[4] + m[7],
+                    x2: cmd.x2 * m[0] + cmd.y2 * m[3] + m[6],
+                    y2: cmd.x2 * m[1] + cmd.y2 * m[4] + m[7]
+                };
+                break;
+            case CLOSE:
+                commands[i] = { type: CLOSE };
+                break;
+            default:
                 throw new Error('Unknown command type ' + cmd);
-            }
-        });
+        }
+    }
     return new Path(commands, path.fill, path.stroke, path.strokeWidth);
 };
 
