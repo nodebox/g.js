@@ -185,6 +185,7 @@ g.shuffle = function (l, seed) {
         seed = Math.random();
     }
     r = util.randomGenerator(seed || 0);
+    l = l.slice();
     for (i = l.length - 1; i > 0; i--) {
         j = Math.floor(r(0, i + 1));
         tmp = l[i];
