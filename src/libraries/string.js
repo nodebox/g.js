@@ -3,9 +3,11 @@
 var g = {};
 
 g.characterAt = function (s, index) {
-    if (!s || s.length === 0) { return null; }
+    if (!s || s.length === 0) { return ''; }
     s = String(s);
-    index = index % s.length;
+    if (index < 0) {
+        index = s.length + index;
+    }
     return s.charAt(index);
 };
 
