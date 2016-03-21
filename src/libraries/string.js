@@ -83,15 +83,18 @@ g.stringTrim = function (s) {
 };
 
 g.substring = function (s, start, end, endOffset) {
-    if (!s) { return null; }
+    if (!s) { return ''; }
+    if (end < start) { return ''; }
     s = String(s);
-    start = start % s.length;
+
+    if (start < 0 && end < 0) {
+        start = s.length + start;
+        end = s.length + end;
+    }
 
     if (end !== undefined) {
         if (endOffset) {
-            end = (end % s.length) + 1;
-        } else {
-            end = end % (s.length + 1);
+            end += 1;
         }
     }
     return s.substring(start, end);
