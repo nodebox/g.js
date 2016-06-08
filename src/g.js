@@ -101,7 +101,7 @@ g.merge = function () {
         objects = _.reject(objects, _.isEmpty);
         if (objects.length > 0) {
             var o = objects[0];
-            if (o && (o.commands || o.shapes)) {
+            if (o && (o.commands || o.shapes || g.fontFamily)) {
                 return vg.merge(objects);
             } else if (o instanceof img.Img) {
                 return img.merge(objects);
