@@ -94,7 +94,7 @@ g.js is just a JavaScript library. Apart from the `g` global, it doesn't add or 
 
 ## Further documentation
 
-We have a number of [guides]({{ site.baseurl }}) on using g.js, for example for using it for [vector graphics](vector.html), [images](image.html), or general operations like [working with color](color.html).
+We have a number of [guides]({{ site.baseurl }}/) on using g.js, for example for using it for [vector graphics](vector.html), [images](image.html), or general operations like [working with color](color.html).
 
-There's also a [function reference]({{ site.baseurl }}ref/) containing all of the functions in g.js.
+There's also a [function reference]({{ site.baseurl }}/ref/) containing all of the functions in g.js.
 
