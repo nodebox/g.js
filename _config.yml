@@ -1,11 +1,12 @@
 # Site settings
-title: grob.io
-email: info@grob.io
+title: g.js
+email: info@nodebox.net
 description: A JavaScript library for graphical objects
 baseurl: "" # the subpath of your site, e.g. /blog/
-url: "https://www.grob.io/" # the base hostname & protocol for your site
-twitter_username: jekyllrb
-github_username:  jekyll
+url: "https://g.js.org/" # the base hostname & protocol for your site
+twitter_username: nodebox
+github_username:  nodebox
+categories: [guide, ref]
 
 # Build settings
 markdown: kramdown
