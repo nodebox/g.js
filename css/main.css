@@ -110,6 +110,7 @@ header nav a {
   font-weight: bold;
   text-transform: uppercase;
   margin: 0 5px;
+  font-size: 0.9rem;
 }
 
 @media (min-width: 550px) {
