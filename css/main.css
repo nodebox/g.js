@@ -22,7 +22,12 @@ h1, h2, h3, h4, p {
   margin-top: 0;
 }
 
+h1 {
+ color: #BDF271;
+}
+
 h2 {
+  font-size: 1.1rem;
   color: #BDF271;
 }
 
@@ -34,6 +39,17 @@ a {
 
 a:hover {
   color: #BDF271;
+}
+
+pre {
+  background: #232025;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+}
+
+pre, code {
+  font-family: 'Fira Mono', monospace;
+  color: #ddd;
 }
 
 /*** Header ***/
@@ -57,6 +73,7 @@ header h1 {
   font-size: 2rem;
   flex: 1;
   white-space: nowrap;
+  color: black;
 }
 
 header h1 a {
@@ -196,77 +213,79 @@ main {
 
 /**** Guide Pages ****/
 
-#docs .nav {
+.docs .nav {
   font-size: 0.8rem;
 }
 
-#docs .nav h2 {
+.docs .nav h2 {
   font-size: 0.9rem;
 }
 
-#docs .nav ul {
+.docs .nav ul {
   border-left: 1px solid rgba(255, 255, 255, 0.2);
   padding: 0;
 }
 
-#docs .nav li {
+.docs .nav li {
   list-style: none;
   margin-left: 0.5rem;
 }
 
-#docs .nav a {
+.docs .nav a {
   text-decoration: none;
   color: inherit;
   border: none;
 }
 
-#docs .nav a:hover {
+.docs .nav a:hover {
   color: #BDF271;
 }
 
-#docs .icon {
+.docs .page-icon {
   position: absolute;
   top: 0;
   z-index: -10;
   pointer-events: none;
-}
-
-#docs .icon img {
   min-width: 500px;
   min-height: 500px;
   opacity: 0.1;
 }
 
-#docs .content {
+.docs .content {
   z-index: 0;
 }
 
-#docs .content h1 {
+.docs .content h1 {
+  line-height: 24px;
+  vertical-align: middle;
   color: #BDF271;
 }
 
-#docs .content canvas {
-  background: #ccc;
-  border-radius: 3px;
+.docs .content .icon {
+  float: left;
+  width: 24px;
+  height: 24px;
+  filter: invert();
+  margin-right: 1rem;
+  opacity: 0.8;
 }
 
-#docs pre {
-  background: #232025;
-  padding: 0.2rem 0.5rem;
+.docs .content canvas {
+  background: #ccc;
   border-radius: 3px;
 }
 
 @media (min-width: 550px) {
 
-  #docs main {
+  .docs {
     display: flex;
   }
 
-  #docs .nav {
+  .docs .nav {
     padding-right: 5rem;
   }
 
-  #docs.guides {
+  .docs.guides {
     display: flex;
   }
 
@@ -354,14 +373,15 @@ main {
 }
 
 .ref-list .function {
-  display: block;
+  display: flex;
+  align-items: center;
   margin-bottom: 1rem;
   border: none;
-  line-height: 32px;
 }
 
 .ref-list .function img {
   width: 32px;
+  height: 32px;
   filter: invert();
   opacity: 0.8;
 }
@@ -370,10 +390,22 @@ main {
   opacity: 1;
 }
 
+.ref-list .function label {
+  line-height: 100%;
+  display: block;
+  margin-left: 0.8rem;
+}
+
 .ref-list .function span {
-  vertical-align: 30%;
-  display: inline-block;
-  margin-left: 0.5rem;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.ref-list .function small {
+  font-size: 0.7rem;
+  font-style: oblique;
+  opacity: 0.7;
 }
 
 /**** About ****/

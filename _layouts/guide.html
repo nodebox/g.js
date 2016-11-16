@@ -1,7 +1,6 @@
 ---
 layout: docs
 ---
-{% if page.image %}<div class="icon"><img src="/img/guides/{{ page.image }}.svg" alt=""></div>{% endif %}
-<h1>{{ page.title }}</h1>
+<h1>{% if page.image %}<img class="icon" src="/img/guides/{{ page.image }}.svg" alt="">{% endif %}{{ page.title }}</h1>
 
 {{ content }}
