@@ -430,6 +430,26 @@ main {
   border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+#about .about-sidebar ul {
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0;
+}
+
+#about .about-sidebar li {
+  list-style: circle;
+  margin-left: 2rem;
+}
+
+#about .about-sidebar a {
+  text-decoration: none;
+  color: inherit;
+  border: none;
+}
+
+#about .about-sidebar a:hover {
+  color: #BDF271;
+}
+
 @media (min-width: 550px) {
   #about .about-page {
     display: flex;
