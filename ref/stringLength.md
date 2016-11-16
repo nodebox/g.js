@@ -12,7 +12,7 @@ Count the number of characters in a string.
 - `s`: The input string.
 
 ## See Also
-- [wordCount](/ref/wordCount.html): Count the number of words in a string.
+- [wordCount](wordCount.html): Count the number of words in a string.
 
 ## Related Guides
-- [String Manipulation](/guide/string.html)
+- [String Manipulation](../guide/string.html)

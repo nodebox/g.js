@@ -14,4 +14,4 @@ Determine if the list contains a given value.
 - `value`: The value to look for.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

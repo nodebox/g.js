@@ -166,10 +166,10 @@ Here is the list of all named colors:
 * 'dimgray'              : [0.41, 0.41, 0.41],
 * 'dimgrey'              : [0.41, 0.41, 0.41],
 * 'black'                : [0.00, 0.00, 0.00],
-* 'cyan'                 : [0.00, 0.68, 0.94], 
+* 'cyan'                 : [0.00, 0.68, 0.94],
 * 'transparent'          : [0.00, 0.00, 0.00, 0.00],
 * 'bark'                 : [0.25, 0.19, 0.13]
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
-- [Working with Color](/guide/color.html)
+- [Vector Graphics](../guide/vector.html)
+- [Working with Color](../guide/color.html)

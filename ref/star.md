@@ -15,4 +15,4 @@ Create a star shape.
 - `inner`: The inner diameter of the star.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

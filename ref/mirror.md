@@ -16,7 +16,7 @@ Mirror the geometry around an invisible axis.
 - `keepOriginal`: If `true`, also keeps the original geometry.
 
 ## See Also
-- [flip](/ref/flip.html): Flip the input shape or image.
+- [flip](flip.html): Flip the input shape or image.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

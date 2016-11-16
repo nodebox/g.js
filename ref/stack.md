@@ -18,4 +18,4 @@ Note that the first shape stays at its original position. Subsequent shapes will
 - `margin`: The spacing between each of the shapes.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

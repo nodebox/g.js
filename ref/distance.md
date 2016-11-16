@@ -15,4 +15,4 @@ The value returned is the [Euclidean distance](https://en.wikipedia.org/wiki/Euc
 - `point2`: The second point.
 
 ## Related Guides
-- [Geometry](/guide/geometry.html)
+- [Geometry](../guide/geometry.html)

@@ -7,42 +7,42 @@ Working with text
 
 ### Creating strings
 
-[string](/ref/string.html) — Create a simple string
+[string](../ref/string.html) — Create a simple string
 
-[import](/ref/import.html) — Import text from a TXT file
+[import](../ref/import.html) — Import text from a TXT file
 
 ### Querying / lookup
 
-[length](/ref/length.html) — Give the length of the string
+[length](../ref/length.html) — Give the length of the string
 
-[wordCount](/ref/wordCount.html) — Count the number of words in the string
+[wordCount](../ref/wordCount.html) — Count the number of words in the string
 
-[characterAt](/ref/characterAt.html) — Take the character at the given index
+[characterAt](../ref/characterAt.html) — Take the character at the given index
 
-[contains](/ref/contains.html) — Check if the string contains the given text
+[contains](../ref/contains.html) — Check if the string contains the given text
 
-[startsWith](/ref/startsWith.html) / [endsWith](/ref/endsWith.html) — Check if the string starts / ends with the given text
+[startsWith](../ref/startsWith.html) / [endsWith](../ref/endsWith.html) — Check if the string starts / ends with the given text
 
-[equal](/ref/equal.html) — Check if two strings are equal
+[equal](../ref/equal.html) — Check if two strings are equal
 
 ### Combining
 
-[concatenate](/ref/concatenate.html) — Combine multiple strings
+[concatenate](../ref/concatenate.html) — Combine multiple strings
 
 ### Splitting
 
-[split](/ref/split.html) — Split the string into substrings
+[split](../ref/split.html) — Split the string into substrings
 
-[toCharacters](/ref/toCharacters.html) — Split the string into individual characters
+[toCharacters](../ref/toCharacters.html) — Split the string into individual characters
 
-[words](/ref/words.html) — Split the string into words
+[words](../ref/words.html) — Split the string into words
 
 ### Manipulating
 
-[replace](/ref/replace.html) — Replace all occurrences of the text
+[replace](../ref/replace.html) — Replace all occurrences of the text
 
-[substring](/ref/substring.html) — Take a portion of the string
+[substring](../ref/substring.html) — Take a portion of the string
 
-[trim](/ref/trim.html) — Remove spaces from the beginning / end
+[trim](../ref/trim.html) — Remove spaces from the beginning / end
 
-[changeCase](/ref/changeCase.html) — Convert to upper- or lowercase
+[changeCase](../ref/changeCase.html) — Convert to upper- or lowercase

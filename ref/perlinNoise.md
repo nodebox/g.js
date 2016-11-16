@@ -17,4 +17,4 @@ A bit further on the X axis the value increases slightly:
     g.perlinNoise(0.1, 0, 0);
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

@@ -17,4 +17,4 @@ Add strings together.
 - `...`
 
 ## Related Guides
-- [String Manipulation](/guide/string.html)
+- [String Manipulation](../guide/string.html)

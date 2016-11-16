@@ -16,4 +16,4 @@ Apply dent distortion to an image.
 - `zoom`: The amount of denting (0-100).
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

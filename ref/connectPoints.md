@@ -24,4 +24,4 @@ Open shape:
     g.connectPoints([{x: 0, y: 50}, {x: 0, y: 0}, {x: 50, y: 0}], false)
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

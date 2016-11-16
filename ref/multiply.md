@@ -9,7 +9,7 @@ Multiply two numbers.
     g.multiply(5, 3);
 
 ## See Also
-- [divide](/ref/divide.html): Divide two numbers.
+- [divide](divide.html): Divide two numbers.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

@@ -14,5 +14,5 @@ Calculate a new point based on the angle and distance from an original point.
 - `distance`: The distance from the starting point.
 
 ## Related Guides
-- [Math](/guide/math.html)
-- [Geometry](/guide/geometry.html)
+- [Math](../guide/math.html)
+- [Geometry](../guide/geometry.html)

@@ -12,4 +12,4 @@ Count the number of items in the list.
 - `l`: The input list.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

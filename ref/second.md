@@ -12,10 +12,10 @@ Take the second item in the list.
 - `l`: The list of items.
 
 ## See Also
-- [get](/ref/get.html): Take an item in the list.
-- [first](/ref/first.html): Take the first item in the list.
-- [last](/ref/last.html): Take the last item in the list.
-- [rest](/ref/rest.html): Take all but the first item in the list.
+- [get](get.html): Take an item in the list.
+- [first](first.html): Take the first item in the list.
+- [last](last.html): Take the last item in the list.
+- [rest](rest.html): Take all but the first item in the list.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

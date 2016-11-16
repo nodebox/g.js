@@ -19,4 +19,4 @@ Zero returns zero:
     g.sign(0);
 
 ## Related Guides
-- [Math](/guide/g.math.html)
+- [Math](../guide/g.math.html)

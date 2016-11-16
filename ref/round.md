@@ -15,8 +15,8 @@ Rounding down when integer is closer downwards:
     g.round(17.4);
 
 ## See Also
-- [ceil](/ref/ceil.html): Round up a number to the nearest bigger integer. 
-- [floor](/ref/floor.html): Round down a number to the nearest smaller integer.
+- [ceil](ceil.html): Round up a number to the nearest bigger integer.
+- [floor](floor.html): Round down a number to the nearest smaller integer.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

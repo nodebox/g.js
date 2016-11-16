@@ -22,8 +22,8 @@ Shift points of the shape by a random amount.
 - `seed`: The random variation.
 
 ## See Also
-- [wiggleContours](/ref/wiggleContours.html): Randomly shift the contours of the path.
-- [wigglePaths](/ref/wigglePaths.html): Randomly shift the paths in a group.
+- [wiggleContours](wiggleContours.html): Randomly shift the contours of the path.
+- [wigglePaths](wigglePaths.html): Randomly shift the paths in a group.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

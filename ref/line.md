@@ -13,7 +13,7 @@ Create a line between two points.
 - `point2`: The ending point of the line.
 
 ## See Also
-- [lineAngle](/ref/lineAngle.html): Create a line between a point and angle + distance.
+- [lineAngle](lineAngle.html): Create a line between a point and angle + distance.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

@@ -9,4 +9,4 @@ The value of the mathematical constant pi.
     g.pi();
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

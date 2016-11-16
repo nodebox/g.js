@@ -15,4 +15,4 @@ Apply an embossing filter to an image to give it a 3D shadow effect.
 - `angle`: The embossing angle.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

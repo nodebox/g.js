@@ -9,4 +9,4 @@ The value of the mathematical constant e, the base of the natural logarithm.
     g.e();
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

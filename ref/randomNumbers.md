@@ -21,4 +21,4 @@ Just four random numbers:
 - `seed`: The random variation. Each seed will give a different result.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

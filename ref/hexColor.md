@@ -16,5 +16,5 @@ The initial "#" is optional:
 - `s`: The hexadecimal color value, as a string.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
-- [Working with Color](/guide/color.html)
+- [Vector Graphics](../guide/vector.html)
+- [Working with Color](../guide/color.html)

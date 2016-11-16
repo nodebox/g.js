@@ -19,4 +19,4 @@ If we only specify the start, the substring runs to the end of the string:
 - `endOffset`: If set, use the end index as a size instead of index.
 
 ## Related Guides
-- [String Manipulation](/guide/string.html)
+- [String Manipulation](../guide/string.html)

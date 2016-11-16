@@ -16,4 +16,4 @@ The character codes are [Unicode character codes](http://unicode-table.com/en/).
 - `s`: The input string.
 
 ## Related Guides
-- [Working with Strings](/guide/string.html)
+- [Working with Strings](../guide/string.html)

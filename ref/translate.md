@@ -19,4 +19,4 @@ Translate can also be used to move points:
 - `translate`: The amount of translation, as a point.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

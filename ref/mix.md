@@ -8,13 +8,13 @@ Linearly interpolate between two values.
 
     g.mix(0, 100, 0.5)
 
-Mix works with colors: 
+Mix works with colors:
 
     var red = {r: 255, g: 0, b: 0};
-    var blue = {r: 0, g: 0, b: 255}; 
+    var blue = {r: 0, g: 0, b: 255};
     g.mix(red, blue, 0.2);
 
-Also, points. Basically any kind of nested data: 
+Also, points. Basically any kind of nested data:
 
     var a = {x: -100, y: -50};
     var b = {x: 100, y: 50};
@@ -33,6 +33,6 @@ The position can also go "out of bounds" thereby resulting in values that are la
 - `t`: The interpolation position (between `0.0` and `1.0`).
 
 ## Related Guides
-- [Math](/guide/math.html)
-- [Geometry](/guide/geometry.html)
-- [Working with Color](/guide/color.html)
+- [Math](../guide/math.html)
+- [Geometry](../guide/geometry.html)
+- [Working with Color](../guide/color.html)

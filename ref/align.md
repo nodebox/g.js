@@ -16,4 +16,4 @@ Align a shape in relation to the origin.
 - `vAlign`: The vertical alignment (options are `top`, `bottom` and `middle`).
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

@@ -16,4 +16,4 @@ Snap geometry to a grid.
 - `position`: The position of the grid (default = 0,0).
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

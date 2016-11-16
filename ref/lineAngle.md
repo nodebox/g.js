@@ -14,7 +14,7 @@ Create a line between a point and an angle + distance.
 - `distance`: The distance between starting and ending point.
 
 ## See Also
-- [line](/ref/line.html): Create a line between two points.
+- [line](line.html): Create a line between two points.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

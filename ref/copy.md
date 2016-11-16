@@ -27,4 +27,4 @@ By combining translate, rotate and scale you can get some wildly different resul
     g.copy(e, 50, 'rst', {x: 0, y: 0}, 8, {x: 2, y: 3})
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

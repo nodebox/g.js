@@ -13,5 +13,5 @@ Calculate the angle between two points.
 - `point2`: The second point.
 
 ## Related Guides
-- [Math](/guide/math.html)
-- [Geometry](/guide/geometry.html)
+- [Math](../guide/math.html)
+- [Geometry](../guide/geometry.html)

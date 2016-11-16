@@ -20,4 +20,4 @@ It works the same way with negative numbers:
 - `v`: The input number.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

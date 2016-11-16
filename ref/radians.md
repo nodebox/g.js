@@ -9,8 +9,8 @@ Convert an angle specified in degrees to radians.
     g.radians(180);
 
 ## See Also
-- [degrees](/ref/degrees.html): Convert an angle specified in radians to degrees.
+- [degrees](degrees.html): Convert an angle specified in radians to degrees.
 
 ## Related Guides
-- [Math](/guide/math.html)
-- [Geometry](/guide/geometry.html)
+- [Math](../guide/math.html)
+- [Geometry](../guide/geometry.html)

@@ -8,7 +8,7 @@ Sort the items in the list.
 
     g.sort([8, 4, 2, 1]);
 
-If you have a table (e.g. from [import](/ref/import).html) you can give an additional key to sort by:
+If you have a table (e.g. from [import](import).html) you can give an additional key to sort by:
 
     var table = g.import('people.csv');
     g.sort(table, 'age');
@@ -18,8 +18,8 @@ If you have a table (e.g. from [import](/ref/import).html) you can give an addit
 - `key`: The sorting key (optional).
 
 ## See Also
-- [shapeShort](/ref/shapeSort.html): Sort visual shapes.
+- [shapeShort](shapeSort.html): Sort visual shapes.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
-- [Data Processing](/guide/data.html)
+- [List Operations](../guide/list.html)
+- [Data Processing](../guide/data.html)

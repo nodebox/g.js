@@ -23,4 +23,4 @@ The index can also be negative, in which case it will start at the end:
 - `...`
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

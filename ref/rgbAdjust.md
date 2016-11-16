@@ -20,5 +20,5 @@ Adjust red, green, blue and alpha values of an input object.
 
 
 ## Related Guides
-- [Working with Color](/guide/color.html)
-- [Vector Graphics](/guide/vector.html)
+- [Working with Color](../guide/color.html)
+- [Vector Graphics](../guide/vector.html)

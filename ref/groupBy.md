@@ -17,5 +17,5 @@ Group the data based on key/value.
 - `key`: The key to group by.
 
 ## Related Guides
-- [Data Processing](/guide/data.html)
+- [Data Processing](../guide/data.html)
 

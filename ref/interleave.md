@@ -11,4 +11,4 @@ Mix multiple lists by alternating between them.
     g.interleave(list1, list2);
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

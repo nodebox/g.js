@@ -15,8 +15,8 @@ The sine of half pi:
     g.sin(Math.PI / 2);
 
 ## See Also
-- [cos](/ref/cos.html): Calculate the trigonometric cosine of an angle.
-- [tan](/ref/tan.html): Calculate the trigonometric tangens of an angle.
+- [cos](cos.html): Calculate the trigonometric cosine of an angle.
+- [tan](tan.html): Calculate the trigonometric tangens of an angle.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

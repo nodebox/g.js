@@ -12,4 +12,4 @@ Reverse the items in the list. The first item becomes the last and vice versa.
 - `l`: The list of items.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

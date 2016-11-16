@@ -18,7 +18,7 @@ The square wave can take a *minimum* and *maximum*:
 
     g.squareWave(0.5, 100, 500);
 
-It can also take a *period*, the unit size. If you would connect this to [elapsedSeconds](/ref/elapsedSeconds.html), the wave would oscillate from minimum to maximum in one second:
+It can also take a *period*, the unit size. If you would connect this to [elapsedSeconds](elapsedSeconds.html), the wave would oscillate from minimum to maximum in one second:
 
     g.squareWave(0.5, 100, 500, 2);
 
@@ -34,9 +34,9 @@ Finally, it takes a *phase offset* which shifts the wave. It compensates the fir
 - `offset`: The phase offset of the wave.
 
 ## See Also
-- [sineWave](/ref/sineWave.html)
-- [sawtoothWave](/ref/sawtoothWave.html)
-- [triangleWave](/ref/triangleWave.html)
+- [sineWave](sineWave.html)
+- [sawtoothWave](sawtoothWave.html)
+- [triangleWave](triangleWave.html)
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

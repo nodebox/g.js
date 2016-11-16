@@ -17,4 +17,4 @@ If the input and boolean list have a different size, the boolean list will wrap 
 - `booleans`: A list of `true` or `false` values.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

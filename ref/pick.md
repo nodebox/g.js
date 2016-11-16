@@ -12,7 +12,7 @@ With a different seed:
 
     g.pick([1, 2, 3, 4, 5, 6], 3, 99);
 
-Unlike [randomSample](/ref/randomSample.html), `pick` can return *more* values than the original:
+Unlike [randomSample](randomSample.html), `pick` can return *more* values than the original:
 
     g.pick([1, 2, 3], 10, 42);
 
@@ -22,8 +22,8 @@ Unlike [randomSample](/ref/randomSample.html), `pick` can return *more* values t
 - `seed`: The random variation.
 
 ## See Also
-- [shuffle](/ref/shuffle.html): Randomly reorganise items in the list.
-- [randomSample](/ref/randomSample.html): Take a random sample from a list.
+- [shuffle](shuffle.html): Randomly reorganise items in the list.
+- [randomSample](randomSample.html): Take a random sample from a list.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

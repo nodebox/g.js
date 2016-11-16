@@ -24,7 +24,7 @@ If `stretch` is `true`, the proportions of the input shape are discarded:
 - `stretch`: If `true`, stretches the shape to fit in the bounding box.
 
 ## See Also
-- [fit](/ref/fit.html): Fit a shape within bounds.
+- [fit](fit.html): Fit a shape within bounds.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

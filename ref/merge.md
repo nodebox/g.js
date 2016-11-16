@@ -21,4 +21,4 @@ You don't have to use all of the parameters, so you can use this function to com
 
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

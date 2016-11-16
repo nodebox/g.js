@@ -20,5 +20,5 @@ Rotate can also be used to move points:
 - `origin`: The point around which to rotate (default = 0,0).
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
-- [Geometry](/guide/geometry.html)
+- [Vector Graphics](../guide/vector.html)
+- [Geometry](../guide/geometry.html)

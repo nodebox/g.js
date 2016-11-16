@@ -15,8 +15,8 @@ The cosine of pi:
     g.cos(Math.PI);
 
 ## See Also
-- [sin](/ref/sin].html): Calculate the trigonometric sine of an angle.
-- [tan](/ref/tan.html): Calculate the trigonometric tangens of an angle.
+- [sin](sin].html): Calculate the trigonometric sine of an angle.
+- [tan](tan.html): Calculate the trigonometric tangens of an angle.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

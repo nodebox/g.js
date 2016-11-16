@@ -24,7 +24,7 @@ If `stretch` is `true`, the proportions of the input shape are discarded:
 - `stretch`: If `true`, stretches the shape to fit in the given width/height.
 
 ## See Also
-- [fitTo](/ref/fitTo.html): Fit a shape to another shape.
+- [fitTo](fitTo.html): Fit a shape to another shape.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

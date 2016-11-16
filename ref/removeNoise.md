@@ -13,4 +13,4 @@ Remove noise from an image.
 - `image`: The input image.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

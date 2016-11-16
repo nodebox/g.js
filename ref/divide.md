@@ -13,8 +13,8 @@ Since JavaScript has only one number type, this will always return floating-poin
     g.divide(1, 3);
 
 ## See Also
-- [mod](/ref/mod.html): Divide two numbers and keep the remainder.
-- [multiply](/ref/multiply.html): Multiply two numbers.
+- [mod](mod.html): Divide two numbers and keep the remainder.
+- [multiply](multiply.html): Multiply two numbers.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

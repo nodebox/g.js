@@ -13,6 +13,6 @@ Transform a string to a list of numbers.
 - `separator`: The separation character.
 
 ## Related Guides
-- [Math](/guide/math.html)
-- [String Manipulation](/guide/string.html)
-- [List Operations](/guide/list.html)
+- [Math](../guide/math.html)
+- [String Manipulation](../guide/string.html)
+- [List Operations](../guide/list.html)

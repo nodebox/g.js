@@ -15,5 +15,5 @@ Invert a color or the colors of a shape.
 
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
-- [Working with Color](/guide/color.html)
+- [Vector Graphics](../guide/vector.html)
+- [Working with Color](../guide/color.html)

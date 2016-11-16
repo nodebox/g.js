@@ -9,4 +9,4 @@ Determine if the string contains a given substring.
     g.stringContains('Hello', 'll');
 
 ## Related Guides
-- [String Manipulation](/guide/string.html)
+- [String Manipulation](../guide/string.html)

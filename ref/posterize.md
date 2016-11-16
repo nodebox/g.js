@@ -14,4 +14,4 @@ Posterize an image.
 - `levels`: The number of levels in each RGB channel.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

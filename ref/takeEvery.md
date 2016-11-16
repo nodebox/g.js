@@ -21,4 +21,4 @@ If `n` is 2, it will take every other item:
 - `n`: The "gap" number between items.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

@@ -14,4 +14,4 @@ Crop an image.
 - `bounding`: The bounding rectangle of the cropped area.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

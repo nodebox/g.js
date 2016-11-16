@@ -13,8 +13,8 @@ If the number is an integer, return the number itself.
     g.ceil(67);
 
 ## See Also
-- [floor](/ref/floor.html): Round down a number to the nearest smaller integer.
-- [round](/ref/round.html): Round off a number to the nearest integer.
+- [floor](floor.html): Round down a number to the nearest smaller integer.
+- [round](round.html): Round off a number to the nearest integer.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

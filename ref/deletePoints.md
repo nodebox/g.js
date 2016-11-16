@@ -25,4 +25,4 @@ Or it can delete points from a path:
 - `invert`: Turn the selection around: delete the shapes/points that are not part of the selection.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

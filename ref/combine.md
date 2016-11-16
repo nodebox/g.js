@@ -12,4 +12,4 @@ Combine multiple lists into one.
 - `lists`: Any number of lists.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

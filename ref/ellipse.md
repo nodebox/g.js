@@ -14,4 +14,4 @@ Create an ellipse or circle.
 - `height`: The height of the ellipse.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

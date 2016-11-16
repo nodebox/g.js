@@ -12,4 +12,4 @@ Remove white space from the start and end of the string.
 - `s`: The input string.
 
 ## Related Guides
-- [String Manipulation](/guide/string.html)
+- [String Manipulation](../guide/string.html)

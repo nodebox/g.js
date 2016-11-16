@@ -12,4 +12,4 @@ Calculate the modulo by dividing two numbers and keeping the remainder.
 - [divide](g.divide): Divide two numbers
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

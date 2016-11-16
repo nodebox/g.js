@@ -15,4 +15,4 @@ Apply a glow to an image.
 - `kernelSize`: kernel size of the filter.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

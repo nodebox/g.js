@@ -14,4 +14,4 @@ Create a mosaic out of an image.
 - `blockSize`: The size of a single colored block in the image.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

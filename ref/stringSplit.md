@@ -21,4 +21,4 @@ Note that whitespace are significant. Not including the whitespace will add it t
 - `delimiter`: The delimiter, or "splitting character"
 
 ## Related Guides
-- [String Manipulation](/guide/string.html)
+- [String Manipulation](../guide/string.html)

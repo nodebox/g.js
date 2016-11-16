@@ -13,4 +13,4 @@ Outline the edges of an image.
 - `image`: The input image.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

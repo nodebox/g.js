@@ -15,4 +15,4 @@ Apply a light tunnel distortion to an image.
 - `radius`: The radius of the unaffected area in pixels.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

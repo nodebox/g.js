@@ -12,4 +12,4 @@ Convert any number to a positive value (the absolute value).
 - `v`: The input number.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

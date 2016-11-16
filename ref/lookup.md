@@ -6,7 +6,7 @@ categories: [ref]
 ---
 Look up a value in a table or object.
 
-Imagine you have this data, using [import](/ref/import.html):
+Imagine you have this data, using [import](import.html):
 
     g.import('people.csv');
 
@@ -17,4 +17,4 @@ Using `lookup` we can extract the value of one column:
     g.lookup(row, 'name');
 
 ## Related Guides
-- [Data Processing](/guide/data.html)
+- [Data Processing](../guide/data.html)

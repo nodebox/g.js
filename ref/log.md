@@ -19,4 +19,4 @@ Theoretically, a negative log is infinitely large, producing unusable numbers. W
     g.log(-10);
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

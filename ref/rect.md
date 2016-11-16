@@ -19,4 +19,4 @@ An optional fourth parameter specifies the corner roundness:
 - `roundness`: The roundness of the rectangle.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

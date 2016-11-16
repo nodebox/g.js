@@ -14,4 +14,4 @@ Apply a cross edges filter to an image.
 - `strength`: The amount of filtering to apply.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

@@ -24,8 +24,8 @@ If you really need to, you can control the precision using an optional parameter
 - `shape`: The input shape.
 
 ## See Also
-- [pointOnPath](/ref/pointOnPath.html): Calculate a point along the path.
+- [pointOnPath](pointOnPath.html): Calculate a point along the path.
 
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

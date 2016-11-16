@@ -22,4 +22,4 @@ Example of a radial gradient:
     g.gradientImage(150, 150, 'lightgreen', 'black', 'radial', 0, 50)
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

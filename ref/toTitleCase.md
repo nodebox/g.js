@@ -14,8 +14,8 @@ This makes every first character of the word in uppercase, and the rest in lower
 - `s`: The input string.
 
 ## See Also
-- [toLowerCase](/ref/toLowerCase.html): Convert to lower case.
-- [toUpperCase](/ref/toUpperCase.html): Convert to upper case.
+- [toLowerCase](toLowerCase.html): Convert to lower case.
+- [toUpperCase](toUpperCase.html): Convert to upper case.
 
 ## Related Guides
-- [Working with Strings](/guide/string.html)
+- [Working with Strings](../guide/string.html)

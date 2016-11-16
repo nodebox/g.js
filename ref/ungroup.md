@@ -15,7 +15,7 @@ Decompose the input group into a list of paths.
 - `shapes`: The shape or list of shapes to ungroup.
 
 ## See Also
-- [group](/ref/group.html): Combine multiple shapes together.
+- [group](group.html): Combine multiple shapes together.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

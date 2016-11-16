@@ -20,5 +20,5 @@ Flip a shape or image.
 - `flip`: How the image should be flipped: 'horizontal', 'vertical' or 'both'.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
-- [Imaging](/guide/image.html)
+- [Vector Graphics](../guide/vector.html)
+- [Imaging](../guide/image.html)

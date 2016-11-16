@@ -19,11 +19,11 @@ This function recalculates new line segments along the outline of the original s
     g.wigglePoints(r, 5, 0);
 
 
-Unlike [resampleByAmount](/ref/resampleByAmount.html), we don't know how many points this function will generate. This is useful for shapes that dynamically change size.
+Unlike [resampleByAmount](resampleByAmount.html), we don't know how many points this function will generate. This is useful for shapes that dynamically change size.
 
 ## Parameters
 - `shape`: The input shape.
 - `maxLength`: The maximum length of a segment.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

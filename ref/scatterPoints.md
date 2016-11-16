@@ -15,4 +15,4 @@ Generate random points within the boundaries of a shape.
 - `seed`: The random variation.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

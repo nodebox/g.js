@@ -15,4 +15,4 @@ Skew the shape.
 - `origin`: The point around which to skew (default = 0,0).
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

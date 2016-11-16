@@ -29,4 +29,4 @@ The reverse can be achieved by inverting the masking image:
 - `mask`: The masking image (the source).
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

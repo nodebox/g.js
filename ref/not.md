@@ -13,9 +13,9 @@ The AND operation returns `true` if the input is `false` and vice versa:
     g.not(true);
 
 ## See Also
-- [and](/ref/and.html): Local AND operation.
-- [or](/ref/or.html): Logical OR operation.
-- [xor](/ref/xor.html): Logical XOR operation.
+- [and](and.html): Local AND operation.
+- [or](or.html): Logical OR operation.
+- [xor](xor.html): Logical XOR operation.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

@@ -13,5 +13,5 @@ Calculate the geometric center point of a shape.
 - `shape`: The input shape.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
-- [Geometry](/guide/geometry.html)
+- [Vector Graphics](../guide/vector.html)
+- [Geometry](../guide/geometry.html)

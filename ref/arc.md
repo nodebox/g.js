@@ -17,4 +17,4 @@ Create an arc, pie or wedge shape.
 - `type`: The type of arc (options are `pie`, `chord` or `open`).
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

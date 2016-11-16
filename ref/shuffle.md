@@ -17,8 +17,8 @@ Same list with a different seed:
 - `seed`: The random variation. Each seed will give a different result.
 
 ## See Also
-- [pick](/ref/pick.html): Take random items from a list.
-- [shuffle](/ref/shuffle.html): Randomly reorganise items in the list.
+- [pick](pick.html): Take random items from a list.
+- [shuffle](shuffle.html): Randomly reorganise items in the list.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

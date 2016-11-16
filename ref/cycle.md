@@ -13,4 +13,4 @@ Repeat the items in the list until the new list is of a certain length.
 - `length`: The desired length of the list.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

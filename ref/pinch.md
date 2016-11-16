@@ -15,4 +15,4 @@ Apply pinch distortion to an image.
 - `zoom`: The amount of bulge (negative values down to -100) or pinch (positive values up to 100)
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

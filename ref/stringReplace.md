@@ -18,4 +18,4 @@ The `stringReplace` function replaces all occurrences of one substring with anot
 - `new`: The replacement string.
 
 ## Related Guides
-- [String Manipulation](/guide/string.html)
+- [String Manipulation](../guide/string.html)

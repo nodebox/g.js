@@ -22,4 +22,4 @@ Once it's an image, you can apply image effects:
 - `bounding`: The bounding rectangle of the area around the shape which should be copied into a bitmap. If left out, it uses the bounding box of the shape.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

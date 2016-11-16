@@ -10,11 +10,11 @@ Get the number of seconds since the start of the animation.
 
 This returns a floating-point number, with milliseconds behind the comma.
 
-The advantage over [frame](/ref/frame.html) is that `elapsedSeconds` returns even values regardless of how many frames per seconds your computer can display.
+The advantage over [frame](frame.html) is that `elapsedSeconds` returns even values regardless of how many frames per seconds your computer can display.
 
 ## See Also
-- [frame](/ref/frame.html): Get the current frame number.
-- [sineWave](/ref/sineWave.html): Smoothly interpolate between values.
+- [frame](frame.html): Get the current frame number.
+- [sineWave](sineWave.html): Smoothly interpolate between values.
 
 ## Related Guides
-- [Animation](/guide/animation.html)
+- [Animation](../guide/animation.html)

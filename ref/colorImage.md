@@ -14,4 +14,4 @@ Create an image filled with a solid color.
 - `color`: The color to fill the image with.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

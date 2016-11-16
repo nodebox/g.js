@@ -19,4 +19,4 @@ Create a four-sided polygon from points.
 - `point4`: The fourth point.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

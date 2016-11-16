@@ -20,4 +20,4 @@ Note that scale values are in fractions, so a scale of `0.2` is 20% of the origi
 - `origin`: The point around which to scale (default = 0,0).
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

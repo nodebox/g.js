@@ -29,4 +29,4 @@ Filter the input data by comparing the columns of each row with a value.
 - `<=`: The input is smaller or equal then the given value.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

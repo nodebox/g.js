@@ -9,7 +9,7 @@ Determine if a number is even.
     g.even(6);
 
 ## See Also
-- [odd](/ref/odd.html): Determine if a number is odd.
+- [odd](odd.html): Determine if a number is odd.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

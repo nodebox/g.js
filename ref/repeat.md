@@ -18,4 +18,4 @@ If `perItem` is `true`, repeat each item after itself:
 - `perItem`: If true, group all copies of item 1, then of item 2, etc. (default = `false`)
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)

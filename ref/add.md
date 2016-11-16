@@ -13,7 +13,7 @@ Add two numbers.
 - `b`: The second number.
 
 ## See Also
-- [subtract](/ref/subtract.html): Subtract two numbers.
+- [subtract](subtract.html): Subtract two numbers.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

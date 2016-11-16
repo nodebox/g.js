@@ -14,7 +14,7 @@ Calculate a point along the path.
 - `t`: The relative position on the shape [0 - 1].
 
 ## See Also
-- [pathLength](/ref/pathLength.html): Get the contour length of the path.
+- [pathLength](pathLength.html): Get the contour length of the path.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

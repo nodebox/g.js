@@ -6,7 +6,7 @@ categories: [ref]
 ---
 Get the keys from a table.
 
-Imagine you have this data file, using [import](/ref/import.html):
+Imagine you have this data file, using [import](import.html):
 
     g.import('people.csv');
 
@@ -16,5 +16,5 @@ The `keys` function will give you the column headers:
     g.keys(data);
 
 ## Related Guides
-- [Data Processing](/guide/data.html)
-- [List Operations](/guide/list.html)
+- [Data Processing](../guide/data.html)
+- [List Operations](../guide/list.html)

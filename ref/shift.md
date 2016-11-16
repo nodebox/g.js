@@ -21,5 +21,5 @@ If the shift value is larger than the number of items, it wraps around:
 - `amount`: The number of places to shift. Can also be negative to shift in the opposite direction.
 
 ## Related Guides
-- [List Operations](/guide/list.html)
+- [List Operations](../guide/list.html)
 

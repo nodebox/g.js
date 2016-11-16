@@ -15,4 +15,4 @@ Show the statistical distribution of color channel values inside an image.
 - `relative`: When true, divide the numbers in the list so that their sum total becomes 1, otherwise just return the number of occurrences.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

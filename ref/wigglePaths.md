@@ -19,8 +19,8 @@ Shift paths of a group by a random amount.
 - `seed`: The random variation.
 
 ## See Also
-- [wiggleContours](/ref/wiggleContours.html): Randomly shift the contours of the path.
-- [wigglePoints](/ref/wigglePoints.html): Randomly shift the points of the path.
+- [wiggleContours](wiggleContours.html): Randomly shift the contours of the path.
+- [wigglePoints](wigglePoints.html): Randomly shift the points of the path.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

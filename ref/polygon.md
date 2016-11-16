@@ -21,4 +21,4 @@ An octagon:
 - `align`: If `true`, aligns the polygon to the horizontal axis.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

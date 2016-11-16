@@ -19,5 +19,5 @@ Adjust hue, saturation and lightness of a shape.
 - `alpha`: The lightness adjustment (optional).
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
-- [Working with Color](/guide/color.html)
+- [Vector Graphics](../guide/vector.html)
+- [Working with Color](../guide/color.html)

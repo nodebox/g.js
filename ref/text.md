@@ -16,7 +16,7 @@ Create a text element.
 - `textAlign`: The horizontal alignment of the text (`left`, `right` or `center`).
 
 ## See Also
-- [textPath](/ref/textPath.html): Create a path out of text.
+- [textPath](textPath.html): Create a path out of text.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

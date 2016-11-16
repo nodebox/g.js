@@ -18,4 +18,4 @@ An optional parameter — `ignoreCase` — ignores differences in upper- and low
 - `ignoreCase`: If true, ignores differences between upper- and lowercase.
 
 ## Related Guides
-- [String Manipulation](/guide/string.html)
+- [String Manipulation](../guide/string.html)

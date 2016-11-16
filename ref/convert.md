@@ -24,4 +24,4 @@ For example, we could map the size of a human, in meters (so between 0 and 2.5),
 - `outMax`: The maximum output value.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

@@ -15,4 +15,4 @@ Create a quadratic curve with one off-curve point.
 - `distance`: The offset of the curve from a straight line.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

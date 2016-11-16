@@ -34,4 +34,4 @@ Using the 'xor' method:
 - `method`: The compounding method, one of 'union', 'difference', 'intersection' or 'xor'.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

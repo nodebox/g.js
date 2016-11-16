@@ -19,4 +19,4 @@ Check for equality:
     g.compare(42, 42.0, '==');
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

@@ -13,7 +13,7 @@ Check if the string ends with a given string.
 - `value`: The substring to look for.
 
 ## See Also
-- [startsWith](/ref/startsWith.html): Check if the string starts with a given string.
+- [startsWith](startsWith.html): Check if the string starts with a given string.
 
 ## Related Guides
-- [String Manipulation](/guide/string.html)
+- [String Manipulation](../guide/string.html)

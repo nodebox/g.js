@@ -14,8 +14,8 @@ The tangens of 1:
 - `v`: The input value.
 
 ## See Also
-- [sin](/ref/sin.html): Calculate the trigonometric sine of an angle.
-- [cos](/ref/cos.html): Calculate the trigonometric cosine of an angle.
+- [sin](sin.html): Calculate the trigonometric sine of an angle.
+- [cos](cos.html): Calculate the trigonometric cosine of an angle.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

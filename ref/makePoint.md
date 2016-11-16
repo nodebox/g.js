@@ -13,5 +13,5 @@ Create a point from X/Y coordinates.
 - `y`: The Y position of the point.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
-- [Geometry](/guide/geometry.html)
+- [Vector Graphics](../guide/vector.html)
+- [Geometry](../guide/geometry.html)

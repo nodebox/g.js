@@ -13,4 +13,4 @@ Apply an equalize filter to an image.
 - `image`: The input image.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

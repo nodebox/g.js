@@ -23,7 +23,7 @@ Sorted points look just the same as ordinary points. It's only when you *do* som
 - `position`: The center point used for `distance` or `angle` sorting.
 
 ## See Also
-- [sort](/ref/sort.html): sort items in a list.
+- [sort](sort.html): sort items in a list.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

@@ -12,7 +12,7 @@ Calculate the square root of a number.
 - `v`: The input value.
 
 ## See Also
-- [pow](/ref/pow.html): raise a number to the given power.
+- [pow](pow.html): raise a number to the given power.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

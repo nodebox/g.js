@@ -8,7 +8,7 @@ Output the character at a given index.
 
     var text = 'Hello';
     g.characterAt(text, 0);
-    
+
 Character indices start at zero, and wrap around:
 
     var text = 'Hello';
@@ -19,4 +19,4 @@ Character indices start at zero, and wrap around:
 - `index`: The index of the character.
 
 ## Related Guides
-- [String Manipulation](/guide/string.html)
+- [String Manipulation](../guide/string.html)

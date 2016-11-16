@@ -12,4 +12,4 @@ Create a list of characters from a string.
 - `s`: The input string.
 
 ## Related Guides
-- [Working with Strings](/guide/string.html)
+- [Working with Strings](../guide/string.html)

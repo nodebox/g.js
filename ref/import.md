@@ -19,5 +19,5 @@ Or SVG data:
 - `file`: The file to import.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
-- [Data Processing](/guide/data.html)
+- [Vector Graphics](../guide/vector.html)
+- [Data Processing](../guide/data.html)

@@ -15,5 +15,5 @@ Desaturate a shape.
 - `v`: The input shape.
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
-- [Color](/guide/color.html)
+- [Vector Graphics](../guide/vector.html)
+- [Color](../guide/color.html)

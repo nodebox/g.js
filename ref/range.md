@@ -19,7 +19,7 @@ If this function would return an infinite list, it returns an empty list.
     g.range(0, 100, -1);
 
 ## See Also
-- [sample](/ref/sample.html): Generate numbers within the given bounds.
+- [sample](sample.html): Generate numbers within the given bounds.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

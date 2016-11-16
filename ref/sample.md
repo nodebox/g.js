@@ -27,7 +27,7 @@ With `circular` set to `true`, the last value is not included:
 - `circular`: When `true`, don't include the last value.
 
 ## See Also
-- [range](/ref/range.html): Generate a list of numbers from a start to an end value.
+- [range](range.html): Generate a list of numbers from a start to an end value.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

@@ -12,8 +12,8 @@ Convert a string to lower case (small letters).
 - `s`: The input string.
 
 ## See Also
-- [toUpperCase](/ref/toUpperCase.html): Convert to upper case.
-- [toTitleCase](/ref/toTitleCase.html): Convert to title case.
+- [toUpperCase](toUpperCase.html): Convert to upper case.
+- [toTitleCase](toTitleCase.html): Convert to title case.
 
 ## Related Guides
-- [Working with Strings](/guide/string.html)
+- [Working with Strings](../guide/string.html)

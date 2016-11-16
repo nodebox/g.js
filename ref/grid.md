@@ -16,4 +16,4 @@ Create a grid of points.
 - `position`: The center point of the grid (default = 0, 0).
 
 ## Related Guides
-- [Vector Graphics](/guide/vector.html)
+- [Vector Graphics](../guide/vector.html)

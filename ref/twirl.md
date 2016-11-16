@@ -16,4 +16,4 @@ Apply twirl distortion to an image.
 - `angle`: The amount of rotation.
 
 ## Related Guides
-- [Imaging](/guide/image.html)
+- [Imaging](../guide/image.html)

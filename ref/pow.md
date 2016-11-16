@@ -13,4 +13,4 @@ Raise a number to the given power.
 - `exponent`: The exponent used to raise the `base`.
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)

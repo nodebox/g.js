@@ -1,10 +1,10 @@
 ---
 layout: ref
 title: negate
-description: Switch the sign of the input value. 
+description: Switch the sign of the input value.
 categories: [ref]
 ---
-Switch the sign of the input value. 
+Switch the sign of the input value.
 
 Positive values turn negative:
 
@@ -19,4 +19,4 @@ Zero stays zero:
     g.negate(0);
 
 ## Related Guides
-- [Math](/guide/math.html)
+- [Math](../guide/math.html)
