@@ -1,14 +1,15 @@
 ---
 layout: ref
 title: toCharacters
-tags: string
+description: Create a list of characters from a string.
+categories: [ref]
 ---
-Convert the string to a list of characters.
+Create a list of characters from a string.
 
-    grob.toCharacters('Hello');
+    g.toCharacters('Hello');
 
 ## Parameters
 - `s`: The input string.
 
-## See Also
-- [split](/ref/split.html): Split the string using a separator.
+## Related Guides
+- [Working with Strings](/guide/string.html)

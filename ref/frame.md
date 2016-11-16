@@ -1,13 +1,20 @@
 ---
 layout: ref
 title: frame
-tags: [animation, math]
+description: Get the current frame number.
+categories: [ref]
 ---
 Get the current frame number.
 
-    grob.frame()
+    g.frame();
 
-This number can be used to create expression-based animations. It is often used in conjunction with [sin](/ref/sin.html) to create wavy animations, altough [sineWave](/ref/sineWave.html) also works.
+This number can be used to create expression-based animations. It is often used in conjunction with `math.sin` to create wavy animations, altough `anim.wave` also works.
+
+This number is dependent on how fast your computer can display the scene. Use [elapsedSeconds](/ref/elapsedSeconds.html) if you want a value independent of your frame rate. 
 
 ## See also
-- [sineWave](/ref/sineWave.html): Animate a value based on a waveform.
+- [elapsedSeconds](/ref/elapsedSeconds.html): Get the number of seconds since the start of the animation.
+- [sineWave](/ref/sineWave.html): Smoothly interpolate between values.
+
+## Related Guides
+- [Animation](/guide/animation.html)

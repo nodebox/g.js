@@ -3,11 +3,12 @@ layout: guide
 title: Animation
 image: animation
 ---
-Working with time.
+Animation in g.js is based on expressions based on the current time or frame.
 
 ### Current time
 
 [frame](/ref/frame.html) — get the current frame number
+[elapsedTime](/ref/elapsedTime.html) — get the elapsed time in seconds
 
 ### Waveforms
 

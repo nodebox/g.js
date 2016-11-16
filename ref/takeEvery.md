@@ -1,20 +1,24 @@
 ---
 layout: ref
 title: takeEvery
-tags: list
+description: Take every `n`th element of a list.
+categories: [ref]
 ---
 Take every `n`th element of a list.
 
-    grob.takeEvery([1, 2, 3, 4, 5, 6, 7], 3)
+    g.takeEvery([1, 2, 3, 4, 5, 6, 7], 3);
 
 If `n` is 1, it will take all items:
 
-    grob.takeEvery([1, 2, 3, 4], 1)
+    g.takeEvery([1, 2, 3, 4], 1);
 
 If `n` is 2, it will take every other item:
 
-    grob.takeEvery([1, 2, 3, 4], 2)
+    g.takeEvery([1, 2, 3, 4], 2);
 
 ## Parameters
-- `l`: The list of items.
+- `l`: The input list.
 - `n`: The "gap" number between items.
+
+## Related Guides
+- [List Operations](/guide/list.html)

@@ -1,12 +1,19 @@
 ---
 layout: ref
-title: logical
-tags: math
+title: xor
+description: Perform the logical XOR operation.
+categories: [ref]
 ---
-Perform a logical XOR operation.
+Perform the logical XOR operation.
 
-    grob.xor(true, false);
+The XOR operation returns `true` if one, and only one, of its inputs is `true`:
+
+    g.and(true, false);
 
 ## See Also
-- [and](/ref/and.html): Logical AND.
-- [or](/ref/or.html): Logical OR.
+- [and](/ref/and.html): Local AND operation.
+- [or](/ref/or.html): Logical OR operation.
+- [not](/ref/not.html): Logical NOT operation.
+
+## Related Guides
+- [Math](/guide/math.html)

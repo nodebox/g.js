@@ -1,18 +1,20 @@
 ---
 layout: ref
 title: lookup
-tags: data
+description: Look up a value in a table or object.
+categories: [ref]
 ---
 Look up a value in a table or object.
 
-    var person = {name: 'Bob', age: 36};
-    grob.lookup(person, 'age');
+Imagine you have this data, using [import](/ref/import.html):
 
-Lookups can be nested:
+    g.import('people.csv');
 
-    var person = {name: 'Bob', address: {street: '5th Ave'}};
-    grob.lookup(person, 'address.street');
+Using `lookup` we can extract the value of one column:
 
-## Parameters
-- `data`: The input data.
-- `key`: The lookup key.
+    var data = g.import('people.csv');
+    var row = data[0];
+    g.lookup(row, 'name');
+
+## Related Guides
+- [Data Processing](/guide/data.html)

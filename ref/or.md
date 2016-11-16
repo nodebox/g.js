@@ -1,16 +1,19 @@
 ---
 layout: ref
-title: logical
-tags: math
+title: or
+description: Perform the logical OR operation.
+categories: [ref]
 ---
-Perform a logical OR operation.
+Perform the logical OR operation.
 
-    grob.or(true, false);
+The OR operation returns `true` if one of the inputs is `true`:
 
-The function can take any number of arguments:
-
-    grob.or(true, true, true, false, true);
+    g.or(false, true);
 
 ## See Also
-- [and](/ref/and.html): Logical AND.
-- [xor](/ref/xor.html): Logical XOR.
+- [and](/ref/and.html): Local AND operation.
+- [xor](/ref/xor.html): Logical XOR operation.
+- [not](/ref/not.html): Logical NOT operation.
+
+## Related Guides
+- [Math](/guide/math.html)

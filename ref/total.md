@@ -1,11 +1,18 @@
 ---
 layout: ref
-title: sum
-tags: math
+title: total
+description: Calculate the sum of a list of numbers.
+categories: [ref]
 ---
-Calculate the total of a list of numbers.
+Calculate the sum of a list of numbers.
 
-    grob.total([2, 5, 10, 15]);
+    g.total([2, 5, 10, 15]);
 
 ## See Also
-- [average](/ref/average.html): calculate the average of a list of numbers.
+- [min](/ref/min.html): Take the smallest value from a list.
+- [max](/ref/max.html): Take the largest value from a list.
+- [average](/ref/average.html): Calculate the average of a list.
+
+## Related Guides
+- [Math](/guide/math.html)
+- [Data Processing](/guide/data.html)

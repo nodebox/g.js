@@ -1,11 +1,15 @@
 ---
 layout: ref
 title: mod
-tags: math
+description: Calculate the modulo by dividing two numbers and keeping the remainder.
+categories: [ref]
 ---
 Calculate the modulo by dividing two numbers and keeping the remainder.
 
-    grob.mod(5, 3);
+    g.mod(5, 3);
 
 ## See Also
-- [divide](/ref/divide.html): Divide two numbers.
+- [divide](g.divide): Divide two numbers
+
+## Related Guides
+- [Math](/guide/math.html)

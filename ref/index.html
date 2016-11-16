@@ -2,14 +2,17 @@
 layout: base
 title: Reference
 ---
-<h1>Reference Index</h1>
+<h1>Function Reference</h1>
 <p><em>To see an overview per category, look at the <a href="/guide/">guides</a> page.</em></p>
 <div class="ref-list">
 {% for page in site.pages %}
   {% if page.categories contains 'ref' %}
     <a class="function" href="{{ page.url }}">
-      <img src="/img/functions/{{page.title}}.svg" alt="{{ page.title }} icon">
-      <span>{{page.title}}</span>
+      <img src="/img/functions/{{page.title}}.svg" alt="">
+      <label>
+        <span>{{ page.title }}</span>
+        <small>{{ page.description }}</small>
+      </label>
     </a>
  {% endif %}
 {% endfor %}

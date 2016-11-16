@@ -1,12 +1,17 @@
 ---
 layout: ref
 title: makePoint
-tags: [point, vector]
+description: Create a point from X/Y coordinates.
+categories: [ref]
 ---
 Create a point from X/Y coordinates.
 
-    grob.makePoint(100, 50);
+    g.makePoint(100, 50);
 
 ## Parameters
 - `x`: The X position of the point.
 - `y`: The Y position of the point.
+
+## Related Guides
+- [Vector Graphics](/guide/vector.html)
+- [Geometry](/guide/geometry.html)

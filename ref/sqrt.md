@@ -1,8 +1,18 @@
 ---
 layout: ref
 title: sqrt
-tags: math
+description: Calculate the square root of a number.
+categories: [ref]
 ---
 Calculate the square root of a number.
 
-    grob.sqrt(121);
+    g.sqrt(121);
+
+## Parameters
+- `v`: The input value.
+
+## See Also
+- [pow](/ref/pow.html): raise a number to the given power.
+
+## Related Guides
+- [Math](/guide/math.html)

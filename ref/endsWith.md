@@ -1,8 +1,19 @@
 ---
 layout: ref
 title: endsWith
-tags: string
+description: Check if the string ends with a given string.
+categories: [ref]
 ---
-Determine if the string ends with a given string.
+Check if the string ends with a given string.
 
-    grob.endsWith('Hello', 'lo');
+    g.endsWith('Hello', 'lo');
+
+## Parameters
+- `s`: The input string.
+- `value`: The substring to look for.
+
+## See Also
+- [startsWith](/ref/startsWith.html): Check if the string starts with a given string.
+
+## Related Guides
+- [String Manipulation](/guide/string.html)

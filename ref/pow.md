@@ -1,12 +1,16 @@
 ---
 layout: ref
 title: pow
-tags: math
+description: Raise a number to the given power.
+categories: [ref]
 ---
-Calculate the power of a number.
+Raise a number to the given power.
 
-    grob.pow(2, 3);
+    g.pow(2, 3);
 
 ## Parameters
-- `base`: The base number.
+- `base`: The base number
 - `exponent`: The exponent used to raise the `base`.
+
+## Related Guides
+- [Math](/guide/math.html)

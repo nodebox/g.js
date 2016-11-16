@@ -1,16 +1,25 @@
 ---
 layout: ref
 title: sort
-tags: list
+description: Sort the items in the list.
+categories: [ref]
 ---
-Sort elements in the list.
+Sort the items in the list.
 
-    grob.sort([5, 3, 6, 2, 3]);
+    g.sort([8, 4, 2, 1]);
 
-Optionally, give a key to sort by that key:
+If you have a table (e.g. from [import](/ref/import).html) you can give an additional key to sort by:
 
-    grob.sort([{name: 'Bob', age: 26}, {name: 'Alice', age: 34}], 'age');
+    var table = g.import('people.csv');
+    g.sort(table, 'age');
 
 ## Parameters
-- `l`: The list to sort.
-- `key`: (Optional) the lookup key. This can also be a function, which will be invoked with one element.
+- `l`: The input list.
+- `key`: The sorting key (optional).
+
+## See Also
+- [shapeShort](/ref/shapeSort.html): Sort visual shapes.
+
+## Related Guides
+- [List Operations](/guide/list.html)
+- [Data Processing](/guide/data.html)

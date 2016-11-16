@@ -1,17 +1,24 @@
 ---
 layout: ref
 title: flip
-tags: [image, vector]
+description: Flip a shape or image.
+categories: [ref]
 ---
 Flip a shape or image.
 
-    var i = grob.import('butterfly.jpg');
+    var e = g.polygon({x: 0, y: 0}, 50, 3);
+    g.flip(e, 'vertical');
+---
+    var i = g.import('butterfly.jpg');
     [i,
-     grob.flip(i, 'horizontal'),
-     grob.flip(i, 'vertical'),
-     grob.flip(i, 'both')]
-
+     g.flip(i, 'horizontal'),
+     g.flip(i, 'vertical'),
+     g.flip(i, 'both')];
 
 ## Parameters
 - `image`: The input image.
-- `flip`: How the image should be flipped: `horizontal`, `vertical` or `both`.
+- `flip`: How the image should be flipped: 'horizontal', 'vertical' or 'both'.
+
+## Related Guides
+- [Vector Graphics](/guide/vector.html)
+- [Imaging](/guide/image.html)

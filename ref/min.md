@@ -1,15 +1,18 @@
 ---
 layout: ref
 title: min
-tags: math
+description: Take the smallest value from a list of numbers.
+categories: [ref]
 ---
 Take the smallest value from a list of numbers.
 
-    grob.min([1, 4, -7, 3, 2]);
-
-You can also specify the list as separate arguments:
-
-    grob.min(1, 4, -7, 3, 2);
+    g.min([1, 4, -7, 3, 2]);
 
 ## See Also
-- [max](/ref/max.html): Take the largest value from a list of numbers.
+- [max](/ref/max.html): Take the largest value from a list.
+- [average](/ref/average.html): Calculate the average of a list.
+- [total](/ref/total.html): Calculate the sum of all values in the list.
+
+## Related Guides
+- [Math](/guide/math.html)
+- [Data Processing](/guide/data.html)

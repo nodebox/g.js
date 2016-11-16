@@ -1,13 +1,18 @@
 ---
 layout: ref
 title: ticks
-tags: data
+description: Generate tick values for use in axes.
+categories: [ref]
 ---
-Generate tick values for use in drawing axes.
+Generate tick values for use in axes.
 
-    grob.ticks(0, 1000, 5);
+    g.ticks(0, 100, 10);
+
+Note that the number of ticks is a suggestion, not an exact value. This allows the algorithm to provide better-looking tick values:
+
+    g.ticks(0, 5, 1);
 
 ## Parameters
-- `min`: The minimum value of the axis.
-- `max`: The maximum value of the axis.
-- `n`: The number of ticks. This number is used as a suggestion; the actual value can be smaller.
+- `min`: The minimum value for the axis.
+- `max`: The maximum value for the axis.
+- `n`: The number of ticks. Note that this number is a suggestion, not exact.

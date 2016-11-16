@@ -1,13 +1,18 @@
 ---
 layout: ref
 title: coordinates
-tags: geometry
+description: Calculate a new point based on the angle and distance from an original point.
+categories: [ref]
 ---
 Calculate a new point based on the angle and distance from an original point.
 
-    grob.coordinates({x: 0, y: 0}, 120, 0);
+    g.coordinates({x: 0, y: 0}, 0, 120)
 
 ## Parameters
 - `position`: The position of the starting point.
-- `distance`: The distance from the starting point.
 - `angle`: The angle, in degrees, at which to project the output point.
+- `distance`: The distance from the starting point.
+
+## Related Guides
+- [Math](/guide/math.html)
+- [Geometry](/guide/geometry.html)

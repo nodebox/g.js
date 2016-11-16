@@ -1,15 +1,30 @@
 ---
 layout: ref
 title: fitTo
-tags: [image, vector]
+description: Fit a shape to another shape.
+categories: [ref]
 ---
 Fit a shape to another shape.
 
-    var e = grob.ellipse({x: 0, y: 0}, 100, 100);
-    var r = grob.rect({x: 0, y: 0}, 200, 150);
-    grob.fitTo(e, r);
+    var e = g.ellipse({x: 0, y: 0}, 5, 5);
+    var r = g.rect({x: 0, y: 0}, 130, 130);
+    g.fitTo(e, r);
+
+## Stretch
+
+If `stretch` is `true`, the proportions of the input shape are discarded:
+
+    var e = g.ellipse({x: 0, y: 0}, 100, 100);
+    var r = g.rect({x: 0, y: 0}, 50, 130);
+    g.fitTo(e, r, true);
 
 ## Parameters
 - `shape`: The input shape.
-- `bounding`: The bounding shape to take position, width and height from.
-- `stretch`: If `true`, will squash or stretch the shape to fit the target size.
+- `bounding`: The bounding shape.
+- `stretch`: If `true`, stretches the shape to fit in the bounding box.
+
+## See Also
+- [fit](/ref/fit.html): Fit a shape within bounds.
+
+## Related Guides
+- [Vector Graphics](/guide/vector.html)

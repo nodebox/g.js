@@ -1,16 +1,22 @@
 ---
 layout: ref
 title: text
-tags: vector
+description: Create a text element.
+categories: [ref]
 ---
 Create a text element.
 
-    grob.text('Hello, world!', {x: 0, y: 0}, 'sans-serif', 20, 'center', 'indigo');
+    g.text('Hello, world!', {x: 0, y: 0}, 'sans-serif', 20, 'center');
 
 ## Parameters
-- `text`: The text value.
+- `text`: Text to be displayed.be visualised as text.
 - `position`: The position of the text.
 - `fontFamily`: The font of the text.
 - `fontSize`: The size of the text.
 - `textAlign`: The horizontal alignment of the text (`left`, `right` or `center`).
-- `fill`: The fill color of the text. See [colorize](/ref/colorize.html) for more information about colors.
+
+## See Also
+- [textPath](/ref/textPath.html): Create a path out of text.
+
+## Related Guides
+- [Vector Graphics](/guide/vector.html)

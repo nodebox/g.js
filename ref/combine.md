@@ -1,11 +1,15 @@
 ---
 layout: ref
 title: combine
-tags: list
+description: Combine multiple lists into one.
+categories: [ref]
 ---
 Combine multiple lists into one.
 
-    grob.combine([1, 2, 3], [4, 5], [6])
+    g.combine([1, 2, 3], [4, 5], [6])
 
 ## Parameters
 - `lists`: Any number of lists.
+
+## Related Guides
+- [List Operations](/guide/list.html)

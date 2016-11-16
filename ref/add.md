@@ -1,25 +1,19 @@
 ---
 layout: ref
 title: add
-tags: math
+description: Add two numbers.
+categories: [ref]
 ---
 Add two numbers.
 
-    grob.add(5, 3);
-
-The function takes any number of arguments:
-
-    grob.add(1, 2, 3, 4);
-
-No arguments returns the "addition identity" -- the value which has no effect in addition:
-
-    grob.add();
-
+    g.add(5, 3);
 
 ## Parameters
 - `a`: The first number.
 - `b`: The second number.
-- `...`
 
 ## See Also
-- (subtract)[/ref/subtract.html]: Subtract two numbers.
+- [subtract](/ref/subtract.html): Subtract two numbers.
+
+## Related Guides
+- [Math](/guide/math.html)

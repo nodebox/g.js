@@ -1,12 +1,13 @@
 ---
 layout: ref
 title: colorize
-tags: [color, vector]
+description: Change the color of a shape.
+categories: [ref]
 ---
 Change the color of a shape.
 
-    var e = grob.ellipse({x: 0, y: 0}, 100, 100);
-    grob.colorize(e, 'indigo', 'orange', 2);
+    var e = g.ellipse({x: 0, y: 0}, 100, 100);
+    g.colorize(e, 'indigo', 'orange', 5);
 
 ## Parameters
 
@@ -165,6 +166,10 @@ Here is the list of all named colors:
 * 'dimgray'              : [0.41, 0.41, 0.41],
 * 'dimgrey'              : [0.41, 0.41, 0.41],
 * 'black'                : [0.00, 0.00, 0.00],
-* 'cyan'                 : [0.00, 0.68, 0.94],
+* 'cyan'                 : [0.00, 0.68, 0.94], 
 * 'transparent'          : [0.00, 0.00, 0.00, 0.00],
 * 'bark'                 : [0.25, 0.19, 0.13]
+
+## Related Guides
+- [Vector Graphics](/guide/vector.html)
+- [Working with Color](/guide/color.html)

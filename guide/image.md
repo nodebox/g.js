@@ -3,7 +3,7 @@ layout: guide
 title: Imaging
 image: image
 ---
-GROB has support for importing, combining and filtering images.
+g.js has support for importing, combining and filtering images.
 
 ### Generating images
 

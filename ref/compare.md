@@ -1,23 +1,22 @@
 ---
 layout: ref
 title: compare
-tags: math
+description: Return true or false by comparing two values using a comparison operation.
+categories: [ref]
 ---
-Compare two values and return `true` or `false`.
+Return true or false by comparing two values using a comparison operation.
 
 Check if the first number is bigger:
 
-    grob.compare(10, 20, '>');
+    g.compare(10, 20, '>');
 
 Check if the first number is smaller:
 
-    grob.compare(10, 20, '<');
+    g.compare(10, 20, '<');
 
 Check for equality:
 
-    grob.compare(42, 42.0, '==');
+    g.compare(42, 42.0, '==');
 
-## Parameters
-- `x`: The first number.
-- `y`: The second number.
-- `comparator`: One of `>`, `<`, `>=`, `<=`,  `=` or `!=`.
+## Related Guides
+- [Math](/guide/math.html)

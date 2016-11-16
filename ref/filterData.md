@@ -1,7 +1,8 @@
 ---
 layout: ref
 title: filterData
-tags: data
+description: Filter the input data by comparing the columns of each row with a value.
+categories: [ref]
 ---
 Filter the input data by comparing the columns of each row with a value.
 
@@ -10,7 +11,8 @@ Filter the input data by comparing the columns of each row with a value.
         {name: 'Rose', age: 24},
         {name: 'Joe', age: 35}
     ];
-    grob.filterData(people, 'age', '>', 21)
+    g.filterData(people, 'age', '>', 21)
+
 
 ## Parameters
 - `data`: The input data.
@@ -25,3 +27,6 @@ Filter the input data by comparing the columns of each row with a value.
 - `>=`: The input is larger or equal than the given value.
 - `<`: The input is smaller than the given value.
 - `<=`: The input is smaller or equal then the given value.
+
+## Related Guides
+- [List Operations](/guide/list.html)

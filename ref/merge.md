@@ -1,13 +1,14 @@
 ---
 layout: ref
 title: merge
-tags: vector
+description: Combine different shapes into one.
+categories: [ref]
 ---
 Combine different shapes into one.
 
-    var r = grob.rect({x: -75, y: 0}, 100, 100);
-    var e = grob.ellipse({x: 75, y: 0}, 100, 100);
-    grob.merge(r, e);
+    var r = g.rect({x: -75, y: 0}, 100, 100);
+    var e = g.ellipse({x: 75, y: 0}, 100, 100);
+    g.merge(r, e);
 
 ## Parameters
 
@@ -18,4 +19,6 @@ Combine different shapes into one.
 
 You don't have to use all of the parameters, so you can use this function to combine just 3 shapes as well.
 
-Merge only works on shapes; if you'd like to combine multiple colors, numbers or lists use `g.combine`.
+
+## Related Guides
+- [Vector Graphics](/guide/vector.html)

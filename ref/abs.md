@@ -1,8 +1,15 @@
 ---
 layout: ref
 title: abs
-tags: math
+description: Convert any number to a positive value (the absolute value).
+categories: [ref]
 ---
 Convert any number to a positive value (the absolute value).
 
-    grob.abs(-42);
+    g.abs(-42);
+
+## Parameters
+- `v`: The input number.
+
+## Related Guides
+- [Math](/guide/math.html)

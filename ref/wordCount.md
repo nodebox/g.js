@@ -1,11 +1,15 @@
 ---
 layout: ref
 title: wordCount
-tags: string
+description: Count the number of words in a string.
+categories: [ref]
 ---
 Count the number of words in a string.
 
-    grob.wordCount('The quick brown fox.');
+    g.wordCount('Hello World');
 
-## Parameters
-- `s`: The input string.
+## See Also
+- [stringLength](/ref/stringLength.html): Count the number of characters in a string.
+
+## Related Guides
+- [Working with Strings](/guide/string.html)

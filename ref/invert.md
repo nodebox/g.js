@@ -1,12 +1,19 @@
 ---
 layout: ref
 title: invert
-tags: image
+description: Invert a color or the colors of a shape.
+categories: [ref]
 ---
-Invert the colors of the image.
+Invert a color or the colors of a shape.
 
-    var i = grob.import('leaf.jpg');
-    grob.invert(i);
+    var p = g.rect(0, 0, 100, 100);
+    p = g.colorize(p, 'green', 'yellow', 5);
+    g.invert(p);
 
 ## Parameters
-- `image`: The input image.
+- `v`: The input color or shape.
+
+
+## Related Guides
+- [Vector Graphics](/guide/vector.html)
+- [Working with Color](/guide/color.html)

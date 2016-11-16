@@ -1,13 +1,15 @@
 ---
 layout: ref
 title: reverse
-tags: list
+description: Reverse the items in the list. The first item becomes the last and vice versa.
+categories: [ref]
 ---
-Reverse the order of the items in the list.
+Reverse the items in the list. The first item becomes the last and vice versa.
 
-The first item will become the last item and vice versa.
-
-    grob.reverse([1, 2, 3])
+    g.reverse([1, 2, 3])
 
 ## Parameters
 - `l`: The list of items.
+
+## Related Guides
+- [List Operations](/guide/list.html)

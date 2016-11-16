@@ -1,16 +1,22 @@
 ---
 layout: ref
 title: bounds
-tags: geometry
+description: Get the bounds of a shape.
+categories: [ref]
 ---
-Call for the bounds of a shape.
+Get the bounds of a shape.
+    
+    g.bounds(g.ellipse({x:0, y:0}, 50, 50));
 
-    grob.bounds(grob.ellipse({x:0, y:0}, 50, 50))
+You can use [lookup](/ref/lookup.html) to retrieve a specific component, e.g. the `width`:
 
-This returns a `Rect` object containing `x`, `y`, `width` and `height`. You can retrieve width / height using [lookup](/ref/lookup.html).
+    var b = g.bounds(g.ellipse({x:0, y:0}, 50, 50));
+    g.lookup(b, 'width');
+
 
 ## Parameters
 - `shape`: The input shape.
 
-## See Also
-- [centroid](/ref/centroid.html): Get the geometric center of a shape.
+## Related Guides
+- [Vector Graphics](/guide/vector.html)
+- [Geometry](/guide/geometry.html)

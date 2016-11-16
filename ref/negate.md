@@ -1,21 +1,22 @@
 ---
 layout: ref
 title: negate
-tags: math
+description: Switch the sign of the input value. 
+categories: [ref]
 ---
-Switch the sign of the input value.
+Switch the sign of the input value. 
 
 Positive values turn negative:
 
-    grob.negate(42);
+    g.negate(42);
 
 And negative values turn positive:
 
-    grob.negate(-33);
+    g.negate(-33);
 
 Zero stays zero:
 
-    grob.negate(0);
+    g.negate(0);
 
-## Parameters
-- `x`: The number.
+## Related Guides
+- [Math](/guide/math.html)

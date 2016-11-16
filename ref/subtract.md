@@ -1,21 +1,19 @@
 ---
 layout: ref
 title: subtract
-tags: math
+description: Subtract two numbers.
+categories: [ref]
 ---
-Subtract numbers.
+Subtract two numbers.
 
-    grob.subtract(5, 3);
-
-The function takes any number of arguments:
-
-    grob.subtract(5, 1, 1, 1);
-
+    g.subtract(5, 3);
 
 ## Parameters
 - `a`: The first number.
 - `b`: The second number.
-- `...`
 
 ## See Also
 - [add](/ref/add.html): Add two numbers.
+
+## Related Guides
+- [Math](/guide/math.html)

@@ -1,16 +1,23 @@
 ---
 layout: ref
 title: integer
-tags: math
+description: Create an integer value that can be used as a variable.
+categories: [ref]
 ---
 Create an integer value that can be used as a variable.
 
-    grob.integer(1);
+    g.integer(1);
 
-Using floating point numbers truncates the number:
+Using float point numbers truncates the number:
 
-    grob.integer(3.9);
+    g.integer(3.9);
 
 It works the same way with negative numbers:
 
-    grob.integer(-4.5);
+    g.integer(-4.5);
+
+## Parameters
+- `v`: The input number.
+
+## Related Guides
+- [Math](/guide/math.html)

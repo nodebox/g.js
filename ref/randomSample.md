@@ -1,27 +1,29 @@
 ---
 layout: ref
 title: randomSample
-tags: list
+description: Take a random sample from a list.
+categories: [ref]
 ---
-Take a random sample of the list.
+Take a random sample from a list.
 
-    grob.randomSample([1, 2, 3, 4, 5, 6], 3, 48)
+    g.randomSample([1, 2, 3, 4, 5, 6], 3, 48);
 
 With a different seed:
 
-    grob.pick([1, 2, 3, 4, 5, 6], 3, 99)
+    g.randomSample([1, 2, 3, 4, 5, 6], 3, 11);
 
-Without a size, give a random permutation of the list (like [shuffle](ref/shuffle.html):
+Unlike [pick](/ref/pick.html), `randomSample` will never return more than the original amount:
 
-    grob.randomSample([1, 2, 3, 4, 5, 6])
-
-Unlike [pick](/ref/pick.html), randomSample will never return more items than the size of the list.
+    g.randomSample([1, 2, 3], 10, 44);
 
 ## Parameters
-- `l`: The list of items.
-- `n`: The number of items to pick. If unspecified, randomSample works like [shuffle](/ref/shuffle.html).
-- `seed`: The random variation.  Each seed will give a different result.
+- `l`: The input list.
+- `amount`: The amount of items to take.
+- `seed`: The random variation.
 
 ## See Also
+- [pick](/ref/pick.html): Take random items from a list.
 - [shuffle](/ref/shuffle.html): Randomly reorganise items in the list.
-- [pick](/ref/pick.html): Randomly select items from the list.
+
+## Related Guides
+- [List Operations](/guide/list.html)

@@ -2,11 +2,8 @@
 layout: guide
 title: Quick Start
 image: quick-start
-id: docs
 ---
-Let's write a quick demo in g.js! By the end of this, you'll be able to use the library to generate custom typefaces.
-
-We'll be using some [ECMAScript 6](http://es6-features.org/) features. If you're following along with a recent browser, these should just work.
+Let's write a quick demo in g.js! By the end of this, you'll be able to use the library and now where to find more help.
 
 ## Getting the Library
 
@@ -99,6 +96,5 @@ g.js is just a JavaScript library. Apart from the `g` global, it doesn't add or 
 
 We have a number of [guides](/) on using g.js, for example for using it for [vector graphics](/guide/vector.html), [images](/guide/image.html), or general operations like [working with color](/guide/color.html).
 
-
-
+There's also a [function reference](/ref/) containing all of the functions in g.js.
 

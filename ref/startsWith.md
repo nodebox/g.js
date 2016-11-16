@@ -1,12 +1,19 @@
 ---
 layout: ref
 title: startsWith
-tags: string
+description: Check if the string starts with a given string.
+categories: [ref]
 ---
-Determine if the string starts with a given string.
+Check if the string starts with a given string.
 
-    grob.startsWith('hello', 'h');
+    g.startsWith('Hello', 'Hell');
 
 ## Parameters
 - `s`: The input string.
-- `sub`: The substring to look for.
+- `value`: The substring to look for.
+
+## See Also
+- [endsWith](/ref/endsWith.html): Check if the string ends with a given string.
+
+## Related Guides
+- [String Manipulation](/guide/string.html)

@@ -1,7 +1,8 @@
 ---
 layout: ref
-title: noise
-tags: math
+title: perlinNoise
+description: Compute Perlin noise.
+categories: [ref]
 ---
 Compute Perlin noise.
 
@@ -9,13 +10,11 @@ Compute Perlin noise.
 
 The input to the Perlin noise function is a three-dimensional point that "travels" across the noise landscape. Here we are in the center:
 
-    grob.noise(0, 0, 0);
+    g.perlinNoise(0, 0, 0);
 
 A bit further on the X axis the value increases slightly:
 
-    grob.noise(0.1, 0, 0);
+    g.perlinNoise(0.1, 0, 0);
 
-## Parameters
-- `x`: The X value.
-- `y`: The Y value (default = `0.0`).
-- `z`: The Z value (default = `0.0`).
+## Related Guides
+- [Math](/guide/math.html)

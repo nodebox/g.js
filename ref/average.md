@@ -1,11 +1,18 @@
 ---
 layout: ref
 title: average
-tags: math
+description: Calculate the average of a list of numbers.
+categories: [ref]
 ---
 Calculate the average of a list of numbers.
 
-    grob.average([10, 15, 20, 25]);
+    g.average([10, 15, 20, 25]);
 
 ## See Also
-- [total](/ref/total.html): Calculate the sum of a list of numbers.
+- [min](/ref/min.html): Take the smallest value from a list.
+- [max](/ref/max.html): Take the largest value from a list.
+- [total](/ref/total.html): Calculate the sum of all values in the list.
+
+## Related Guides
+- [Math](/guide/math.html)
+- [Data Processing](/guide/data.html)

@@ -1,13 +1,23 @@
 ---
 layout: ref
 title: import
-tags: [data, image, vector]
+description: Import data (CSV, SVG) from a file.
+categories: [ref]
 ---
-Import data from a file from a range of different formats.
+Import data (CSV, SVG) from a file.
 
-    grob.import('leaf.jpg');
+Use `import` to import CSV data:
 
-Example images photo courtesy http://photos-public-domain.com
+    g.import('people.csv');
+
+Or SVG data:
+
+    var logo = g.import('logo.svg');
+    g.fit(logo, {x:0, y:0}, 130, 130);
 
 ## Parameters
-- `url`: The URL to import.
+- `file`: The file to import.
+
+## Related Guides
+- [Vector Graphics](/guide/vector.html)
+- [Data Processing](/guide/data.html)

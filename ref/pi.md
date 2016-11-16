@@ -1,10 +1,12 @@
 ---
 layout: ref
 title: pi
-tags: XXX
+description: The value of the mathematical constant pi.
+categories: [ref]
 ---
-The value of the mathematical constant π.
+The value of the mathematical constant pi.
 
-    grob.pi();
+    g.pi();
 
-In JavaScript, you can also use the `Math.PI` constant.
+## Related Guides
+- [Math](/guide/math.html)
