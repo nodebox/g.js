@@ -6,3 +6,4 @@ Thumbs.db
 *.iml
 .idea
 /_site
+.jekyll-metadata
