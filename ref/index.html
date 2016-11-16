@@ -7,7 +7,7 @@ title: Reference
 <div class="ref-list">
 {% for page in site.pages %}
   {% if page.categories contains 'ref' %}
-    <a class="function" href="{{ page.url }}">
+    <a class="function" href="{{ site.baseurl }}ref/{{ page.title }}.html">
       <img src="{{ site.baseurl }}img/functions/{{page.title}}.svg" alt="">
       <label>
         <span>{{ page.title }}</span>
