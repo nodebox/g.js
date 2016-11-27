@@ -746,8 +746,14 @@ exports.interpret = function (svgNode) {
 };
 
 exports.parseString = function (s) {
-    var doc = new xmldom.DOMParser().parseFromString(s);
+    var doc = new xmldom.DOMParser({errorHandler:
+        function (key, msg) {
+            throw new Error('Could not parse string \"' + String(s) + '\": ' + msg);
+        }
+    }).parseFromString(s);
     if (doc) {
         return exports.interpret(doc.documentElement);
+    } else {
+        return null;
     }
 };
