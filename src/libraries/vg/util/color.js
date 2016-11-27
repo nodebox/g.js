@@ -183,12 +183,13 @@ color.rgba2hex = function (r, g, b, a) {
 
 // Converts the given hexadecimal color string to R,G,B (between 0.0-1.0).
 color.hex2rgb = function (hex) {
-    var arr, r, g, b;
+    var r, g, b;
     hex = hex.replace(/^#/, '');
-    if (hex.length < 6) { // hex += hex[-1] * (6-hex.length);
-        arr = [];
-        arr.length = 6 - hex.length;
-        hex += arr.join(hex.substr(hex.length - 1));
+    if ((hex.length !== 3 && hex.length !== 6) || !(/^[0-9a-fA-F]*$/.test(hex))) {
+        throw new Error('Invalid hex value: #' + hex);
+    }
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
     }
     r = parseInt(hex.substr(0, 2), 16) / 255;
     g = parseInt(hex.substr(2, 2), 16) / 255;
