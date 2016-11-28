@@ -13,7 +13,7 @@ Working with text
 
 ### Querying / lookup
 
-[length](../ref/length.html) — Give the length of the string
+[stringLength](../ref/stringLength.html) — Give the length of the string
 
 [wordCount](../ref/wordCount.html) — Count the number of words in the string
 
@@ -35,14 +35,12 @@ Working with text
 
 [toCharacters](../ref/toCharacters.html) — Split the string into individual characters
 
-[words](../ref/words.html) — Split the string into words
-
 ### Manipulating
 
-[replace](../ref/replace.html) — Replace all occurrences of the text
+[stringReplace](../ref/stringReplace.html) — Replace all occurrences of the text
 
 [substring](../ref/substring.html) — Take a portion of the string
 
 [trim](../ref/trim.html) — Remove spaces from the beginning / end
 
-[changeCase](../ref/changeCase.html) — Convert to upper- or lowercase
+[toLowerCase](../ref/toLowerCase.html) / [toUpperCase](../ref/toUpperCase.html) / [toTitleCase](../ref/toTitleCase.html) — Convert strings to upper- or lowercase
