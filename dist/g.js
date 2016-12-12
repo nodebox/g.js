@@ -960,67 +960,7 @@
 }());
 
 }).call(this,require('_process'))
-},{"_process":2}],2:[function(require,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-var queue = [];
-var draining = false;
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    draining = true;
-    var currentQueue;
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        var i = -1;
-        while (++i < len) {
-            currentQueue[i]();
-        }
-        len = queue.length;
-    }
-    draining = false;
-}
-process.nextTick = function (fun) {
-    queue.push(fun);
-    if (!draining) {
-        setTimeout(drainQueue, 0);
-    }
-};
-
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],3:[function(require,module,exports){
+},{"_process":4}],2:[function(require,module,exports){
 // rev 452
 /********************************************************************************
 *                                                                              *
@@ -8007,7 +7947,7 @@ ClipperLib.JS.PolyTreeToExPolygons = function (polytree)
 
 
 module.exports = ClipperLib;
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -20362,6 +20302,66 @@ module.exports = ClipperLib;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],4:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+var queue = [];
+var draining = false;
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    draining = true;
+    var currentQueue;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        var i = -1;
+        while (++i < len) {
+            currentQueue[i]();
+        }
+        len = queue.length;
+    }
+    draining = false;
+}
+process.nextTick = function (fun) {
+    queue.push(fun);
+    if (!draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
+
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+// TODO(shtylman)
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
 },{}],5:[function(require,module,exports){
 /*
 
@@ -20691,7 +20691,7 @@ function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
 }
-DOMParser.prototype.parseFromString = function(source,mimeType){	
+DOMParser.prototype.parseFromString = function(source,mimeType){
 	var options = this.options;
 	var sax =  new XMLReader();
 	var domBuilder = options.domBuilder || new DOMHandler();//contentHandler and LexicalHandler
@@ -20710,12 +20710,13 @@ DOMParser.prototype.parseFromString = function(source,mimeType){
 		entityMap.copy = '\xa9';
 		defaultNSMap['']= 'http://www.w3.org/1999/xhtml';
 	}
+	defaultNSMap.xml = defaultNSMap.xml || 'http://www.w3.org/XML/1998/namespace';
 	if(source){
 		sax.parse(source,defaultNSMap,entityMap);
 	}else{
-		sax.errorHandler.error("invalid document source");
+		sax.errorHandler.error("invalid doc source");
 	}
-	return domBuilder.document;
+	return domBuilder.doc;
 }
 function buildErrorHandler(errorImpl,domBuilder,locator){
 	if(!errorImpl){
@@ -20729,27 +20730,20 @@ function buildErrorHandler(errorImpl,domBuilder,locator){
 	locator = locator||{}
 	function build(key){
 		var fn = errorImpl[key];
-		if(!fn){
-			if(isCallback){
-				fn = errorImpl.length == 2?function(msg){errorImpl(key,msg)}:errorImpl;
-			}else{
-				var i=arguments.length;
-				while(--i){
-					if(fn = errorImpl[arguments[i]]){
-						break;
-					}
-				}
-			}
+		if(!fn && isCallback){
+			fn = errorImpl.length == 2?function(msg){errorImpl(key,msg)}:errorImpl;
 		}
 		errorHandler[key] = fn && function(msg){
-			fn(msg+_locator(locator));
+			fn('[xmldom '+key+']\t'+msg+_locator(locator));
 		}||function(){};
 	}
-	build('warning','warn');
-	build('error','warn','warning');
-	build('fatalError','warn','warning','error');
+	build('warning');
+	build('error');
+	build('fatalError');
 	return errorHandler;
 }
+
+//console.log('#\n\n\n\n\n\n\n####')
 /**
  * +ContentHandler+ErrorHandler
  * +LexicalHandler+EntityResolver2
@@ -20772,13 +20766,13 @@ function position(locator,node){
  */ 
 DOMHandler.prototype = {
 	startDocument : function() {
-    	this.document = new DOMImplementation().createDocument(null, null, null);
+    	this.doc = new DOMImplementation().createDocument(null, null, null);
     	if (this.locator) {
-        	this.document.documentURI = this.locator.systemId;
+        	this.doc.documentURI = this.locator.systemId;
     	}
 	},
 	startElement:function(namespaceURI, localName, qName, attrs) {
-		var doc = this.document;
+		var doc = this.doc;
 	    var el = doc.createElementNS(namespaceURI, qName||localName);
 	    var len = attrs.length;
 	    appendElement(this, el);
@@ -20790,24 +20784,22 @@ DOMHandler.prototype = {
 	        var value = attrs.getValue(i);
 	        var qName = attrs.getQName(i);
 			var attr = doc.createAttributeNS(namespaceURI, qName);
-			if( attr.getOffset){
-				position(attr.getOffset(1),attr)
-			}
+			this.locator &&position(attrs.getLocator(i),attr);
 			attr.value = attr.nodeValue = value;
 			el.setAttributeNode(attr)
 	    }
 	},
 	endElement:function(namespaceURI, localName, qName) {
 		var current = this.currentElement
-	    var tagName = current.tagName;
-	    this.currentElement = current.parentNode;
+		var tagName = current.tagName;
+		this.currentElement = current.parentNode;
 	},
 	startPrefixMapping:function(prefix, uri) {
 	},
 	endPrefixMapping:function(prefix) {
 	},
 	processingInstruction:function(target, data) {
-	    var ins = this.document.createProcessingInstruction(target, data);
+	    var ins = this.doc.createProcessingInstruction(target, data);
 	    this.locator && position(this.locator,ins)
 	    appendElement(this, ins);
 	},
@@ -20816,13 +20808,17 @@ DOMHandler.prototype = {
 	characters:function(chars, start, length) {
 		chars = _toString.apply(this,arguments)
 		//console.log(chars)
-		if(this.currentElement && chars){
+		if(chars){
 			if (this.cdata) {
-				var charNode = this.document.createCDATASection(chars);
-				this.currentElement.appendChild(charNode);
+				var charNode = this.doc.createCDATASection(chars);
 			} else {
-				var charNode = this.document.createTextNode(chars);
+				var charNode = this.doc.createTextNode(chars);
+			}
+			if(this.currentElement){
 				this.currentElement.appendChild(charNode);
+			}else if(/^\s*$/.test(chars)){
+				this.doc.appendChild(charNode);
+				//process xml
 			}
 			this.locator && position(this.locator,charNode)
 		}
@@ -20830,7 +20826,7 @@ DOMHandler.prototype = {
 	skippedEntity:function(name) {
 	},
 	endDocument:function() {
-		this.document.normalize();
+		this.doc.normalize();
 	},
 	setDocumentLocator:function (locator) {
 	    if(this.locator = locator){// && !('lineNumber' in locator)){
@@ -20840,7 +20836,7 @@ DOMHandler.prototype = {
 	//LexicalHandler
 	comment:function(chars, start, length) {
 		chars = _toString.apply(this,arguments)
-	    var comm = this.document.createComment(chars);
+	    var comm = this.doc.createComment(chars);
 	    this.locator && position(this.locator,comm)
 	    appendElement(this, comm);
 	},
@@ -20854,7 +20850,7 @@ DOMHandler.prototype = {
 	},
 	
 	startDTD:function(name, publicId, systemId) {
-		var impl = this.document.implementation;
+		var impl = this.doc.implementation;
 	    if (impl && impl.createDocumentType) {
 	        var dt = impl.createDocumentType(name, publicId, systemId);
 	        this.locator && position(this.locator,dt)
@@ -20866,13 +20862,13 @@ DOMHandler.prototype = {
 	 * @link http://www.saxproject.org/apidoc/org/xml/sax/ErrorHandler.html
 	 */
 	warning:function(error) {
-		console.warn(error,_locator(this.locator));
+		console.warn('[xmldom warning]\t'+error,_locator(this.locator));
 	},
 	error:function(error) {
-		console.error(error,_locator(this.locator));
+		console.error('[xmldom error]\t'+error,_locator(this.locator));
 	},
 	fatalError:function(error) {
-		console.error(error,_locator(this.locator));
+		console.error('[xmldom fatalError]\t'+error,_locator(this.locator));
 	    throw error;
 	}
 }
@@ -20930,18 +20926,18 @@ function _toString(chars,start,length){
 /* Private static helpers treated below as private instance methods, so don't need to add these to the public API; we might use a Relator to also get rid of non-standard public properties */
 function appendElement (hander,node) {
     if (!hander.currentElement) {
-        hander.document.appendChild(node);
+        hander.doc.appendChild(node);
     } else {
         hander.currentElement.appendChild(node);
     }
 }//appendChild and setAttributeNS are preformance key
 
-if(typeof require == 'function'){
+//if(typeof require == 'function'){
 	var XMLReader = require('./sax').XMLReader;
 	var DOMImplementation = exports.DOMImplementation = require('./dom').DOMImplementation;
 	exports.XMLSerializer = require('./dom').XMLSerializer ;
 	exports.DOMParser = DOMParser;
-}
+//}
 
 },{"./dom":7,"./sax":8}],7:[function(require,module,exports){
 /*
@@ -21055,6 +21051,12 @@ NodeList.prototype = {
 	 */
 	item: function(index) {
 		return this[index] || null;
+	},
+	toString:function(isHTML,nodeFilter){
+		for(var buf = [], i = 0;i<this.length;i++){
+			serializeToString(this[i],buf,isHTML,nodeFilter);
+		}
+		return buf.join('');
 	}
 };
 function LiveNodeList(node,refresh){
@@ -21110,6 +21112,7 @@ function _addNamedNode(el,list,newAttr,oldAttr){
 	}
 }
 function _removeNamedNode(el,list,attr){
+	//console.log('remove attr:'+attr)
 	var i = _findNodeIndex(list,attr);
 	if(i>=0){
 		var lastIndex = list.length-1
@@ -21125,7 +21128,7 @@ function _removeNamedNode(el,list,attr){
 			}
 		}
 	}else{
-		throw DOMException(NOT_FOUND_ERR,new Error())
+		throw DOMException(NOT_FOUND_ERR,new Error(el.tagName+'@'+attr))
 	}
 }
 NamedNodeMap.prototype = {
@@ -21135,9 +21138,11 @@ NamedNodeMap.prototype = {
 //		if(key.indexOf(':')>0 || key == 'xmlns'){
 //			return null;
 //		}
+		//console.log()
 		var i = this.length;
 		while(i--){
 			var attr = this[i];
+			//console.log(attr.nodeName,key)
 			if(attr.nodeName == key){
 				return attr;
 			}
@@ -21213,12 +21218,12 @@ DOMImplementation.prototype = {
 	// Introduced in DOM Level 2:
 	createDocument:function(namespaceURI,  qualifiedName, doctype){// raises:INVALID_CHARACTER_ERR,NAMESPACE_ERR,WRONG_DOCUMENT_ERR
 		var doc = new Document();
+		doc.implementation = this;
+		doc.childNodes = new NodeList();
 		doc.doctype = doctype;
 		if(doctype){
 			doc.appendChild(doctype);
 		}
-		doc.implementation = this;
-		doc.childNodes = new NodeList();
 		if(qualifiedName){
 			var root = doc.createElementNS(namespaceURI,qualifiedName);
 			doc.appendChild(root);
@@ -21319,7 +21324,7 @@ Node.prototype = {
     				}
     			}
     		}
-    		el = el.nodeType == 2?el.ownerDocument : el.parentNode;
+    		el = el.nodeType == ATTRIBUTE_NODE?el.ownerDocument : el.parentNode;
     	}
     	return null;
     },
@@ -21334,7 +21339,7 @@ Node.prototype = {
     				return map[prefix] ;
     			}
     		}
-    		el = el.nodeType == 2?el.ownerDocument : el.parentNode;
+    		el = el.nodeType == ATTRIBUTE_NODE?el.ownerDocument : el.parentNode;
     	}
     	return null;
     },
@@ -21519,7 +21524,7 @@ Document.prototype = {
 			}
 			return newChild;
 		}
-		if(this.documentElement == null && newChild.nodeType == 1){
+		if(this.documentElement == null && newChild.nodeType == ELEMENT_NODE){
 			this.documentElement = newChild;
 		}
 		
@@ -21539,7 +21544,7 @@ Document.prototype = {
 	getElementById :	function(id){
 		var rtv = null;
 		_visitNode(this.documentElement,function(node){
-			if(node.nodeType == 1){
+			if(node.nodeType == ELEMENT_NODE){
 				if(node.getAttribute('id') == id){
 					rtv = node;
 					return true;
@@ -21688,6 +21693,7 @@ Element.prototype = {
 		return this.attributes.setNamedItemNS(newAttr);
 	},
 	removeAttributeNode : function(oldAttr){
+		//console.log(this == oldAttr.ownerElement)
 		return this.attributes.removeNamedItem(oldAttr.nodeName);
 	},
 	//get real attribute name,and remove it by removeAttributeNode
@@ -21705,7 +21711,7 @@ Element.prototype = {
 	},
 	setAttributeNS : function(namespaceURI, qualifiedName, value){
 		var attr = this.ownerDocument.createAttributeNS(namespaceURI, qualifiedName);
-		attr.value = attr.nodeValue = value;
+		attr.value = attr.nodeValue = "" + value;
 		this.setAttributeNode(attr)
 	},
 	getAttributeNodeNS : function(namespaceURI, localName){
@@ -21727,11 +21733,12 @@ Element.prototype = {
 		return new LiveNodeList(this,function(base){
 			var ls = [];
 			_visitNode(base,function(node){
-				if(node !== base && node.nodeType === ELEMENT_NODE && node.namespaceURI === namespaceURI && (localName === '*' || node.localName == localName)){
+				if(node !== base && node.nodeType === ELEMENT_NODE && (namespaceURI === '*' || node.namespaceURI === namespaceURI) && (localName === '*' || node.localName == localName)){
 					ls.push(node);
 				}
 			});
 			return ls;
+			
 		});
 	}
 };
@@ -21763,10 +21770,7 @@ CharacterData.prototype = {
 	
 	},
 	appendChild:function(newChild){
-		//if(!(newChild instanceof CharacterData)){
-			throw new Error(ExceptionMessage[3])
-		//}
-		return Node.prototype.appendChild.apply(this,arguments)
+		throw new Error(ExceptionMessage[HIERARCHY_REQUEST_ERR])
 	},
 	deleteData: function(offset, count) {
 		this.replaceData(offset,count,"");
@@ -21848,36 +21852,132 @@ function ProcessingInstruction() {
 ProcessingInstruction.prototype.nodeType = PROCESSING_INSTRUCTION_NODE;
 _extends(ProcessingInstruction,Node);
 function XMLSerializer(){}
-XMLSerializer.prototype.serializeToString = function(node){
+XMLSerializer.prototype.serializeToString = function(node,isHtml,nodeFilter){
+	return nodeSerializeToString.call(node,isHtml,nodeFilter);
+}
+Node.prototype.toString = nodeSerializeToString;
+function nodeSerializeToString(isHtml,nodeFilter){
 	var buf = [];
-	serializeToString(node,buf);
+	var refNode = this.nodeType == 9?this.documentElement:this;
+	var prefix = refNode.prefix;
+	var uri = refNode.namespaceURI;
+	
+	if(uri && prefix == null){
+		//console.log(prefix)
+		var prefix = refNode.lookupPrefix(uri);
+		if(prefix == null){
+			//isHTML = true;
+			var visibleNamespaces=[
+			{namespace:uri,prefix:null}
+			//{namespace:uri,prefix:''}
+			]
+		}
+	}
+	serializeToString(this,buf,isHtml,nodeFilter,visibleNamespaces);
+	//console.log('###',this.nodeType,uri,prefix,buf.join(''))
 	return buf.join('');
 }
-Node.prototype.toString =function(){
-	return XMLSerializer.prototype.serializeToString(this);
+function needNamespaceDefine(node,isHTML, visibleNamespaces) {
+	var prefix = node.prefix||'';
+	var uri = node.namespaceURI;
+	if (!prefix && !uri){
+		return false;
+	}
+	if (prefix === "xml" && uri === "http://www.w3.org/XML/1998/namespace" 
+		|| uri == 'http://www.w3.org/2000/xmlns/'){
+		return false;
+	}
+	
+	var i = visibleNamespaces.length 
+	//console.log('@@@@',node.tagName,prefix,uri,visibleNamespaces)
+	while (i--) {
+		var ns = visibleNamespaces[i];
+		// get namespace prefix
+		//console.log(node.nodeType,node.tagName,ns.prefix,prefix)
+		if (ns.prefix == prefix){
+			return ns.namespace != uri;
+		}
+	}
+	//console.log(isHTML,uri,prefix=='')
+	//if(isHTML && prefix ==null && uri == 'http://www.w3.org/1999/xhtml'){
+	//	return false;
+	//}
+	//node.flag = '11111'
+	//console.error(3,true,node.flag,node.prefix,node.namespaceURI)
+	return true;
 }
-function serializeToString(node,buf){
+function serializeToString(node,buf,isHTML,nodeFilter,visibleNamespaces){
+	if(nodeFilter){
+		node = nodeFilter(node);
+		if(node){
+			if(typeof node == 'string'){
+				buf.push(node);
+				return;
+			}
+		}else{
+			return;
+		}
+		//buf.sort.apply(attrs, attributeSorter);
+	}
 	switch(node.nodeType){
 	case ELEMENT_NODE:
+		if (!visibleNamespaces) visibleNamespaces = [];
+		var startVisibleNamespaces = visibleNamespaces.length;
 		var attrs = node.attributes;
 		var len = attrs.length;
 		var child = node.firstChild;
 		var nodeName = node.tagName;
-		var isHTML = htmlns === node.namespaceURI
+		
+		isHTML =  (htmlns === node.namespaceURI) ||isHTML 
 		buf.push('<',nodeName);
+		
+		
+		
 		for(var i=0;i<len;i++){
-			serializeToString(attrs.item(i),buf,isHTML);
+			// add namespaces for attributes
+			var attr = attrs.item(i);
+			if (attr.prefix == 'xmlns') {
+				visibleNamespaces.push({ prefix: attr.localName, namespace: attr.value });
+			}else if(attr.nodeName == 'xmlns'){
+				visibleNamespaces.push({ prefix: '', namespace: attr.value });
+			}
 		}
+		for(var i=0;i<len;i++){
+			var attr = attrs.item(i);
+			if (needNamespaceDefine(attr,isHTML, visibleNamespaces)) {
+				var prefix = attr.prefix||'';
+				var uri = attr.namespaceURI;
+				var ns = prefix ? ' xmlns:' + prefix : " xmlns";
+				buf.push(ns, '="' , uri , '"');
+				visibleNamespaces.push({ prefix: prefix, namespace:uri });
+			}
+			serializeToString(attr,buf,isHTML,nodeFilter,visibleNamespaces);
+		}
+		// add namespace for current node		
+		if (needNamespaceDefine(node,isHTML, visibleNamespaces)) {
+			var prefix = node.prefix||'';
+			var uri = node.namespaceURI;
+			var ns = prefix ? ' xmlns:' + prefix : " xmlns";
+			buf.push(ns, '="' , uri , '"');
+			visibleNamespaces.push({ prefix: prefix, namespace:uri });
+		}
+		
 		if(child || isHTML && !/^(?:meta|link|img|br|hr|input)$/i.test(nodeName)){
 			buf.push('>');
 			//if is cdata child node
 			if(isHTML && /^script$/i.test(nodeName)){
-				if(child){
-					buf.push(child.data);
-				}
-			}else{
 				while(child){
-					serializeToString(child,buf);
+					if(child.data){
+						buf.push(child.data);
+					}else{
+						serializeToString(child,buf,isHTML,nodeFilter,visibleNamespaces);
+					}
+					child = child.nextSibling;
+				}
+			}else
+			{
+				while(child){
+					serializeToString(child,buf,isHTML,nodeFilter,visibleNamespaces);
 					child = child.nextSibling;
 				}
 			}
@@ -21885,12 +21985,14 @@ function serializeToString(node,buf){
 		}else{
 			buf.push('/>');
 		}
+		// remove added visible namespaces
+		//visibleNamespaces.length = startVisibleNamespaces;
 		return;
 	case DOCUMENT_NODE:
 	case DOCUMENT_FRAGMENT_NODE:
 		var child = node.firstChild;
 		while(child){
-			serializeToString(child,buf);
+			serializeToString(child,buf,isHTML,nodeFilter,visibleNamespaces);
 			child = child.nextSibling;
 		}
 		return;
@@ -22035,8 +22137,8 @@ try{
 			},
 			set:function(data){
 				switch(this.nodeType){
-				case 1:
-				case 11:
+				case ELEMENT_NODE:
+				case DOCUMENT_FRAGMENT_NODE:
 					while(this.firstChild){
 						this.removeChild(this.firstChild);
 					}
@@ -22047,7 +22149,7 @@ try{
 				default:
 					//TODO:
 					this.data = data;
-					this.value = value;
+					this.value = data;
 					this.nodeValue = data;
 				}
 			}
@@ -22055,8 +22157,8 @@ try{
 		
 		function getTextContent(node){
 			switch(node.nodeType){
-			case 1:
-			case 11:
+			case ELEMENT_NODE:
+			case DOCUMENT_FRAGMENT_NODE:
 				var buf = [];
 				node = node.firstChild;
 				while(node){
@@ -22078,31 +22180,31 @@ try{
 }catch(e){//ie8
 }
 
-if(typeof require == 'function'){
+//if(typeof require == 'function'){
 	exports.DOMImplementation = DOMImplementation;
 	exports.XMLSerializer = XMLSerializer;
-}
+//}
 
 },{}],8:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
 var nameStartChar = /[A-Z_a-z\xC0-\xD6\xD8-\xF6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]///\u10000-\uEFFFF
-var nameChar = new RegExp("[\\-\\.0-9"+nameStartChar.source.slice(1,-1)+"\u00B7\u0300-\u036F\\ux203F-\u2040]");
+var nameChar = new RegExp("[\\-\\.0-9"+nameStartChar.source.slice(1,-1)+"\\u00B7\\u0300-\\u036F\\u203F-\\u2040]");
 var tagNamePattern = new RegExp('^'+nameStartChar.source+nameChar.source+'*(?:\:'+nameStartChar.source+nameChar.source+'*)?$');
 //var tagNamePattern = /^[a-zA-Z_][\w\-\.]*(?:\:[a-zA-Z_][\w\-\.]*)?$/
 //var handlers = 'resolveEntity,getExternalSubset,characters,endDocument,endElement,endPrefixMapping,ignorableWhitespace,processingInstruction,setDocumentLocator,skippedEntity,startDocument,startElement,startPrefixMapping,notationDecl,unparsedEntityDecl,error,fatalError,warning,attributeDecl,elementDecl,externalEntityDecl,internalEntityDecl,comment,endCDATA,endDTD,endEntity,startCDATA,startDTD,startEntity'.split(',')
 
-//S_TAG,	S_ATTR,	S_EQ,	S_V
-//S_ATTR_S,	S_E,	S_S,	S_C
+//S_TAG,	S_ATTR,	S_EQ,	S_ATTR_NOQUOT_VALUE
+//S_ATTR_SPACE,	S_ATTR_END,	S_TAG_SPACE, S_TAG_CLOSE
 var S_TAG = 0;//tag name offerring
 var S_ATTR = 1;//attr name offerring 
-var S_ATTR_S=2;//attr name end and space offer
+var S_ATTR_SPACE=2;//attr name end and space offer
 var S_EQ = 3;//=space?
-var S_V = 4;//attr value(no quot value only)
-var S_E = 5;//attr value end and no space(quot end)
-var S_S = 6;//(attr value end || tag end ) && (space offer)
-var S_C = 7;//closed el<el />
+var S_ATTR_NOQUOT_VALUE = 4;//attr value(no quot value only)
+var S_ATTR_END = 5;//attr value end and no space(quot end)
+var S_TAG_SPACE = 6;//(attr value end || tag end ) && (space offer)
+var S_TAG_CLOSE = 7;//closed el<el />
 
 function XMLReader(){
 	
@@ -22119,7 +22221,7 @@ XMLReader.prototype = {
 	}
 }
 function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
-  function fixedFromCharCode(code) {
+	function fixedFromCharCode(code) {
 		// String.prototype.fromCharCode does not supports
 		// > 2 bytes unicode chars directly
 		if (code > 0xffff) {
@@ -22144,95 +22246,126 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 		}
 	}
 	function appendText(end){//has some bugs
-		var xt = source.substring(start,end).replace(/&#?\w+;/g,entityReplacer);
-		locator&&position(start);
-		domBuilder.characters(xt,0,end-start);
-		start = end
+		if(end>start){
+			var xt = source.substring(start,end).replace(/&#?\w+;/g,entityReplacer);
+			locator&&position(start);
+			domBuilder.characters(xt,0,end-start);
+			start = end
+		}
 	}
-	function position(start,m){
-		while(start>=endPos && (m = linePattern.exec(source))){
-			startPos = m.index;
-			endPos = startPos + m[0].length;
+	function position(p,m){
+		while(p>=lineEnd && (m = linePattern.exec(source))){
+			lineStart = m.index;
+			lineEnd = lineStart + m[0].length;
 			locator.lineNumber++;
 			//console.log('line++:',locator,startPos,endPos)
 		}
-		locator.columnNumber = start-startPos+1;
+		locator.columnNumber = p-lineStart+1;
 	}
-	var startPos = 0;
-	var endPos = 0;
-	var linePattern = /.+(?:\r\n?|\n)|.*$/g
+	var lineStart = 0;
+	var lineEnd = 0;
+	var linePattern = /.*(?:\r\n?|\n)|.*$/g
 	var locator = domBuilder.locator;
 	
 	var parseStack = [{currentNSMap:defaultNSMapCopy}]
 	var closeMap = {};
 	var start = 0;
 	while(true){
-		var i = source.indexOf('<',start);
-		if(i<0){
-			if(!source.substr(start).match(/^\s*$/)){
-				var doc = domBuilder.document;
-    			var text = doc.createTextNode(source.substr(start));
-    			doc.appendChild(text);
-    			domBuilder.currentElement = text;
-			}
-			return;
-		}
-		if(i>start){
-			appendText(i);
-		}
-		switch(source.charAt(i+1)){
-		case '/':
-			var end = source.indexOf('>',i+3);
-			var tagName = source.substring(i+2,end);
-			var config = parseStack.pop();
-			var localNSMap = config.localNSMap;
-			
-	        if(config.tagName != tagName){
-	            errorHandler.fatalError("end tag name: "+tagName+' is not match the current start tagName:'+config.tagName );
-	        }
-			domBuilder.endElement(config.uri,config.localName,tagName);
-			if(localNSMap){
-				for(var prefix in localNSMap){
-					domBuilder.endPrefixMapping(prefix) ;
+		try{
+			var tagStart = source.indexOf('<',start);
+			if(tagStart<0){
+				if(!source.substr(start).match(/^\s*$/)){
+					var doc = domBuilder.doc;
+	    			var text = doc.createTextNode(source.substr(start));
+	    			doc.appendChild(text);
+	    			domBuilder.currentElement = text;
 				}
+				return;
 			}
-			end++;
-			break;
-			// end elment
-		case '?':// <?...?>
-			locator&&position(i);
-			end = parseInstruction(source,i,domBuilder);
-			break;
-		case '!':// <!doctype,<![CDATA,<!--
-			locator&&position(i);
-			end = parseDCC(source,i,domBuilder,errorHandler);
-			break;
-		default:
-			try{
-				locator&&position(i);
-				
-				var el = new ElementAttributes();
-				
-				//elStartEnd
-				var end = parseElementStartPart(source,i,el,entityReplacer,errorHandler);
-				var len = el.length;
-				//position fixed
-				if(len && locator){
-					var backup = copyLocator(locator,{});
-					for(var i = 0;i<len;i++){
-						var a = el[i];
-						position(a.offset);
-						a.offset = copyLocator(locator,{});
+			if(tagStart>start){
+				appendText(tagStart);
+			}
+			switch(source.charAt(tagStart+1)){
+			case '/':
+				var end = source.indexOf('>',tagStart+3);
+				var tagName = source.substring(tagStart+2,end);
+				var config = parseStack.pop();
+				if(end<0){
+					
+	        		tagName = source.substring(tagStart+2).replace(/[\s<].*/,'');
+	        		//console.error('#@@@@@@'+tagName)
+	        		errorHandler.error("end tag name: "+tagName+' is not complete:'+config.tagName);
+	        		end = tagStart+1+tagName.length;
+	        	}else if(tagName.match(/\s</)){
+	        		tagName = tagName.replace(/[\s<].*/,'');
+	        		errorHandler.error("end tag name: "+tagName+' maybe not complete');
+	        		end = tagStart+1+tagName.length;
+				}
+				//console.error(parseStack.length,parseStack)
+				//console.error(config);
+				var localNSMap = config.localNSMap;
+				var endMatch = config.tagName == tagName;
+				var endIgnoreCaseMach = endMatch || config.tagName&&config.tagName.toLowerCase() == tagName.toLowerCase()
+		        if(endIgnoreCaseMach){
+		        	domBuilder.endElement(config.uri,config.localName,tagName);
+					if(localNSMap){
+						for(var prefix in localNSMap){
+							domBuilder.endPrefixMapping(prefix) ;
+						}
 					}
-					copyLocator(backup,locator);
-				}
+					if(!endMatch){
+		            	errorHandler.fatalError("end tag name: "+tagName+' is not match the current start tagName:'+config.tagName );
+					}
+		        }else{
+		        	parseStack.push(config)
+		        }
+				
+				end++;
+				break;
+				// end elment
+			case '?':// <?...?>
+				locator&&position(tagStart);
+				end = parseInstruction(source,tagStart,domBuilder);
+				break;
+			case '!':// <!doctype,<![CDATA,<!--
+				locator&&position(tagStart);
+				end = parseDCC(source,tagStart,domBuilder,errorHandler);
+				break;
+			default:
+				locator&&position(tagStart);
+				var el = new ElementAttributes();
+				var currentNSMap = parseStack[parseStack.length-1].currentNSMap;
+				//elStartEnd
+				var end = parseElementStartPart(source,tagStart,el,currentNSMap,entityReplacer,errorHandler);
+				var len = el.length;
+				
+				
 				if(!el.closed && fixSelfClosed(source,end,el.tagName,closeMap)){
 					el.closed = true;
 					if(!entityMap.nbsp){
 						errorHandler.warning('unclosed xml attribute');
 					}
 				}
-				appendElement(el,domBuilder,parseStack);
+				if(locator && len){
+					var locator2 = copyLocator(locator,{});
+					//try{//attribute position fixed
+					for(var i = 0;i<len;i++){
+						var a = el[i];
+						position(a.offset);
+						a.locator = copyLocator(locator,{});
+					}
+					//}catch(e){console.error('@@@@@'+e)}
+					domBuilder.locator = locator2
+					if(appendElement(el,domBuilder,currentNSMap)){
+						parseStack.push(el)
+					}
+					domBuilder.locator = locator;
+				}else{
+					if(appendElement(el,domBuilder,currentNSMap)){
+						parseStack.push(el)
+					}
+				}
+				
 				
 				
 				if(el.uri === 'http://www.w3.org/1999/xhtml' && !el.closed){
@@ -22240,17 +22373,18 @@ function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
 				}else{
 					end++;
 				}
-			}catch(e){
-				errorHandler.error('element parse error: '+e);
-				end = -1;
 			}
-
+		}catch(e){
+			errorHandler.error('element parse error: '+e)
+			//errorHandler.error('element parse error: '+e);
+			end = -1;
+			//throw e;
 		}
-		if(end<0){
-			//TODO: 这里有可能sax回退，有位置错误风险
-			appendText(i+1);
-		}else{
+		if(end>start){
 			start = end;
+		}else{
+			//TODO: 这里有可能sax回退，有位置错误风险
+			appendText(Math.max(tagStart,start)+1);
 		}
 	}
 }
@@ -22258,14 +22392,13 @@ function copyLocator(f,t){
 	t.lineNumber = f.lineNumber;
 	t.columnNumber = f.columnNumber;
 	return t;
-	
 }
 
 /**
  * @see #appendElement(source,elStartEnd,el,selfClosed,entityReplacer,domBuilder,parseStack);
  * @return end of the elementStartPart(end of elementEndPart for selfClosed el)
  */
-function parseElementStartPart(source,start,el,entityReplacer,errorHandler){
+function parseElementStartPart(source,start,el,currentNSMap,entityReplacer,errorHandler){
 	var attrName;
 	var value;
 	var p = ++start;
@@ -22277,7 +22410,7 @@ function parseElementStartPart(source,start,el,entityReplacer,errorHandler){
 			if(s === S_ATTR){//attrName
 				attrName = source.slice(start,p);
 				s = S_EQ;
-			}else if(s === S_ATTR_S){
+			}else if(s === S_ATTR_SPACE){
 				s = S_EQ;
 			}else{
 				//fatalError: equal must after attrName or space after attrName
@@ -22286,25 +22419,30 @@ function parseElementStartPart(source,start,el,entityReplacer,errorHandler){
 			break;
 		case '\'':
 		case '"':
-			if(s === S_EQ){//equal
+			if(s === S_EQ || s === S_ATTR //|| s == S_ATTR_SPACE
+				){//equal
+				if(s === S_ATTR){
+					errorHandler.warning('attribute value must after "="')
+					attrName = source.slice(start,p)
+				}
 				start = p+1;
 				p = source.indexOf(c,start)
 				if(p>0){
 					value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
 					el.add(attrName,value,start-1);
-					s = S_E;
+					s = S_ATTR_END;
 				}else{
 					//fatalError: no end quot match
 					throw new Error('attribute value no end \''+c+'\' match');
 				}
-			}else if(s == S_V){
+			}else if(s == S_ATTR_NOQUOT_VALUE){
 				value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
 				//console.log(attrName,value,start,p)
 				el.add(attrName,value,start);
 				//console.dir(el)
 				errorHandler.warning('attribute "'+attrName+'" missed start quot('+c+')!!');
 				start = p+1;
-				s = S_E
+				s = S_ATTR_END
 			}else{
 				//fatalError: no equal before
 				throw new Error('attribute value must after "="');
@@ -22314,14 +22452,14 @@ function parseElementStartPart(source,start,el,entityReplacer,errorHandler){
 			switch(s){
 			case S_TAG:
 				el.setTagName(source.slice(start,p));
-			case S_E:
-			case S_S:
-			case S_C:
-				s = S_C;
+			case S_ATTR_END:
+			case S_TAG_SPACE:
+			case S_TAG_CLOSE:
+				s =S_TAG_CLOSE;
 				el.closed = true;
-			case S_V:
+			case S_ATTR_NOQUOT_VALUE:
 			case S_ATTR:
-			case S_ATTR_S:
+			case S_ATTR_SPACE:
 				break;
 			//case S_EQ:
 			default:
@@ -22331,30 +22469,36 @@ function parseElementStartPart(source,start,el,entityReplacer,errorHandler){
 		case ''://end document
 			//throw new Error('unexpected end of input')
 			errorHandler.error('unexpected end of input');
+			if(s == S_TAG){
+				el.setTagName(source.slice(start,p));
+			}
+			return p;
 		case '>':
 			switch(s){
 			case S_TAG:
 				el.setTagName(source.slice(start,p));
-			case S_E:
-			case S_S:
-			case S_C:
+			case S_ATTR_END:
+			case S_TAG_SPACE:
+			case S_TAG_CLOSE:
 				break;//normal
-			case S_V://Compatible state
+			case S_ATTR_NOQUOT_VALUE://Compatible state
 			case S_ATTR:
 				value = source.slice(start,p);
 				if(value.slice(-1) === '/'){
 					el.closed  = true;
 					value = value.slice(0,-1)
 				}
-			case S_ATTR_S:
-				if(s === S_ATTR_S){
+			case S_ATTR_SPACE:
+				if(s === S_ATTR_SPACE){
 					value = attrName;
 				}
-				if(s == S_V){
+				if(s == S_ATTR_NOQUOT_VALUE){
 					errorHandler.warning('attribute "'+value+'" missed quot(")!!');
 					el.add(attrName,value.replace(/&#?\w+;/g,entityReplacer),start)
 				}else{
-					errorHandler.warning('attribute "'+value+'" missed value!! "'+value+'" instead!!')
+					if(currentNSMap[''] !== 'http://www.w3.org/1999/xhtml' || !value.match(/^(?:disabled|checked|selected)$/i)){
+						errorHandler.warning('attribute "'+value+'" missed value!! "'+value+'" instead!!')
+					}
 					el.add(value,value,start)
 				}
 				break;
@@ -22371,64 +22515,68 @@ function parseElementStartPart(source,start,el,entityReplacer,errorHandler){
 				switch(s){
 				case S_TAG:
 					el.setTagName(source.slice(start,p));//tagName
-					s = S_S;
+					s = S_TAG_SPACE;
 					break;
 				case S_ATTR:
 					attrName = source.slice(start,p)
-					s = S_ATTR_S;
+					s = S_ATTR_SPACE;
 					break;
-				case S_V:
+				case S_ATTR_NOQUOT_VALUE:
 					var value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
 					errorHandler.warning('attribute "'+value+'" missed quot(")!!');
 					el.add(attrName,value,start)
-				case S_E:
-					s = S_S;
+				case S_ATTR_END:
+					s = S_TAG_SPACE;
 					break;
-				//case S_S:
+				//case S_TAG_SPACE:
 				//case S_EQ:
-				//case S_ATTR_S:
+				//case S_ATTR_SPACE:
 				//	void();break;
-				//case S_C:
+				//case S_TAG_CLOSE:
 					//ignore warning
 				}
 			}else{//not space
-//S_TAG,	S_ATTR,	S_EQ,	S_V
-//S_ATTR_S,	S_E,	S_S,	S_C
+//S_TAG,	S_ATTR,	S_EQ,	S_ATTR_NOQUOT_VALUE
+//S_ATTR_SPACE,	S_ATTR_END,	S_TAG_SPACE, S_TAG_CLOSE
 				switch(s){
 				//case S_TAG:void();break;
 				//case S_ATTR:void();break;
-				//case S_V:void();break;
-				case S_ATTR_S:
-					errorHandler.warning('attribute "'+attrName+'" missed value!! "'+attrName+'" instead!!')
+				//case S_ATTR_NOQUOT_VALUE:void();break;
+				case S_ATTR_SPACE:
+					var tagName =  el.tagName;
+					if(currentNSMap[''] !== 'http://www.w3.org/1999/xhtml' || !attrName.match(/^(?:disabled|checked|selected)$/i)){
+						errorHandler.warning('attribute "'+attrName+'" missed value!! "'+attrName+'" instead2!!')
+					}
 					el.add(attrName,attrName,start);
 					start = p;
 					s = S_ATTR;
 					break;
-				case S_E:
+				case S_ATTR_END:
 					errorHandler.warning('attribute space is required"'+attrName+'"!!')
-				case S_S:
+				case S_TAG_SPACE:
 					s = S_ATTR;
 					start = p;
 					break;
 				case S_EQ:
-					s = S_V;
+					s = S_ATTR_NOQUOT_VALUE;
 					start = p;
 					break;
-				case S_C:
+				case S_TAG_CLOSE:
 					throw new Error("elements closed character '/' and '>' must be connected to");
 				}
 			}
-		}
+		}//end outer switch
+		//console.log('p++',p)
 		p++;
 	}
 }
 /**
- * @return end of the elementStartPart(end of elementEndPart for selfClosed el)
+ * @return true if has new namespace define
  */
-function appendElement(el,domBuilder,parseStack){
+function appendElement(el,domBuilder,currentNSMap){
 	var tagName = el.tagName;
 	var localNSMap = null;
-	var currentNSMap = parseStack[parseStack.length-1].currentNSMap;
+	//var currentNSMap = parseStack[parseStack.length-1].currentNSMap;
 	var i = el.length;
 	while(i--){
 		var a = el[i];
@@ -22467,7 +22615,7 @@ function appendElement(el,domBuilder,parseStack){
 			if(prefix === 'xml'){
 				a.uri = 'http://www.w3.org/XML/1998/namespace';
 			}if(prefix !== 'xmlns'){
-				a.uri = currentNSMap[prefix]
+				a.uri = currentNSMap[prefix || '']
 				
 				//{console.log('###'+a.qName,domBuilder.locator.systemId+'',currentNSMap,a.uri)}
 			}
@@ -22496,7 +22644,8 @@ function appendElement(el,domBuilder,parseStack){
 	}else{
 		el.currentNSMap = currentNSMap;
 		el.localNSMap = localNSMap;
-		parseStack.push(el);
+		//parseStack.push(el);
+		return true;
 	}
 }
 function parseHtmlSpecialContent(source,elStartEnd,tagName,entityReplacer,domBuilder){
@@ -22526,7 +22675,11 @@ function fixSelfClosed(source,elStartEnd,tagName,closeMap){
 	var pos = closeMap[tagName];
 	if(pos == null){
 		//console.log(tagName)
-		pos = closeMap[tagName] = source.lastIndexOf('</'+tagName+'>')
+		pos =  source.lastIndexOf('</'+tagName+'>')
+		if(pos<elStartEnd){//忘记闭合
+			pos = source.lastIndexOf('</'+tagName)
+		}
+		closeMap[tagName] =pos
 	}
 	return pos<elStartEnd;
 	//} 
@@ -22617,7 +22770,7 @@ ElementAttributes.prototype = {
 	},
 	length:0,
 	getLocalName:function(i){return this[i].localName},
-	getOffset:function(i){return this[i].offset},
+	getLocator:function(i){return this[i].locator},
 	getQName:function(i){return this[i].qName},
 	getURI:function(i){return this[i].uri},
 	getValue:function(i){return this[i].value}
@@ -22664,9 +22817,7 @@ function split(source,start){
 	}
 }
 
-if(typeof require == 'function'){
-	exports.XMLReader = XMLReader;
-}
+exports.XMLReader = XMLReader;
 
 
 },{}],9:[function(require,module,exports){
@@ -22773,7 +22924,7 @@ g.merge = function () {
         objects = _.reject(objects, _.isEmpty);
         if (objects.length > 0) {
             var o = objects[0];
-            if (o && (o.commands || o.shapes)) {
+            if (o && (o.commands || o.shapes || o.fontFamily)) {
                 return vg.merge(objects);
             } else if (o instanceof img.Img) {
                 return img.merge(objects);
@@ -22806,7 +22957,7 @@ g.mix = function (a, b, t) {
 
 module.exports = g;
 
-},{"./libraries/data":10,"./libraries/easing":12,"./libraries/graphics":13,"./libraries/image":14,"./libraries/img/img":18,"./libraries/list":21,"./libraries/math":22,"./libraries/string":23,"./libraries/vg/vg":45,"lodash":4}],10:[function(require,module,exports){
+},{"./libraries/data":10,"./libraries/easing":12,"./libraries/graphics":13,"./libraries/image":14,"./libraries/img/img":18,"./libraries/list":21,"./libraries/math":22,"./libraries/string":23,"./libraries/vg/vg":45,"lodash":3}],10:[function(require,module,exports){
 'use strict';
 
 var _ = require('lodash');
@@ -22839,26 +22990,61 @@ g.convert = function (v, inMin, inMax, outMin, outMax) {
 };
 
 g.filterData = function (data, key, op, value) {
+    var i, l, row, obj;
     if (value === null || value === undefined) {
         return data;
     }
     var results = [];
-    for (var i = 0; i < data.length; i += 1) {
-        var row = data[i];
-        var obj = row[key];
-        if (op === '==' && obj == value) { // jshint ignore:line
-            results.push(row);
-        } else if (op === '!=' && obj != value) { // jshint ignore:line
-            results.push(row);
-        } else if (op === '>' && obj > value) {
-            results.push(row);
-        } else if (op === '>=' && obj >= value) {
-            results.push(row);
-        } else if (op === '<' && obj < value) {
-            results.push(row);
-        } else if (op === '<=' && obj <= value) {
-            results.push(row);
+    if (op === '==') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj == value) { // jshint ignore:line
+                results.push(row);
+            }
         }
+    } else if (op === '!=') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj != value) { // jshint ignore:line
+                results.push(row);
+            }
+        }
+    } else if (op === '>') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj > value) {
+                results.push(row);
+            }
+        }
+    } else if (op === '>=') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj >= value) {
+                results.push(row);
+            }
+        }
+    } else if (op === '<') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj < value) {
+                results.push(row);
+            }
+        }
+    } else if (op === '<=') {
+        for (i = 0, l = data.length; i < l; i++) {
+            row = data[i];
+            obj = row[key];
+            if (obj <= value) {
+                results.push(row);
+            }
+        }
+    } else {
+        throw new Error('Invalid op ' + op);
     }
     return results;
 };
@@ -22957,7 +23143,7 @@ g.ticks = function (min, max, n) {
 
 module.exports = g;
 
-},{"./list":21,"lodash":4}],11:[function(require,module,exports){
+},{"./list":21,"lodash":3}],11:[function(require,module,exports){
 /* jshint eqeqeq:false */
 
 'use strict';
@@ -23710,8 +23896,9 @@ g.stack = function (shapes, direction, margin) {
     var tx, ty, t, bounds,
         firstBounds = shapes[0].bounds(),
         newShapes = [];
+
     if (direction === 'e') {
-        tx = -(firstBounds.width / 2);
+        tx = firstBounds.x;
         _.each(shapes, function (shape) {
             bounds = shape.bounds();
             t = new vg.Transform().translate(tx - bounds.x, 0);
@@ -23719,23 +23906,23 @@ g.stack = function (shapes, direction, margin) {
             tx += bounds.width + margin;
         });
     } else if (direction === 'w') {
-        tx = firstBounds.width / 2;
+        tx = firstBounds.x + firstBounds.width;
         _.each(shapes, function (shape) {
             bounds = shape.bounds();
-            t = new vg.Transform().translate(tx + bounds.x, 0);
+            t = new vg.Transform().translate(tx - (bounds.x + bounds.width), 0);
             newShapes.push(transform(shape, t));
             tx -= bounds.width + margin;
         });
     } else if (direction === 'n') {
-        ty = firstBounds.height / 2;
+        ty = firstBounds.y + firstBounds.height;
         _.each(shapes, function (shape) {
             bounds = shape.bounds();
-            t = new vg.Transform().translate(0, ty + bounds.y);
+            t = new vg.Transform().translate(0, ty - (bounds.y + bounds.height));
             newShapes.push(transform(shape, t));
             ty -= bounds.height + margin;
         });
     } else if (direction === 's') {
-        ty = -(firstBounds.height / 2);
+        ty = firstBounds.y;
         _.each(shapes, function (shape) {
             bounds = shape.bounds();
             t = new vg.Transform().translate(0, ty - bounds.y);
@@ -23830,7 +24017,7 @@ g.invert = function (shape) {
 
 module.exports = g;
 
-},{"./img/img":18,"./math":22,"./vg/vg":45,"lodash":4}],14:[function(require,module,exports){
+},{"./img/img":18,"./math":22,"./vg/vg":45,"lodash":3}],14:[function(require,module,exports){
 'use strict';
 
 var vg = require('./vg/vg');
@@ -24348,6 +24535,8 @@ function getNativeModes() {
     var nativeModes = {};
     var dCanvas = document.createElement('canvas');
     var ctx = dCanvas.getContext('2d');
+
+    if (!ctx) { return {}; }
 
     var native = ['source-over', 'source-in', 'source-out', 'source-atop',
             'destination-over', 'destination-in', 'destination-out',
@@ -28159,6 +28348,16 @@ g.contains = function (l, value) {
     return false;
 };
 
+g.cycle = function (l, length) {
+    if (!l || length <= 0) { return []; }
+    var newList = [];
+    var ll = l.length;
+    for (var i = 0; i < length; i += 1) {
+        newList.push(l[i % ll]);
+    }
+    return newList;
+};
+
 g.equals = function (o1, o2) {
     return deepEqual.deepEqual(o1, o2);
 };
@@ -28261,6 +28460,9 @@ g.randomSample = function (l, amount, seed) {
 
 g.repeat = function (l, amount, perItem) {
     if (!l) { return []; }
+    if (!Array.isArray(l)) {
+        l = [l];
+    }
     if (amount <= 0) { return []; }
     var i, j, v,
         newList = [];
@@ -28310,6 +28512,7 @@ g.shuffle = function (l, seed) {
         seed = Math.random();
     }
     r = util.randomGenerator(seed || 0);
+    l = l.slice();
     for (i = l.length - 1; i > 0; i--) {
         j = Math.floor(r(0, i + 1));
         tmp = l[i];
@@ -28810,15 +29013,17 @@ g.xor = function (bool1, bool2) {
 
 module.exports = g;
 
-},{"./util":24,"./vg/vg":45,"lodash":4}],23:[function(require,module,exports){
+},{"./util":24,"./vg/vg":45,"lodash":3}],23:[function(require,module,exports){
 'use strict';
 
 var g = {};
 
 g.characterAt = function (s, index) {
-    if (!s || s.length === 0) { return null; }
+    if (!s || s.length === 0) { return ''; }
     s = String(s);
-    index = index % s.length;
+    if (index < 0) {
+        index = s.length + index;
+    }
     return s.charAt(index);
 };
 
@@ -28896,15 +29101,18 @@ g.stringTrim = function (s) {
 };
 
 g.substring = function (s, start, end, endOffset) {
-    if (!s) { return null; }
+    if (!s) { return ''; }
+    if (end < start) { return ''; }
     s = String(s);
-    start = start % s.length;
+
+    if (start < 0 && end < 0) {
+        start = s.length + start;
+        end = s.length + end;
+    }
 
     if (end !== undefined) {
         if (endOffset) {
-            end = (end % s.length) + 1;
-        } else {
-            end = end % (s.length + 1);
+            end += 1;
         }
     }
     return s.substring(start, end);
@@ -29397,7 +29605,9 @@ vg.mirror = function (shape, angle, origin, keepOriginal) {
         return new Point(pt.x, pt.y);
     };
 
-    var mirrorPath = function (path) {
+    var mirrorPath, mirrorPoints, mirrorGroup, mirror;
+
+    mirrorPath = function (path) {
         var pt, ctrl1, ctrl2;
         var p = new Path([], path.fill, path.stroke, path.strokeWidth);
         for (var i = 0; i < path.commands.length; i += 1) {
@@ -29422,20 +29632,20 @@ vg.mirror = function (shape, angle, origin, keepOriginal) {
         return p;
     };
 
-    var mirrorPoints = function (points) {
+    mirrorPoints = function (points) {
         return _.map(points, function (point) {
             return f(point.x, point.y);
         });
     };
 
-    var mirrorGroup = function (group) {
+    mirrorGroup = function (group) {
         var shapes = _.map(group.shapes, function (shape) {
             return mirror(shape);
         });
         return new Group(shapes);
     };
 
-    var mirror = function (shape) {
+    mirror = function (shape) {
         if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
             return mirrorPoints(shape);
         }
@@ -29998,53 +30208,6 @@ vg.link = function (shape1, shape2, orientation) {
     return p;
 };
 
-vg.stack = function (shapes, direction, margin) {
-    if (!shapes) {
-        return [];
-    }
-    if (shapes.length <= 1) {
-        return shapes;
-    }
-    var tx, ty, t, bounds,
-        firstBounds = shapes[0].bounds(),
-        newShapes = [];
-    margin = margin || 0;
-    if (direction === vg.EAST) {
-        tx = -(firstBounds.width / 2);
-        _.each(shapes, function (shape) {
-            bounds = shape.bounds();
-            t = new Transform().translate(tx - bounds.x, 0);
-            newShapes.push(t.transformShape(shape));
-            tx += bounds.width + margin;
-        });
-    } else if (direction === vg.WEST) {
-        tx = firstBounds.width / 2;
-        _.each(shapes, function (shape) {
-            bounds = shape.bounds();
-            t = new Transform().translate(tx + bounds.x, 0);
-            newShapes.push(t.transformShape(shape));
-            tx -= bounds.width + margin;
-        });
-    } else if (direction === vg.NORTH) {
-        ty = firstBounds.height / 2;
-        _.each(shapes, function (shape) {
-            bounds = shape.bounds();
-            t = new Transform().translate(0, ty + bounds.y);
-            newShapes.push(t.transformShape(shape));
-            ty -= bounds.height + margin;
-        });
-    } else if (direction === vg.SOUTH) {
-        ty = -(firstBounds.height / 2);
-        _.each(shapes, function (shape) {
-            bounds = shape.bounds();
-            t = new Transform().translate(0, ty - bounds.y);
-            newShapes.push(t.transformShape(shape));
-            ty += bounds.height + margin;
-        });
-    }
-    return newShapes;
-};
-
 vg.compound = function (shape1, shape2, method) {
     var methods = {
         'union': ClipperLib.ClipType.ctUnion,
@@ -30109,7 +30272,7 @@ vg.compound = function (shape1, shape2, method) {
 
 module.exports = vg;
 
-},{"../objects/color":28,"../objects/group":29,"../objects/path":31,"../objects/point":32,"../objects/rect":33,"../objects/transform":35,"../objects/transformable":36,"../util/bezier":38,"../util/geo":40,"../util/math":42,"../util/random":43,"js-clipper":3,"lodash":4}],27:[function(require,module,exports){
+},{"../objects/color":28,"../objects/group":29,"../objects/path":31,"../objects/point":32,"../objects/rect":33,"../objects/transform":35,"../objects/transformable":36,"../util/bezier":38,"../util/geo":40,"../util/math":42,"../util/random":43,"js-clipper":2,"lodash":3}],27:[function(require,module,exports){
 // Basic shapes
 
 'use strict';
@@ -30420,7 +30583,7 @@ vg.demoEllipse = function () {
 
 module.exports = vg;
 
-},{"../objects/color":28,"../objects/path":31,"../objects/point":32,"../objects/text":34,"../util/geo":40,"lodash":4}],28:[function(require,module,exports){
+},{"../objects/color":28,"../objects/path":31,"../objects/point":32,"../objects/text":34,"../util/geo":40,"lodash":3}],28:[function(require,module,exports){
 // Color object
 
 'use strict';
@@ -30888,7 +31051,7 @@ Group.prototype.draw = function (ctx) {
 
 module.exports = Group;
 
-},{"../objects/color":28,"../objects/path":31,"../objects/rect":33,"lodash":4}],30:[function(require,module,exports){
+},{"../objects/color":28,"../objects/path":31,"../objects/rect":33,"lodash":3}],30:[function(require,module,exports){
 // 3-dimensional matrix
 
 'use strict';
@@ -31649,7 +31812,7 @@ Path.combine = function () {
 
 module.exports = Path;
 
-},{"../objects/color":28,"../objects/rect":33,"../util/bezier":38,"../util/geo":40,"../util/math":42,"lodash":4}],32:[function(require,module,exports){
+},{"../objects/color":28,"../objects/rect":33,"../util/bezier":38,"../util/geo":40,"../util/math":42,"lodash":3}],32:[function(require,module,exports){
 // 2-dimensional point object.
 
 'use strict';
@@ -31852,7 +32015,7 @@ module.exports = Rect;
 },{"../objects/point":32}],34:[function(require,module,exports){
 // Text object
 
-// Internally the object is called "gText" to avoid conflicts with the DOM Text object.
+// Internally the object is called "GText" to avoid conflicts with the DOM Text object.
 // Externally it is exposed as g.Text.
 
 'use strict';
@@ -31873,7 +32036,7 @@ var _dummyContext = null;
 //     new g.Text('Hello', [0, 0], {fontFamily: 'Helvetica', fontSize: 12, textAlign: 'center'});
 //     new g.Text('Hello', 0, 0, {fontFamily: 'Helvetica', fontSize: 12});  // align: center is the default.
 //     new g.Text('Hello', {fontFamily: 'Helvetica', fontSize: 12}); // the position defaults to 0,0.
-var gText = function (text) {
+var GText = function (text) {
     var args = Array.prototype.slice.call(arguments, 1),
         secondArg = arguments[1],
         thirdArg = arguments[2],
@@ -31938,8 +32101,8 @@ var gText = function (text) {
     this.transform = new Transform();
 };
 
-gText.prototype.clone = function () {
-    var t = new gText();
+GText.prototype.clone = function () {
+    var t = new GText();
     t.text = this.text;
     t.x = this.x;
     t.y = this.y;
@@ -31953,7 +32116,7 @@ gText.prototype.clone = function () {
 
 // The `measureWidth` function requires a canvas, so we set up a dummy one
 // that we re-use for the duration of the page.
-gText._getDummyContext = function () {
+GText._getDummyContext = function () {
     if (!_dummyContext) {
         if (typeof document !== 'undefined') {
             _dummyContext = document.createElement('canvas').getContext('2d');
@@ -31972,17 +32135,17 @@ gText._getDummyContext = function () {
     return _dummyContext;
 };
 
-gText.prototype._getFont = function () {
+GText.prototype._getFont = function () {
     return this.fontSize + 'px ' + this.fontFamily;
 };
 
-gText.prototype.colorize = function (fill) {
+GText.prototype.colorize = function (fill) {
     var t = this.clone();
     t.fill = Color.clone(fill);
     return t;
 };
 
-gText.prototype.draw = function (ctx) {
+GText.prototype.draw = function (ctx) {
     ctx.save();
     ctx.font = this._getFont();
     ctx.textAlign = this.textAlign;
@@ -31993,8 +32156,8 @@ gText.prototype.draw = function (ctx) {
     ctx.restore();
 };
 
-gText.prototype.bounds = function () {
-    var ctx = gText._getDummyContext(),
+GText.prototype.bounds = function () {
+    var ctx = GText._getDummyContext(),
         metrics,
         x = this.x;
     ctx.font = this._getFont();
@@ -32008,7 +32171,7 @@ gText.prototype.bounds = function () {
     return new Rect(x, this.y - this.fontSize, metrics.width, this.fontSize * 1.2);
 };
 
-gText.prototype.toSVG = function () {
+GText.prototype.toSVG = function () {
     var svg = '<text';
     svg += ' x="' + this.x + '"';
     svg += ' y="' + this.y + '"';
@@ -32032,7 +32195,7 @@ gText.prototype.toSVG = function () {
     return svg;
 };
 
-module.exports = gText;
+module.exports = GText;
 },{"../objects/color":28,"../objects/rect":33,"../objects/transform":35}],35:[function(require,module,exports){
 // 2-dimensional transformation matrix
 
@@ -32153,32 +32316,47 @@ Transform.prototype.transformPoints = function (points) {
 };
 
 Transform.prototype.transformPath = function (path) {
-    var _this = this,
-        point,
-        ctrl1,
-        ctrl2,
-        commands = _.map(path.commands, function (cmd) {
-            if (cmd.type === MOVETO) {
-                point = _this.transformPoint({x: cmd.x, y: cmd.y});
-                return { type: MOVETO, x: point.x, y: point.y };
-            } else if (cmd.type === LINETO) {
-                point = _this.transformPoint({x: cmd.x, y: cmd.y});
-                return { type: LINETO, x: point.x, y: point.y };
-            } else if (cmd.type === QUADTO) {
-                point = _this.transformPoint({x: cmd.x, y: cmd.y});
-                ctrl1 = _this.transformPoint({x: cmd.x1, y: cmd.y1});
-                return { type: QUADTO, x1: ctrl1.x, y1: ctrl1.y, x: point.x, y: point.y };
-            } else if (cmd.type === CURVETO) {
-                point = _this.transformPoint({x: cmd.x, y: cmd.y});
-                ctrl1 = _this.transformPoint({x: cmd.x1, y: cmd.y1});
-                ctrl2 = _this.transformPoint({x: cmd.x2, y: cmd.y2});
-                return { type: CURVETO, x1: ctrl1.x, y1: ctrl1.y, x2: ctrl2.x, y2: ctrl2.y, x: point.x, y: point.y };
-            } else if (cmd.type === CLOSE) {
-                return cmd;
-            } else {
+    var m = this.m;
+    var commands = [];
+    commands.length = path.commands.length;
+    for (var i = 0, l = path.commands.length; i < l; i++) {
+        var cmd = path.commands[i];
+        switch(cmd.type) {
+            case MOVETO:
+            case LINETO:
+                commands[i] = {
+                    type: cmd.type,
+                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
+                    y: cmd.x * m[1] + cmd.y * m[4] + m[7]
+                };
+                break;
+            case QUADTO:
+                commands[i] = {
+                    type: QUADTO,
+                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
+                    y: cmd.x * m[1] + cmd.y * m[4] + m[7],
+                    x1: cmd.x1 * m[0] + cmd.y1 * m[3] + m[6],
+                    y1: cmd.x1 * m[1] + cmd.y1 * m[4] + m[7]
+                };
+                break;
+            case CURVETO:
+                commands[i] = {
+                    type: CURVETO,
+                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
+                    y: cmd.x * m[1] + cmd.y * m[4] + m[7],
+                    x1: cmd.x1 * m[0] + cmd.y1 * m[3] + m[6],
+                    y1: cmd.x1 * m[1] + cmd.y1 * m[4] + m[7],
+                    x2: cmd.x2 * m[0] + cmd.y2 * m[3] + m[6],
+                    y2: cmd.x2 * m[1] + cmd.y2 * m[4] + m[7]
+                };
+                break;
+            case CLOSE:
+                commands[i] = { type: CLOSE };
+                break;
+            default:
                 throw new Error('Unknown command type ' + cmd);
-            }
-        });
+        }
+    }
     return new Path(commands, path.fill, path.stroke, path.strokeWidth);
 };
 
@@ -32226,7 +32404,7 @@ Transform.prototype.transformShape = function (shape) {
 
 module.exports = Transform;
 
-},{"../objects/group":29,"../objects/path":31,"../objects/point":32,"../util/bezier":38,"../util/math":42,"lodash":4}],36:[function(require,module,exports){
+},{"../objects/group":29,"../objects/path":31,"../objects/point":32,"../util/bezier":38,"../util/math":42,"lodash":3}],36:[function(require,module,exports){
 // Mixin for Path and Group
 
 'use strict';
@@ -32646,7 +32824,7 @@ bezier.extrema = function (x1, y1, x2, y2, x3, y3, x4, y4) {
 
 module.exports = bezier;
 
-},{"../objects/point":32,"../objects/rect":33,"../util/math":42,"lodash":4}],39:[function(require,module,exports){
+},{"../objects/point":32,"../objects/rect":33,"../util/math":42,"lodash":3}],39:[function(require,module,exports){
 // Color conversion functions
 
 'use strict';
@@ -32832,12 +33010,13 @@ color.rgba2hex = function (r, g, b, a) {
 
 // Converts the given hexadecimal color string to R,G,B (between 0.0-1.0).
 color.hex2rgb = function (hex) {
-    var arr, r, g, b;
+    var r, g, b;
     hex = hex.replace(/^#/, '');
-    if (hex.length < 6) { // hex += hex[-1] * (6-hex.length);
-        arr = [];
-        arr.length = 6 - hex.length;
-        hex += arr.join(hex.substr(hex.length - 1));
+    if ((hex.length !== 3 && hex.length !== 6) || !(/^[0-9a-fA-F]*$/.test(hex))) {
+        throw new Error('Invalid hex value: #' + hex);
+    }
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
     }
     r = parseInt(hex.substr(0, 2), 16) / 255;
     g = parseInt(hex.substr(2, 2), 16) / 255;
@@ -33986,13 +34165,19 @@ exports.interpret = function (svgNode) {
 };
 
 exports.parseString = function (s) {
-    var doc = new xmldom.DOMParser().parseFromString(s);
+    var doc = new xmldom.DOMParser({errorHandler:
+        function (key, msg) {
+            throw new Error('Could not parse string \"' + String(s) + '\": ' + msg);
+        }
+    }).parseFromString(s);
     if (doc) {
         return exports.interpret(doc.documentElement);
+    } else {
+        return null;
     }
 };
 
-},{"../objects/color":28,"../objects/group":29,"../objects/path":31,"../objects/point":32,"../objects/transform":35,"lodash":4,"xmldom":6}],45:[function(require,module,exports){
+},{"../objects/color":28,"../objects/group":29,"../objects/path":31,"../objects/point":32,"../objects/transform":35,"lodash":3,"xmldom":6}],45:[function(require,module,exports){
 // vg.js
 // JavaScript library for vector graphics
 // https://github.com/nodebox/vg.js
@@ -34044,5 +34229,5 @@ importCommands(require('./commands/filters'));
 importCommands(require('./commands/shapes'));
 
 module.exports = vg;
-},{"./commands/draw":25,"./commands/filters":26,"./commands/shapes":27,"./objects/color":28,"./objects/group":29,"./objects/matrix4":30,"./objects/path":31,"./objects/point":32,"./objects/rect":33,"./objects/text":34,"./objects/transform":35,"./objects/transformable":36,"./objects/vec3":37,"./util/bezier":38,"./util/color":39,"./util/geo":40,"./util/math":42,"./util/random":43,"./util/svg":44,"lodash":4}]},{},[9])(9)
+},{"./commands/draw":25,"./commands/filters":26,"./commands/shapes":27,"./objects/color":28,"./objects/group":29,"./objects/matrix4":30,"./objects/path":31,"./objects/point":32,"./objects/rect":33,"./objects/text":34,"./objects/transform":35,"./objects/transformable":36,"./objects/vec3":37,"./util/bezier":38,"./util/color":39,"./util/geo":40,"./util/math":42,"./util/random":43,"./util/svg":44,"lodash":3}]},{},[9])(9)
 });
