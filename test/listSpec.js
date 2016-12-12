@@ -19,3 +19,25 @@ describe('The interleave function', function () {
     });
 
 });
+
+
+describe('The repeat function', function () {
+
+    it('works with simple items', function () {
+        assert.deepEqual(g.repeat(42, -1), []);
+        assert.deepEqual(g.repeat(42, 0), []);
+        assert.deepEqual(g.repeat(42, 1), [42]);
+        assert.deepEqual(g.repeat(42, 3), [42, 42, 42]);
+    });
+
+    it('works with list items', function () {
+        assert.deepEqual(g.repeat([1, 8], 3), [1, 8, 1, 8, 1, 8]);
+        assert.deepEqual(g.repeat([], 3), []);
+    });
+
+    it('works per-item', function () {
+        assert.deepEqual(g.repeat([1, 8], 3, true), [1, 1, 1, 8, 8, 8]);
+        assert.deepEqual(g.repeat([], 3, true), []);
+    });
+
+});

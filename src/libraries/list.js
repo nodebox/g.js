@@ -136,6 +136,9 @@ g.randomSample = function (l, amount, seed) {
 
 g.repeat = function (l, amount, perItem) {
     if (!l) { return []; }
+    if (!Array.isArray(l)) {
+        l = [l];
+    }
     if (amount <= 0) { return []; }
     var i, j, v,
         newList = [];
