@@ -33,6 +33,8 @@ function getNativeModes() {
     var dCanvas = document.createElement('canvas');
     var ctx = dCanvas.getContext('2d');
 
+    if (!ctx) { return {}; }
+
     var native = ['source-over', 'source-in', 'source-out', 'source-atop',
             'destination-over', 'destination-in', 'destination-out',
             'destination-atop', 'lighter', 'darker', 'copy', 'xor'];
