@@ -68,6 +68,12 @@ g.boolean = function (v) {
 
 g.ceil = Math.ceil;
 
+g.clamp = function (v, min, max) {
+    min = typeof min === 'number' ? min : 0;
+    max = typeof max === 'number' ? max : 1;
+    return v < min ? min : (v > max ? max : v);
+};
+
 g.compare = function (v1, v2, comparator) {
     if (comparator === '<') {
         return v1 < v2;

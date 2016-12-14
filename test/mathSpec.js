@@ -72,6 +72,26 @@ describe('The even function', function () {
 
 });
 
+describe('The clamp function', function () {
+
+    it('clamps the value between min and max', function () {
+        assert.equal(g.clamp(50, 0, 100), 50);
+        assert.equal(g.clamp(0, 0, 100), 0);
+        assert.equal(g.clamp(100, 0, 100), 100);
+        assert.equal(g.clamp(-50, 0, 100), 0);
+        assert.equal(g.clamp(500, 0, 100), 100);
+    });
+
+    it('clamps to 0-1 default values', function () {
+        assert.equal(g.clamp(0.5), 0.5);
+        assert.equal(g.clamp(0.0), 0.0);
+        assert.equal(g.clamp(1.0), 1.0);
+        assert.equal(g.clamp(-0.5), 0.0);
+        assert.equal(g.clamp(10.0), 1.0);
+    });
+
+});
+
 describe('The multiply function', function () {
 
     it('does multiplication', function () {
@@ -192,7 +212,7 @@ describe('The wave functions', function () {
 
         assertAlmostEqual(g.sineWave(-0.2, -1, 1, 1, 0.2), 0);
     });
-    
+
     it('returns a valid square wave', function () {
         assert.equal(g.squareWave(0), 1);
         assert.equal(g.squareWave(0.499), 1);
