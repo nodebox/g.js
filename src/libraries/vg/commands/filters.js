@@ -3,7 +3,7 @@
 'use strict';
 
 var _ = require('lodash');
-var ClipperLib = require('js-clipper');
+var ClipperLib = require('../../../../third_party/clipper');
 var bezier = require('../util/bezier');
 var geo = require('../util/geo');
 var math = require('../util/math');

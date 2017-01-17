@@ -32,7 +32,6 @@
     "async": "~0.2.10",
     "lodash": "^3.7.0",
     "xmldom": "^0.1.19",
-    "js-clipper": "^1.0.1",
     "stackblur": "^1.0.0"
   },
   "devDependencies": {

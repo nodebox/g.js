@@ -599,6 +599,15 @@ describe('The snap filter', function () {
     });
 });
 
+describe('The clipper', function () {
+    it('can clip simple paths', function () {
+        var p1 = vg.rect(50, 50, 100, 100);
+        var p2 = vg.rect(100, 80, 100, 100);
+        var p3 = vg.compound(p1, p2, 'intersection');
+        assertRectsAlmostEqual(p3.bounds(), new vg.Rect(50, 30, 50, 70));
+    });
+});
+
 describe('The SVG module', function () {
     it('can parse rects', function () {
         var r = vg.svg.parseString('<rect x="10" y="20" width="30" height="40" fill="blue"/>');
