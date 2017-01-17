@@ -29,16 +29,16 @@
   },
   "homepage": "https://github.com/nodebox/g.js",
   "dependencies": {
-    "async": "~0.2.10",
-    "lodash": "^3.7.0",
-    "xmldom": "^0.1.19",
+    "async": "^2.1.4",
+    "lodash": "^4.17.4",
+    "xmldom": "^0.1.27",
     "stackblur": "^1.0.0"
   },
   "devDependencies": {
-    "browserify": "^9.0.8",
-    "jshint": "^2.7.0",
-    "mocha": "^2.2.4",
-    "uglifyify": "^3.0.1",
-    "watchify": "^3.1.2"
+    "browserify": "^13.3.0",
+    "jshint": "^2.9.4",
+    "mocha": "^3.2.0",
+    "uglifyify": "^3.0.4",
+    "watchify": "^3.8.0"
   }
 }
