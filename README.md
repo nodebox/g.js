@@ -43,10 +43,10 @@ Running `npm run dist` will build a complete and minified version of g.js in the
 
 ### Publishing a release
 
-1. Update the version number in `package.json` and `bower.json`.
+1. Update the version number in `package.json`.
 2. Run `npm run dist` to update the files in the `dist` folder.
 3. Commit (`git commit -a`) and create a tag (e.g. `git tag 1.2.1`). Push and push tags (`git push && git push --tags`).
-4. Run `npm publish` to publish the package to npm. You don't have to do anything for Bower.
+4. Run `npm publish` to publish the package to npm.
 
 Credits
 -------
