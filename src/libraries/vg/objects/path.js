@@ -2,8 +2,6 @@
 
 'use strict';
 
-var _ = require('lodash');
-
 var bezier = require('../util/bezier');
 var geo = require('../util/geo');
 var math = require('../util/math');
@@ -37,6 +35,12 @@ function _cloneCommand(cmd) {
         newCmd.y2 = cmd.y2;
     }
     return newCmd;
+}
+
+function flatten(arr) {
+    return arr.reduce(function (flat, toFlatten) {
+        return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+    }, []);
 }
 
 var Path = function (commands, fill, stroke, strokeWidth) {
@@ -291,7 +295,10 @@ Path.prototype.invert = function () {
 Path.prototype.contours = function () {
     var contours = [],
         currentContour = [];
-    _.each(this.commands, function (cmd) {
+
+    var cmd;
+    for (var i = 0; i < this.commands.length; i += 1) {
+        cmd = this.commands[i];
         if (cmd.type === MOVETO) {
             if (currentContour.length !== 0) {
                 contours.push(currentContour);
@@ -300,7 +307,7 @@ Path.prototype.contours = function () {
         } else {
             currentContour.push(cmd);
         }
-    });
+    }
 
     if (currentContour.length !== 0) {
         contours.push(currentContour);
@@ -319,7 +326,9 @@ Path.prototype.bounds = function () {
         maxX = -(Number.MAX_VALUE),
         maxY = -(Number.MAX_VALUE);
 
-    _.each(this.commands, function (cmd) {
+    var cmd;
+    for (var i = 0; i < this.commands.length; i += 1) {
+        cmd = this.commands[i];
         if (cmd.type === MOVETO || cmd.type === LINETO) {
             px = cmd.x;
             py = cmd.y;
@@ -338,7 +347,7 @@ Path.prototype.bounds = function () {
             if (bottom > maxY) { maxY = bottom; }
             prev = cmd;
         }
-    });
+    }
 
     return new Rect(minX, minY, maxX - minX, maxY - minY);
 };
@@ -559,10 +568,11 @@ Path.prototype.draw = function (ctx) {
 };
 
 Path.combine = function () {
-    var shapes = _.flatten(arguments);
-    var commands = [];
+    var args = Array.apply(null, arguments);
+    var shapes = flatten(args);
+    var shape, commands = [];
     for (var i = 0; i < shapes.length; i += 1) {
-        var shape = shapes[i];
+        shape = shapes[i];
         if (shape.commands) {
             commands = commands.concat(shape.commands);
         } else if (shape.shapes) {

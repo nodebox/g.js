@@ -2,8 +2,6 @@
 
 'use strict';
 
-var _ = require('lodash');
-
 var bezier = require('../util/bezier');
 var math = require('../util/math');
 
@@ -110,10 +108,11 @@ Transform.prototype.transformPoint = function (point) {
 };
 
 Transform.prototype.transformPoints = function (points) {
-    var _this = this;
-    return _.map(points, function (pt) {
-        return _this.transformPoint(pt);
-    });
+    var transformedPoints = [];
+    for (var i = 0; i < points.length; i += 1) {
+        transformedPoints.push(this.transformPoint(points[i]));
+    }
+    return transformedPoints;
 };
 
 Transform.prototype.transformPath = function (path) {
@@ -168,11 +167,11 @@ Transform.prototype.transformText = function (text) {
 };
 
 Transform.prototype.transformGroup = function (group) {
-    var _this = this,
-        shapes = _.map(group.shapes, function (shape) {
-            return _this.transformShape(shape);
-        });
-    return new Group(shapes);
+    var transformedShapes = [];
+    for (var i = 0; i < group.shapes.length; i += 1) {
+        transformedShapes.push(this.transformShape(group.shapes[i]));
+    }
+    return new Group(transformedShapes);
 };
 
 Transform.prototype.transformShape = function (shape) {

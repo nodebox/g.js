@@ -2,8 +2,6 @@
 
 'use strict';
 
-var _ = require('lodash');
-
 var Path = require('../objects/path');
 var Rect = require('../objects/rect');
 var Color = require('../objects/color');
@@ -41,23 +39,29 @@ Group.prototype.colorize = function (options) {
         if (args[1] !== undefined) { options.stroke = args[1]; }
         if (args[2] !== undefined) { options.strokeWidth = args[2]; }
     }
-    var shapes = _.map(this.shapes, function (shape) {
-        return shape.colorize(options);
-    });
+    var shapes = [];
+    shapes.length = this.shapes.length;
+    for (var i = 0; i < this.shapes.length; i += 1) {
+        shapes[i] = this.shapes[i].colorize(options);
+    }
     return new Group(shapes);
 };
 
 Group.prototype.desaturate = function (options) {
-    var shapes = _.map(this.shapes, function (shape) {
-        return shape.desaturate(options);
-    });
+    var shapes = [];
+    shapes.length = this.shapes.length;
+    for (var i = 0; i < this.shapes.length; i += 1) {
+        shapes[i] = this.shapes[i].desaturate(options);
+    }
     return new Group(shapes);
 };
 
 Group.prototype.invert = function () {
-    var shapes = _.map(this.shapes, function (shape) {
-        return shape.invert();
-    });
+    var shapes = [];
+    shapes.length = this.shapes.length;
+    for (var i = 0; i < this.shapes.length; i += 1) {
+        shapes[i] = this.shapes[i].invert();
+    }
     return new Group(shapes);
 };
 
@@ -101,30 +105,34 @@ Group.prototype.length = function (precision) {
 };
 
 Group.prototype.resampleByAmount = function (points, perContour) {
-    var path, shapes;
+    var path;
     if (!perContour) {
         path = new Path.combine(this);
         return path.resampleByAmount(points, perContour);
     }
-
-    shapes = _.map(this.shapes, function (shape) {
-        return shape.resampleByAmount(points, perContour);
-    });
+    var shapes = [];
+    shapes.length = this.shapes.length;
+    for (var i = 0; i < this.shapes.length; i += 1) {
+        shapes[i] = this.shapes[i].resampleByAmount(points, perContour);
+    }
     return new Group(shapes);
 };
 
 Group.prototype.resampleByLength = function (length) {
-    var shapes = _.map(this.shapes, function (shape) {
-        return shape.resampleByLength(length);
-    });
+    var shapes = [];
+    shapes.length = this.shapes.length;
+    for (var i = 0; i < this.shapes.length; i += 1) {
+        shapes[i] = this.shapes[i].resampleByLength(length);
+    }
     return new Group(shapes);
 };
 
 Group.prototype.toSVG = function () {
-    var l;
-    l = _.map(this.shapes, function (shape) {
-        return shape.toSVG();
-    });
+    var l = [];
+    l.length = this.shapes.length;
+    for (var i = 0; i < this.shapes.length; i += 1) {
+        l[i] = this.shapes[i].toSVG();
+    }
     return '<g>' + l.join('') + '</g>';
 };
 

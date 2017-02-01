@@ -25,10 +25,10 @@ vg.isDrawable = function (o) {
 };
 
 vg.drawPoints = function (ctx, points) {
-    var pt, i;
     ctx.fillStyle = 'blue';
     ctx.beginPath();
-    for (i = 0; i < points.length; i += 1) {
+    var pt;
+    for (var i = 0; i < points.length; i += 1) {
         pt = points[i];
         ctx.moveTo(pt.x, pt.y);
         ctx.arc(pt.x, pt.y, 2, 0, Math.PI * 2, false);
@@ -37,17 +37,18 @@ vg.drawPoints = function (ctx, points) {
 };
 
 vg.drawColoredPoints = function (ctx, points) {
+    var pt;
     for (var i = 0, n = points.length; i < n; i += 1) {
-        var pt = points[i];
+        pt = points[i];
         ctx.fillStyle = Color.toCSS(pt);
         ctx.fillRect(pt.x - 2, pt.y - 2, 4, 4);
     }
 };
 
 vg.drawRectangles = function (ctx, rectangles) {
-    var i, r;
     ctx.save();
-    for (i = 0; i < rectangles.length; i += 1) {
+    var r;
+    for (var i = 0; i < rectangles.length; i += 1) {
         r = rectangles[i];
         ctx.strokeStyle = 'black';
         ctx.strokeWidth = 1;
@@ -58,9 +59,9 @@ vg.drawRectangles = function (ctx, rectangles) {
 };
 
 vg.drawColors = function (ctx, colors) {
-    var i, c;
     ctx.save();
-    for (i = 0; i < colors.length; i += 1) {
+    var c;
+    for (var i = 0; i < colors.length; i += 1) {
         c = colors[i];
         ctx.fillStyle = Color.toCSS(c);
         ctx.fillRect(0, 0, 30, 30);

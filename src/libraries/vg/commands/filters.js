@@ -2,7 +2,6 @@
 
 'use strict';
 
-var _ = require('lodash');
 var ClipperLib = require('../../../../third_party/clipper');
 var bezier = require('../util/bezier');
 var geo = require('../util/geo');
@@ -16,6 +15,12 @@ var Point = require('../objects/point');
 var Rect = require('../objects/rect');
 var Transform = require('../objects/transform');
 var Transformable = require('../objects/transformable');
+
+function flatten(arr) {
+    return arr.reduce(function (flat, toFlatten) {
+        return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+    }, []);
+}
 
 function _cloneCommand(cmd) {
     var newCmd = {type: cmd.type};
@@ -97,7 +102,15 @@ vg.makeRect = function (x, y, width, height) {
 // This function works like makeGroup, except that this can take any number
 // of arguments.
 vg.merge = function () {
-    return new Group(_.reject(_.flatten(arguments, true), _.isEmpty));
+    var args = Array.apply(null, arguments);
+    args = flatten(args);
+    var shapes = [];
+    for (var i = 0; i < args.length; i += 1) {
+        if (args[i] && args[i].length !== 0) {
+            shapes.push(args[i]);
+        }
+    }
+    return new Group(shapes);
 };
 
 vg.combinePaths = function (shape) {
@@ -108,10 +121,18 @@ vg.shapePoints = vg.toPoints = function (shape) {
     if (!shape) {
         return [];
     }
+    var i;
     if (shape.commands) {
-        return _.map(_.filter(shape.commands, function (cmd) { if (cmd.x !== undefined) { return true; } return false; }), function (cmd) { return new Point(cmd.x, cmd.y); });
+        var cmd, commands = [];
+        for (i= 0; i < shape.commands.length; i += 1) {
+            cmd = shape.commands[i];
+            if (cmd.x !== undefined) {
+                commands.push(new Point(cmd.x, cmd.y));
+            }
+        }
+        return commands;
     }
-    var i, points = [];
+    var points = [];
     for (i = 0; i < shape.shapes.length; i += 1) {
         points = points.concat(vg.shapePoints(shape.shapes[i]));
     }
@@ -245,6 +266,62 @@ vg.fitTo = function (shape, bounding, stretch) {
     return vg.fit(shape, {x: bx + bw / 2, y: by + bh / 2}, bw, bh, stretch);
 };
 
+vg._mirrorPoints = function (points, fn) {
+    var pt, mPoints = [];
+    mPoints.length = points.length;
+    for (var i = 0; i < points.length; i += 1) {
+        pt = points[i];
+        mPoints[i] = fn(pt.x, pt.y);
+    }
+    return mPoints;
+};
+
+vg._mirrorPath = function (path, fn) {
+    var pt, cmd, ctrl1, ctrl2;
+    var p = new Path([], path.fill, path.stroke, path.strokeWidth);
+    for (var i = 0; i < path.commands.length; i += 1) {
+        cmd = path.commands[i];
+        if (cmd.type === bezier.MOVETO) {
+            pt = fn(cmd.x, cmd.y);
+            p.moveTo(pt.x, pt.y);
+        } else if (cmd.type === bezier.LINETO) {
+            pt = fn(cmd.x, cmd.y);
+            p.lineTo(pt.x, pt.y);
+        } else if (cmd.type === bezier.CURVETO) {
+            pt = fn(cmd.x, cmd.y);
+            ctrl1 = fn(cmd.x1, cmd.y1);
+            ctrl2 = fn(cmd.x2, cmd.y2);
+            p.curveTo(ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, pt.x, pt.y);
+        } else if (cmd.type === bezier.CLOSE) {
+            p.close();
+        } else {
+            throw new Error('Unknown command ' + cmd);
+        }
+    }
+    return p;
+};
+
+vg._mirrorGroup = function (group, fn) {
+    var shape, mShapes = [];
+    mShapes.length = group.shapes.length;
+    for (var i = 0; i < group.shapes.length; i += 1) {
+        shape = group.shapes[i];
+        mShapes[i] = vg._mirror(shape, fn);
+    }
+    return new Group(mShapes);
+};
+
+vg._mirror = function (shape, fn) {
+    if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+        return vg._mirrorPoints(shape, fn);
+    }
+    if (shape.shapes) {
+        return vg._mirrorGroup(shape, fn);
+    } else {
+        return vg._mirrorPath(shape, fn);
+    }
+};
+
 vg.mirror = function (shape, angle, origin, keepOriginal) {
     if (!shape) {
         return;
@@ -254,7 +331,7 @@ vg.mirror = function (shape, angle, origin, keepOriginal) {
         angle = angle || 90;
     }
 
-    var f = function (x, y) {
+    var fn = function (x, y) {
         var d = geo.distance(x, y, origin.x, origin.y),
             a = geo.angle(x, y, origin.x, origin.y),
             pt = geo.coordinates(origin.x, origin.y, 180 + angle, d * Math.cos(math.radians(a - angle)));
@@ -264,55 +341,7 @@ vg.mirror = function (shape, angle, origin, keepOriginal) {
         return new Point(pt.x, pt.y);
     };
 
-    var mirrorPath, mirrorPoints, mirrorGroup, mirror;
-
-    mirrorPath = function (path) {
-        var pt, ctrl1, ctrl2;
-        var p = new Path([], path.fill, path.stroke, path.strokeWidth);
-        for (var i = 0; i < path.commands.length; i += 1) {
-            var cmd = path.commands[i];
-            if (cmd.type === bezier.MOVETO) {
-                pt = f(cmd.x, cmd.y);
-                p.moveTo(pt.x, pt.y);
-            } else if (cmd.type === bezier.LINETO) {
-                pt = f(cmd.x, cmd.y);
-                p.lineTo(pt.x, pt.y);
-            } else if (cmd.type === bezier.CURVETO) {
-                pt = f(cmd.x, cmd.y);
-                ctrl1 = f(cmd.x1, cmd.y1);
-                ctrl2 = f(cmd.x2, cmd.y2);
-                p.curveTo(ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, pt.x, pt.y);
-            } else if (cmd.type === bezier.CLOSE) {
-                p.close();
-            } else {
-                throw new Error('Unknown command ' + cmd);
-            }
-        }
-        return p;
-    };
-
-    mirrorPoints = function (points) {
-        return _.map(points, function (point) {
-            return f(point.x, point.y);
-        });
-    };
-
-    mirrorGroup = function (group) {
-        var shapes = _.map(group.shapes, function (shape) {
-            return mirror(shape);
-        });
-        return new Group(shapes);
-    };
-
-    mirror = function (shape) {
-        if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
-            return mirrorPoints(shape);
-        }
-        var fn = (shape.shapes) ? mirrorGroup : mirrorPath;
-        return fn(shape);
-    };
-
-    var newShape = mirror(shape);
+    var newShape = vg._mirror(shape, fn);
 
     if (keepOriginal) {
         if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
@@ -342,6 +371,51 @@ vg.resampleByAmount = function (shape, amount, perContour) {
     return shape.resampleByAmount(amount, perContour);
 };
 
+vg._wigglePoints = function (shape, offset, rand) {
+    var i, dx, dy;
+    if (shape.commands) {
+        var p = new Path([], shape.fill, shape.stroke, shape.strokeWidth);
+        for (i = 0; i < shape.commands.length; i += 1) {
+            dx = (rand(0, 1) - 0.5) * offset.x * 2;
+            dy = (rand(0, 1) - 0.5) * offset.y * 2;
+            var cmd = shape.commands[i];
+            if (cmd.type === bezier.MOVETO) {
+                p.moveTo(cmd.x + dx, cmd.y + dy);
+            } else if (cmd.type === bezier.LINETO) {
+                p.lineTo(cmd.x + dx, cmd.y + dy);
+            } else if (cmd.type === bezier.CURVETO) {
+                p.curveTo(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x + dx, cmd.y + dy);
+            } else if (cmd.type === bezier.CLOSE) {
+                p.close();
+            }
+        }
+        return p;
+    } else if (shape.shapes) {
+        var wShapes = [];
+        wShapes.length = shape.shapes.length;
+        for (i = 0; i < shape.shapes.length; i += 1) {
+            wShapes[i] = vg._wigglePoints(shape.shapes[i], offset, rand);
+        }
+        return new Group(wShapes);
+    } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined){
+        var wPoints = [];
+        wPoints.length = shape.length;
+        for (i = 0; i < shape.length; i += 1) {
+            dx = (rand(0, 1) - 0.5) * offset.x * 2;
+            dy = (rand(0, 1) - 0.5) * offset.y * 2;
+            wPoints[i] = new Point(shape[i].x + dx, shape[i].y + dy);
+        }
+        return wPoints;
+    } else {
+        var w = [];
+        w.length = shape.length;
+        for (i = 0; i < shape.length; i += 1) {
+            w[i] = vg._wigglePoints(shape[i], offset, rand);
+        }
+        return w;
+    }
+};
+
 vg.wigglePoints = function (shape, offset, seed) {
     seed = seed !== undefined ? seed : Math.random();
     var rand = random.generator(seed);
@@ -350,40 +424,37 @@ vg.wigglePoints = function (shape, offset, seed) {
     } else if (typeof offset === 'number') {
         offset = {x: offset, y: offset};
     }
-    var wigglePoints = function (shape) {
-        var i, dx, dy;
-        if (shape.commands) {
-            var p = new Path([], shape.fill, shape.stroke, shape.strokeWidth);
-            for (i = 0; i < shape.commands.length; i += 1) {
-                dx = (rand(0, 1) - 0.5) * offset.x * 2;
-                dy = (rand(0, 1) - 0.5) * offset.y * 2;
-                var cmd = shape.commands[i];
-                if (cmd.type === bezier.MOVETO) {
-                    p.moveTo(cmd.x + dx, cmd.y + dy);
-                } else if (cmd.type === bezier.LINETO) {
-                    p.lineTo(cmd.x + dx, cmd.y + dy);
-                } else if (cmd.type === bezier.CURVETO) {
-                    p.curveTo(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x + dx, cmd.y + dy);
-                } else if (cmd.type === bezier.CLOSE) {
-                    p.close();
-                }
-            }
-            return p;
-        } else if (shape.shapes) {
-            return new Group(_.map(shape.shapes, wigglePoints));
-        } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined){
-            var points = [];
-            for (i = 0; i < shape.length; i += 1) {
-                dx = (rand(0, 1) - 0.5) * offset.x * 2;
-                dy = (rand(0, 1) - 0.5) * offset.y * 2;
-                points.push(new Point(shape[i].x + dx, shape[i].y + dy));
-            }
-            return points;
-        } else {
-            return _.map(shape, wigglePoints);
+    return vg._wigglePoints(shape, offset, rand);
+};
+
+vg._wiggleContours = function (shape, offset, rand) {
+    var i;
+    if (shape.commands) {
+        var dx, dy, t,
+            subPaths = shape.contours(),
+            commands = [];
+        for (i = 0; i < subPaths.length; i += 1) {
+            dx = (rand(0, 1) - 0.5) * offset.x * 2;
+            dy = (rand(0, 1) - 0.5) * offset.y * 2;
+            t = new Transform().translate(dx, dy);
+            commands = commands.concat(t.transformShape(new Path(subPaths[i])).commands);
         }
-    };
-    return wigglePoints(shape);
+        return new Path(commands, shape.fill, shape.stroke, shape.strokeWidth);
+    } else if (shape.shapes) {
+        var wShapes = [];
+        wShapes.length = shape.shapes.length;
+        for (i = 0; i < shape.shapes.length; i += 1) {
+            wShapes[i] = vg._wiggleContours(shape.shapes[i], offset, rand);
+        }
+        return new Group(wShapes);
+    } else {
+        var w = [];
+        w.length = shape.length;
+        for (i = 0; i < shape.length; i += 1) {
+            w[i] = vg._wiggleContours(shape[i], offset, rand);
+        }
+        return w;
+    }
 };
 
 vg.wiggleContours = function (shape, offset, seed) {
@@ -394,25 +465,29 @@ vg.wiggleContours = function (shape, offset, seed) {
     } else if (typeof offset === 'number') {
         offset = {x: offset, y: offset};
     }
-    var wiggleContours = function (shape) {
-        if (shape.commands) {
-            var i, dx, dy, t,
-                subPaths = shape.contours(),
-                commands = [];
-            for (i = 0; i < subPaths.length; i += 1) {
+    return vg._wiggleContours(shape, offset, rand);
+};
+
+vg._wigglePaths = function (shape, offset, rand) {
+    if (shape.commands) {
+        return shape;
+    } else if (shape.shapes) {
+        return new Group(vg._wigglePaths(shape.shapes, offset, rand));
+    } else if (Array.isArray(shape)) {
+        var subShape, dx, dy, t, newShapes = [];
+        for (var i = 0; i < shape.length; i += 1) {
+            subShape = shape[i];
+            if (subShape.commands) {
                 dx = (rand(0, 1) - 0.5) * offset.x * 2;
                 dy = (rand(0, 1) - 0.5) * offset.y * 2;
                 t = new Transform().translate(dx, dy);
-                commands = commands.concat(t.transformShape(new Path(subPaths[i])).commands);
+                newShapes.push(t.transformShape(subShape));
+            } else if (subShape.shapes) {
+                newShapes.push(vg._wigglePaths(subShape, offset, rand));
             }
-            return new Path(commands, shape.fill, shape.stroke, shape.strokeWidth);
-        } else if (shape.shapes) {
-            return new Group(_.map(shape.shapes, wiggleContours));
-        } else {
-            return _.map(shape, wiggleContours);
         }
-    };
-    return wiggleContours(shape);
+        return newShapes;
+    }
 };
 
 vg.wigglePaths = function (shape, offset, seed) {
@@ -423,30 +498,7 @@ vg.wigglePaths = function (shape, offset, seed) {
     } else if (typeof offset === 'number') {
         offset = {x: offset, y: offset};
     }
-
-    var wigglePaths = function (shape) {
-        if (shape.commands) {
-            return shape;
-        } else if (shape.shapes) {
-            return new Group(wigglePaths(shape.shapes));
-        } else if (Array.isArray(shape)) {
-            var subShape, dx, dy, t, newShapes = [];
-            for (var i = 0; i < shape.length; i += 1) {
-                subShape = shape[i];
-                if (subShape.commands) {
-                    dx = (rand(0, 1) - 0.5) * offset.x * 2;
-                    dy = (rand(0, 1) - 0.5) * offset.y * 2;
-                    t = new Transform().translate(dx, dy);
-                    newShapes.push(t.transformShape(subShape));
-                } else if (subShape.shapes) {
-                    newShapes.push(wigglePaths(subShape));
-                }
-            }
-            return newShapes;
-        }
-    };
-
-    return wigglePaths(shape);
+    return vg._wigglePaths(shape, offset, rand);
 };
 
 vg.scatterPoints = function (shape, amount, seed) {
@@ -455,7 +507,7 @@ vg.scatterPoints = function (shape, amount, seed) {
         return;
     }
     seed = seed !== undefined ? seed : Math.random();
-    var i, j, tries, x, y,
+    var i, j, contourPath, nrKeypoints, tries, inContourCount, x, y,
         rand = random.generator(seed),
         bounds = shape.bounds(),
         bx = bounds.x,
@@ -464,19 +516,19 @@ vg.scatterPoints = function (shape, amount, seed) {
         bh = bounds.height,
         contours = shape.contours(),
         paths = [],
-        points = [];
+        points = [],
+        POINTS_PER_SEGMENT = 5;
 
     for (i = 0; i < contours.length; i++) {
-        var contourPath = new Path(contours[i]);
-        var nrKeypoints = contourPath.commands.length;
-        var POINTS_PER_SEGMENT = 5;
+        contourPath = new Path(contours[i]);
+        nrKeypoints = contourPath.commands.length;
         paths.push(contourPath.points(nrKeypoints * POINTS_PER_SEGMENT, {closed: true } ));
     }
 
     for (i = 0; i < amount; i += 1) {
         tries = 100;
         while (tries > 0) {
-            var inContourCount = 0;
+            inContourCount = 0;
             x = bx + rand(0, 1) * bw;
             y = by + rand(0, 1) * bh;
             for (j = 0; j < paths.length; j++) {
@@ -498,9 +550,9 @@ vg.connectPoints = function (points, closed) {
     if (!points) {
         return;
     }
-    var p = new Path();
+    var pt, p = new Path();
     for (var i = 0; i < points.length; i += 1) {
-        var pt = points[i];
+        pt = points[i];
         if (i === 0) {
             p.moveTo(pt.x, pt.y);
         } else {
@@ -554,125 +606,139 @@ vg.snap = function (shape, distance, strength, center) {
     strength = strength !== undefined ? strength : 1;
     center = center || Point.ZERO;
 
-    var snapShape = function (shape) {
-        if (shape.commands) {
-            var p = new Path([], shape.fill, shape.stroke, shape.strokeWidth);
-            for (var i = 0; i < shape.commands.length; i += 1) {
-                var cmd = shape.commands[i];
-                if (cmd.type === bezier.MOVETO || cmd.type === bezier.LINETO || cmd.type === bezier.CURVETO) {
-                    var x = math.snap(cmd.x + center.x, distance, strength) - center.x;
-                    var y = math.snap(cmd.y + center.y, distance, strength) - center.y;
-                    if (cmd.type === bezier.MOVETO) {
-                        p.moveTo(x, y);
-                    } else if (cmd.type === bezier.LINETO) {
-                        p.lineTo(x, y);
-                    } else if (cmd.type === bezier.CURVETO) {
-                        var x1 = math.snap(cmd.x1 + center.x, distance, strength) - center.x;
-                        var y1 = math.snap(cmd.y1 + center.y, distance, strength) - center.y;
-                        var x2 = math.snap(cmd.x2 + center.x, distance, strength) - center.x;
-                        var y2 = math.snap(cmd.y2 + center.y, distance, strength) - center.y;
-                        p.curveTo(x1, y1, x2, y2, x, y);
-                    }
-                } else if (cmd.type === bezier.CLOSE) {
-                    p.close();
-                } else {
-                    throw new Error('Invalid path command ' + cmd);
+    var i, x, y;
+    if (shape.commands) {
+        var p = new Path([], shape.fill, shape.stroke, shape.strokeWidth);
+        var cmd, x1, y1, x2, y2;
+        for (i = 0; i < shape.commands.length; i += 1) {
+            cmd = shape.commands[i];
+            if (cmd.type === bezier.MOVETO || cmd.type === bezier.LINETO || cmd.type === bezier.CURVETO) {
+                x = math.snap(cmd.x + center.x, distance, strength) - center.x;
+                y = math.snap(cmd.y + center.y, distance, strength) - center.y;
+                if (cmd.type === bezier.MOVETO) {
+                    p.moveTo(x, y);
+                } else if (cmd.type === bezier.LINETO) {
+                    p.lineTo(x, y);
+                } else if (cmd.type === bezier.CURVETO) {
+                    x1 = math.snap(cmd.x1 + center.x, distance, strength) - center.x;
+                    y1 = math.snap(cmd.y1 + center.y, distance, strength) - center.y;
+                    x2 = math.snap(cmd.x2 + center.x, distance, strength) - center.x;
+                    y2 = math.snap(cmd.y2 + center.y, distance, strength) - center.y;
+                    p.curveTo(x1, y1, x2, y2, x, y);
                 }
+            } else if (cmd.type === bezier.CLOSE) {
+                p.close();
+            } else {
+                throw new Error('Invalid path command ' + cmd);
             }
-            return p;
-        } else if (shape.shapes) {
-            return new Group(_.map(shape.shapes, snapShape));
-        } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
-            return _.map(shape, function (point) {
-                var x = math.snap(point.x + center.x, distance, strength) - center.x;
-                var y = math.snap(point.y + center.y, distance, strength) - center.y;
-                return new Point(x, y);
-            });
-        } else {
-            return _.map(shape, snapShape);
         }
-    };
-
-    return snapShape(shape);
+        return p;
+    } else if (shape.shapes) {
+        var sShapes = [];
+        sShapes.length = shape.shapes.length;
+        for (i = 0; i < shape.shapes.length; i += 1) {
+            sShapes[i] = vg.snap(shape.shapes[i], distance, strength, center);
+        }
+        return new Group(sShapes);
+    } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+        var point, sPoints = [];
+        sPoints.length = shape.length;
+        for (i = 0; i < shape.length; i += 1) {
+            point = shape[i];
+            x = math.snap(point.x + center.x, distance, strength) - center.x;
+            y = math.snap(point.y + center.y, distance, strength) - center.y;
+            sPoints[i] = new Point(x, y);
+        }
+        return sPoints;
+    } else {
+        var s = [];
+        s.length = shape.length;
+        for (i = 0; i < shape.length; i += 1) {
+            s[i] = vg.snap(shape[i], distance, strength, center);
+        }
+        return s;
+    }
 };
 
 vg.deletePoints = function (shape, bounding, invert) {
-    var deletePoints = function (shape) {
-        var i, cmd, commands = [];
-        var pt, points = [];
-        if (shape.commands) {
-            var newCurve = true;
-            for (i = 0; i < shape.commands.length; i += 1) {
-                cmd = _cloneCommand(shape.commands[i]);
-                if (cmd.x === undefined ||
-                        (invert && bounding.contains(cmd.x, cmd.y)) ||
-                        (!invert && !bounding.contains(cmd.x, cmd.y))) {
-                    if (newCurve && cmd.type !== bezier.MOVETO) {
-                        cmd.type = bezier.MOVETO;
-                    }
-                    commands.push(cmd);
-                    if (cmd.type === bezier.MOVETO) {
-                        newCurve = false;
-                    } else if (cmd.type === bezier.CLOSE) {
-                        newCurve = true;
-                    }
+    var i, cmd, commands = [];
+    var pt, points = [];
+    if (shape.commands) {
+        var newCurve = true;
+        for (i = 0; i < shape.commands.length; i += 1) {
+            cmd = _cloneCommand(shape.commands[i]);
+            if (cmd.x === undefined ||
+                    (invert && bounding.contains(cmd.x, cmd.y)) ||
+                    (!invert && !bounding.contains(cmd.x, cmd.y))) {
+                if (newCurve && cmd.type !== bezier.MOVETO) {
+                    cmd.type = bezier.MOVETO;
+                }
+                commands.push(cmd);
+                if (cmd.type === bezier.MOVETO) {
+                    newCurve = false;
+                } else if (cmd.type === bezier.CLOSE) {
+                    newCurve = true;
                 }
             }
-            return new Path(commands, shape.fill, shape.stroke, shape.strokeWidth);
-        } else if (shape.shapes) {
-            return new Group(_.map(shape.shapes, deletePoints));
-        } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined){
-            for (i = 0; i < shape.length; i += 1) {
-                pt = shape[i];
-                if ((invert && bounding.contains(pt.x, pt.y)) ||
-                   (!invert && !bounding.contains(pt.x, pt.y))) {
-                    points.push(_cloneCommand(pt));
-                }
-            }
-            return points;
-        } else {
-            return _.map(shape, deletePoints);
         }
-    };
-
-    return deletePoints(shape);
+        return new Path(commands, shape.fill, shape.stroke, shape.strokeWidth);
+    } else if (shape.shapes) {
+        var dShapes = [];
+        dShapes.length = shape.shapes.length;
+        for (i = 0; i < shape.shapes.length; i += 1) {
+            dShapes[i] = vg.deletePoints(shape.shapes[i], bounding, invert);
+        }
+        return new Group(dShapes);
+    } else if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined){
+        for (i = 0; i < shape.length; i += 1) {
+            pt = shape[i];
+            if ((invert && bounding.contains(pt.x, pt.y)) ||
+               (!invert && !bounding.contains(pt.x, pt.y))) {
+                points.push(_cloneCommand(pt));
+            }
+        }
+        return points;
+    } else {
+        var d = [];
+        d.length = shape.length;
+        for (i = 0; i < shape.length; i += 1) {
+            d[i] = vg.deletePoints(shape[i], bounding, invert);
+        }
+        return d;
+    }
 };
 
 vg.deletePaths = function (shape, bounding, invert) {
-    var deletePaths = function (shape) {
-        if (shape.commands) {
-            return null;
-        } else if (shape.shapes) {
-            return new Group(deletePaths(shape.shapes));
-        } else if (Array.isArray(shape)) {
-            var j, s, selected, cmd, subShapes, newShapes = [];
-            var shapes = shape;
-            for (var i = 0; i < shapes.length; i += 1) {
-                s = shapes[i];
-                if (s.commands) {
-                    selected = false;
-                    for (j = 0; j < s.commands.length; j += 1) {
-                        cmd = s.commands[j];
-                        if (cmd.x !== undefined && bounding.contains(cmd.x, cmd.y)) {
-                            selected = true;
-                            break;
-                        }
-                    }
-                    if (!((invert && !selected) || (selected && !invert))) {
-                        newShapes.push(s);
-                    }
-                } else if (s.shapes) {
-                    subShapes = deletePaths(s);
-                    if (subShapes.length !== 0) {
-                        newShapes.push(subShapes);
+    if (shape.commands) {
+        return null;
+    } else if (shape.shapes) {
+        return new Group(vg.deletePaths(shape.shapes, bounding, invert));
+    } else if (Array.isArray(shape)) {
+        var j, s, selected, cmd, subShapes, newShapes = [];
+        var shapes = shape;
+        for (var i = 0; i < shapes.length; i += 1) {
+            s = shapes[i];
+            if (s.commands) {
+                selected = false;
+                for (j = 0; j < s.commands.length; j += 1) {
+                    cmd = s.commands[j];
+                    if (cmd.x !== undefined && bounding.contains(cmd.x, cmd.y)) {
+                        selected = true;
+                        break;
                     }
                 }
+                if (!((invert && !selected) || (selected && !invert))) {
+                    newShapes.push(s);
+                }
+            } else if (s.shapes) {
+                subShapes = vg.deletePaths(s, bounding, invert);
+                if (subShapes.length !== 0) {
+                    newShapes.push(subShapes);
+                }
             }
-            return newShapes;
         }
-    };
-
-    return deletePaths(shape);
+        return newShapes;
+    }
 };
 
 vg['delete'] = function (shape, bounding, scope, invert) {
@@ -809,7 +875,8 @@ vg.shapeSort = function (shapes, method, origin) {
 };
 
 vg.group = function () {
-    return new Group(_.flatten(arguments));
+    var args = Array.apply(null, arguments);
+    return new Group(flatten(args));
 };
 
 vg.ungroup = function (shape) {
@@ -867,38 +934,38 @@ vg.link = function (shape1, shape2, orientation) {
     return p;
 };
 
-vg.compound = function (shape1, shape2, method) {
-    var methods = {
-        'union': ClipperLib.ClipType.ctUnion,
-        'difference': ClipperLib.ClipType.ctDifference,
-        'intersection': ClipperLib.ClipType.ctIntersection,
-        'xor': ClipperLib.ClipType.ctXor
-    };
+var compoundMethods = {
+    'union': ClipperLib.ClipType.ctUnion,
+    'difference': ClipperLib.ClipType.ctDifference,
+    'intersection': ClipperLib.ClipType.ctIntersection,
+    'xor': ClipperLib.ClipType.ctXor
+};
 
-    function toPoints(shape) {
-        var l1 = [];
-        var i, l, s, j, pt;
-        for (i = 0; i < shape.length; i += 1) {
-            l = [];
-            s = shape[i];
-            for (j = 0; j < s.length; j += 1) {
-                pt = s[j];
-                if (pt.type !== bezier.CLOSE) {
-                    l.push({X: pt.x, Y: pt.y});
-                }
+vg._compoundToPoints = function (shape) {
+    var l1 = [];
+    var i, l, s, j, pt;
+    for (i = 0; i < shape.length; i += 1) {
+        l = [];
+        s = shape[i];
+        for (j = 0; j < s.length; j += 1) {
+            pt = s[j];
+            if (pt.type !== bezier.CLOSE) {
+                l.push({X: pt.x, Y: pt.y});
             }
-            l1.push(l);
         }
-        return l1;
+        l1.push(l);
     }
+    return l1;
+};
 
+vg.compound = function (shape1, shape2, method) {
     if (!shape1.commands) { shape1 = Path.combine(shape1); }
     if (!shape2.commands) { shape2 = Path.combine(shape2); }
     var contours1 = shape1.resampleByLength(1).contours();
     var contours2 = shape2.resampleByLength(1).contours();
 
-    var subjPaths = toPoints(contours1);
-    var clipPaths = toPoints(contours2);
+    var subjPaths = vg._compoundToPoints(contours1);
+    var clipPaths = vg._compoundToPoints(contours2);
     var scale = 100;
     ClipperLib.JS.ScaleUpPaths(subjPaths, scale);
     ClipperLib.JS.ScaleUpPaths(clipPaths, scale);
@@ -908,7 +975,7 @@ vg.compound = function (shape1, shape2, method) {
     cpr.AddPaths(clipPaths, ClipperLib.PolyType.ptClip, shape2.isClosed());
 
     var solutionPaths = new ClipperLib.Paths();
-    cpr.Execute(methods[method], solutionPaths, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+    cpr.Execute(compoundMethods[method], solutionPaths, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
     solutionPaths = ClipperLib.JS.Clean(solutionPaths, 0.1 * scale);
     ClipperLib.JS.ScaleDownPaths(solutionPaths, scale);
     var path = new Path();

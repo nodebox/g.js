@@ -3,8 +3,6 @@
 
 'use strict';
 
-var _ = require('lodash');
-
 var math = require('../util/math');
 
 var Point = require('../objects/point');
@@ -83,7 +81,7 @@ bezier.curveLength = function (x0, y0, x1, y1, x2, y2, x3, y3, n) {
 bezier.segmentLengths = function (commands, relative, n) {
     relative = relative !== undefined ? relative : false;
     if (n === undefined) { n = 20; }
-    var i, cmd, type, closeX, closeY, x0, y0, s, lengths;
+    var i, cmd, type, closeX, closeY, x0, y0, s, lengths, ll;
     lengths = [];
     for (i = 0; i < commands.length; i += 1) {
         cmd = commands[i];
@@ -110,9 +108,18 @@ bezier.segmentLengths = function (commands, relative, n) {
     }
     if (relative === true) {
         s = math.sum(lengths);
-        return (s > 0) ?
-                _.map(lengths, function (v) { return v / s; }) :
-                _.map(lengths, function () { return 0.0; });
+        ll = [];
+        ll.length = lengths.length;
+        if (s > 0) {
+            for (i = 0; i < lengths.length; i += 1) {
+                ll[i] = lengths[i] / s;
+            }
+        } else {
+            for (i = 0; i < lengths.length; i += 1) {
+                ll[i] = 0.0;
+            }
+        }
+        return ll;
     }
     return lengths;
 };
@@ -172,42 +179,41 @@ bezier.point = function (path, t, segmentLengths) {
     return cmd;
 };
 
+function fuzzyCompare(p1, p2) {
+    return Math.abs(p1 - p2) <= (0.000000000001 * Math.min(Math.abs(p1), Math.abs(p2)));
+}
+
+function coefficients(t) {
+    var mT, a, b, c, d;
+    mT = 1 - t;
+    b = mT * mT;
+    c = t * t;
+    d = c * t;
+    a = b * mT;
+    b *= (3.0 * t);
+    c *= (3.0 * mT);
+    return [a, b, c, d];
+}
+
+function pointAt(x1, y1, x2, y2, x3, y3, x4, y4, t) {
+    var a, b, c, d, coeff;
+    coeff = coefficients(t);
+    a = coeff[0];
+    b = coeff[1];
+    c = coeff[2];
+    d = coeff[3];
+    return {x: a * x1 + b * x2 + c * x3 + d * x4,
+            y: a * y1 + b * y2 + c * y3 + d * y4};
+}
+
 bezier.extrema = function (x1, y1, x2, y2, x3, y3, x4, y4) {
     var minX, maxX, minY, maxY,
         ax, bx, cx, ay, by, cy,
         temp, rcp, tx, ty;
 
-
-    function fuzzyCompare(p1, p2) {
-        return Math.abs(p1 - p2) <= (0.000000000001 * Math.min(Math.abs(p1), Math.abs(p2)));
-    }
-
-    function coefficients(t) {
-        var mT, a, b, c, d;
-        mT = 1 - t;
-        b = mT * mT;
-        c = t * t;
-        d = c * t;
-        a = b * mT;
-        b *= (3.0 * t);
-        c *= (3.0 * mT);
-        return [a, b, c, d];
-    }
-
-    function pointAt(t) {
-        var a, b, c, d, coeff;
-        coeff = coefficients(t);
-        a = coeff[0];
-        b = coeff[1];
-        c = coeff[2];
-        d = coeff[3];
-        return {x: a * x1 + b * x2 + c * x3 + d * x4,
-                y: a * y1 + b * y2 + c * y3 + d * y4};
-    }
-
     function bezierCheck(t) {
         if (t >= 0 && t <= 1) {
-            var p = pointAt(t);
+            var p = pointAt(x1, y1, x2, y2, x3, y3, x4, y4, t);
             if (p.x < minX) {
                 minX = p.x;
             } else if (p.x > maxX) {

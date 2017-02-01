@@ -7,7 +7,6 @@
 
 'use strict';
 
-var _ = require('lodash');
 var xmldom = require('xmldom');
 
 var Color = require('../objects/color');
@@ -91,11 +90,10 @@ var readSvgAttributes = function (node, parentAttributes) {
         return new Transform([m[0], m[1], 0, m[2], m[3], 0, m[4], m[5], 1]);
     };
 
-    _.each(node.attributes, function (v) {
-        var property, data, type, s, d;
-        property = v.nodeName;
-
-        switch (property) {
+    var v, data, type, s, d, elems, el;
+    for (var j = 0; j < node.attributes.length; j += 1) {
+        v = node.attributes[j];
+        switch (v.nodeName) {
         case 'transform':
             data = trim(compressSpaces(v.nodeValue)).replace(/\)(\s?,\s?)/g, ') ').split(/\s(?=[a-z])/);
             for (i = 0; i < data.length; i += 1) {
@@ -140,10 +138,11 @@ var readSvgAttributes = function (node, parentAttributes) {
             break;
         case 'style':
             d = {};
-            _.each(v.nodeValue.split(';'), function (s) {
-                var el = s.split(':');
+            elems = v.nodeValue.split(';');
+            for (i = 0; i < elems.length; i += 1) {
+                el = elems[i].split(':');
                 d[el[0].trim()] = el[1];
-            });
+            }
             if (d.fill) {
                 fill = d.fill;
             }
@@ -167,7 +166,7 @@ var readSvgAttributes = function (node, parentAttributes) {
             }
             break;
         }
-    });
+    }
 
     if (fill !== undefined) {
         attributes.fill = fill;
@@ -363,10 +362,9 @@ var read = {
     g: function (node, parentAttributes) {
         var shapes = [];
         var attributes = readSvgAttributes(node, parentAttributes);
-
-        _.each(node.childNodes, function (n) {
-
-            var tag, tagName, o;
+        var n, tag, tagName, o;
+        for (var i = 0; i < node.childNodes.length; i += 1) {
+            n = node.childNodes[i];
             tag = n.nodeName;
             if (!tag) { return; }
             tagName = tag.replace(/svg\:/ig, '').toLowerCase();
@@ -374,8 +372,7 @@ var read = {
                 o = read[tagName].call(this, n, attributes);
                 shapes.push(o);
             }
-        });
-
+        }
         return new Group(shapes);
     },
 

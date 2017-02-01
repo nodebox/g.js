@@ -2,8 +2,6 @@
 
 'use strict';
 
-var _ = require('lodash');
-
 var geo = require('../util/geo');
 
 var Color = require('../objects/color');
@@ -224,19 +222,38 @@ vg.star = function (position, points, outer, inner) {
     return p;
 };
 
-vg.freehand = function (pathString) {
-    var i, j, values,
-        nonEmpty = function (s) { return s !== ''; },
-        contours = _.filter(pathString.split('M'), nonEmpty);
+var nonEmpty = function (s) {
+    return s !== '';
+};
 
-    contours = _.map(contours, function (c) { return c.replace(/,/g, ' '); });
+var stripCommas = function (c) {
+    return c.replace(/,/g, ' ');
+};
+
+vg.freehand = function (pathString) {
+    var i, j, x, y, values,
+        contours = [],
+        elems = pathString.split('M');
+        
+    for (i = 0; i < elems.length; i += 1) {
+        if (nonEmpty(elems[i])) {
+            contours.push(stripCommas(elems[i]));
+        }
+    }
+
     var p = new Path();
     for (j = 0; j < contours.length; j += 1) {
-        values = _.filter(contours[j].split(' '), nonEmpty);
+        values = [];
+        elems = contours[j].split(' ');
+        for (i = 0; i < elems.length; i += 1) {
+            if (nonEmpty(elems[i])) {
+                values.push(elems[i]);
+            }
+        }
         for (i = 0; i < values.length; i += 2) {
             if (values[i + 1] !== undefined) {
-                var x = parseFloat(values[i]);
-                var y = parseFloat(values[i + 1]);
+                x = parseFloat(values[i]);
+                y = parseFloat(values[i + 1]);
                 if (i === 0) {
                     p.moveTo(x, y);
                 } else {

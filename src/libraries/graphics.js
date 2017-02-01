@@ -1,6 +1,5 @@
 'use strict';
 
-var _ = require('lodash');
 var vg = require('./vg/vg');
 var img = require('./img/img');
 var math = require('./math');
@@ -403,42 +402,46 @@ g.stack = function (shapes, direction, margin) {
         return shapes;
     }
 
-    var tx, ty, t, bounds,
+    var i, shape, tx, ty, t, bounds,
         firstBounds = shapes[0].bounds(),
         newShapes = [];
 
     if (direction === 'e') {
         tx = firstBounds.x;
-        _.each(shapes, function (shape) {
+        for (i = 0; i < shapes.length; i += 1) {
+            shape = shapes[i];
             bounds = shape.bounds();
             t = new vg.Transform().translate(tx - bounds.x, 0);
             newShapes.push(transform(shape, t));
             tx += bounds.width + margin;
-        });
+        }
     } else if (direction === 'w') {
         tx = firstBounds.x + firstBounds.width;
-        _.each(shapes, function (shape) {
+        for (i = 0; i < shapes.length; i += 1) {
+            shape = shapes[i];
             bounds = shape.bounds();
             t = new vg.Transform().translate(tx - (bounds.x + bounds.width), 0);
             newShapes.push(transform(shape, t));
             tx -= bounds.width + margin;
-        });
+        }
     } else if (direction === 'n') {
         ty = firstBounds.y + firstBounds.height;
-        _.each(shapes, function (shape) {
+        for (i = 0; i < shapes.length; i += 1) {
+            shape = shapes[i];
             bounds = shape.bounds();
             t = new vg.Transform().translate(0, ty - (bounds.y + bounds.height));
             newShapes.push(transform(shape, t));
             ty -= bounds.height + margin;
-        });
+        }
     } else if (direction === 's') {
         ty = firstBounds.y;
-        _.each(shapes, function (shape) {
+        for (i = 0; i < shapes.length; i += 1) {
+            shape = shapes[i];
             bounds = shape.bounds();
             t = new vg.Transform().translate(0, ty - bounds.y);
             newShapes.push(transform(shape, t));
             ty += bounds.height + margin;
-        });
+        }
     }
     return newShapes;
 };
