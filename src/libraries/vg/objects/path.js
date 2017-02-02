@@ -2,6 +2,8 @@
 
 'use strict';
 
+var flatten = require('lodash.flatten');
+
 var bezier = require('../util/bezier');
 var geo = require('../util/geo');
 var math = require('../util/math');
@@ -35,12 +37,6 @@ function _cloneCommand(cmd) {
         newCmd.y2 = cmd.y2;
     }
     return newCmd;
-}
-
-function flatten(arr) {
-    return arr.reduce(function (flat, toFlatten) {
-        return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
-    }, []);
 }
 
 var Path = function (commands, fill, stroke, strokeWidth) {

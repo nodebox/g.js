@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('lodash');
+var reduce = require('lodash.reduce');
 
 var util = require('./util');
 var vg = require('./vg/vg');
@@ -29,7 +29,7 @@ g.accumulate = function (values) {
 
 g.add = function (a, b) {
     if (arguments.length === 2) { return a + b; }
-    return _.reduce(arguments, function(total, n) {
+    return reduce(arguments, function(total, n) {
         return total + n;
     }, 0);
 };
@@ -43,7 +43,7 @@ g.and = function (bool1, bool2) {
     } else if (argLength === 0) {
         throw new Error('Wrong number of arguments');
     }
-    return _.reduce(arguments, function(b1, b2) {
+    return reduce(arguments, function(b1, b2) {
         return b1 && b2;
     }, true);
 };
@@ -113,7 +113,7 @@ g.divide = function (a, b) {
     } else if (argLength === 0) {
         throw new Error('Wrong number of arguments');
     }
-    return _.reduce([].slice.call(arguments, 1), function(total, n) {
+    return reduce([].slice.call(arguments, 1), function(total, n) {
         checkIfZero(n);
         return total / n;
     }, arguments[0]);
@@ -181,7 +181,7 @@ g.multiply = function (a, b) {
     var argLength = arguments.length;
     if (argLength === 2) { return a * b; }
     else if (argLength === 1) { return a; }
-    return _.reduce(arguments, function(total, n) {
+    return reduce(arguments, function(total, n) {
         return total * n;
     }, 1);
 };
@@ -211,7 +211,7 @@ g.or = function (bool1, bool2) {
     } else if (argLength === 0) {
         throw new Error('Wrong number of arguments');
     }
-    return _.reduce(arguments, function(b1, b2) {
+    return reduce(arguments, function(b1, b2) {
         return b1 || b2;
     }, false);
 };
@@ -395,7 +395,7 @@ g.subtract = function (a, b) {
     if (argLength === 2) { return a - b; }
     else if (argLength === 1) { return -a; }
     else if (argLength === 0) { throw new Error('Wrong number of arguments'); }
-    return _.reduce([].slice.call(arguments, 1), function(total, n) {
+    return reduce([].slice.call(arguments, 1), function(total, n) {
         return total - n;
     }, arguments[0]);
 };

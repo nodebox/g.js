@@ -30,9 +30,14 @@
   "homepage": "https://github.com/nodebox/g.js",
   "dependencies": {
     "async": "^2.1.4",
-    "lodash": "^4.17.4",
-    "xmldom": "^0.1.27",
-    "stackblur": "^1.0.0"
+    "lodash.assignin": "^4.2.0",
+    "lodash.flatten": "^4.4.0",
+    "lodash.groupby": "^4.6.0",
+    "lodash.isempty": "^4.4.0",
+    "lodash.reduce": "^4.6.0",
+    "lodash.values": "^4.3.0",
+    "stackblur": "^1.0.0",
+    "xmldom": "^0.1.27"
   },
   "devDependencies": {
     "browserify": "^13.3.0",

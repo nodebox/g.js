@@ -1,6 +1,8 @@
 'use strict';
 
-var _ = require('lodash');
+var isEmpty = require('lodash.isempty');
+var flatten = require('lodash.flatten');
+
 var vg = require('./libraries/vg/vg');
 var img = require('./libraries/img/img');
 
@@ -43,62 +45,69 @@ g.importText = function (string) {
     return string ? String(string) : '';
 };
 
-g.importCSV = function (csvString, delimiter) {
-    // Split the row, taking quotes into account.
-    function splitRow(s, delimiter) {
-        var row = [], c, col = '', i, inString = false;
-        s = s.trim();
-        for (i = 0; i < s.length; i += 1) {
-            c = s[i];
-            if (c === '"') {
-                if (s[i+1] === '"') {
-                    col += '"';
-                    i += 1;
-                } else {
-                    inString = !inString;
-                }
-            } else if (c === delimiter) {
-                if (!inString) {
-                    row.push(col);
-                    col = '';
-                } else {
-                    col += c;
-                }
+// Split the row, taking quotes into account.
+function splitRow(s, delimiter) {
+    var row = [], c, col = '', i, inString = false;
+    s = s.trim();
+    for (i = 0; i < s.length; i += 1) {
+        c = s[i];
+        if (c === '"') {
+            if (s[i+1] === '"') {
+                col += '"';
+                i += 1;
+            } else {
+                inString = !inString;
+            }
+        } else if (c === delimiter) {
+            if (!inString) {
+                row.push(col);
+                col = '';
             } else {
                 col += c;
             }
+        } else {
+            col += c;
         }
-        row.push(col);
-        return row;
     }
+    row.push(col);
+    return row;
+}
 
-    var rows, header;
+g.importCSV = function (csvString, delimiter) {
+    var csvRows, header;
     delimiter = delimiter || ',';
 
     if (!csvString) return null;
-    rows = csvString.split(/\r\n|\r|\n/g);
-    header = splitRow(rows[0], delimiter);
-    rows = rows.slice(1);
-
-    rows = _.reject(rows, _.isEmpty);
-
-    rows = _.map(rows, function (row) {
-        var cols, m = {};
-        cols = _.map(splitRow(row, delimiter), function (col) {
-            return isNaN(col) ? col : parseFloat(col);
-        });
-        _.each(cols, function (col, index) {
-            m[header[index]] = col;
-        });
-        return m;
-    });
+    csvRows = csvString.split(/\r\n|\r|\n/g);
+    header = splitRow(csvRows[0], delimiter);
+    csvRows = csvRows.slice(1);
+    
+    var row, rows = [];
+    var m, sr, col, index;
+    for (var i = 0; i < csvRows.length; i += 1) {
+        row = csvRows[i];
+        if (!isEmpty(row)) {
+            m = {};
+            sr = splitRow(row, delimiter);
+            for (index = 0; index < sr.length; index += 1) {
+                col = sr[index];
+                m[header[index]] = isNaN(col) ? col : parseFloat(col);
+            }
+            rows.push(m);
+        }
+    }
     return rows;
 };
 
 g.merge = function () {
-    var objects = _.flatten(arguments, true);
-    if (Array.isArray(objects)) {
-        objects = _.reject(objects, _.isEmpty);
+    var args = flatten(arguments);
+    if (Array.isArray(args)) {
+        var objects = [];
+        for (var i = 0; i < args.length; i += 1) {
+            if (!isEmpty(args[i])) {
+                objects.push(args[i]);
+            }
+        }
         if (objects.length > 0) {
             var o = objects[0];
             if (o && (o.commands || o.shapes || o.fontFamily)) {

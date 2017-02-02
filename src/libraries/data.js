@@ -1,6 +1,8 @@
 'use strict';
 
-var _ = require('lodash');
+var values = require('lodash.values');
+var groupBy = require('lodash.groupby');
+
 var list = require('./list');
 
 var g = {};
@@ -90,7 +92,7 @@ g.filterData = function (data, key, op, value) {
 };
 
 g.groupBy = function (data, key) {
-    return _.values(_.groupBy(data, key));
+    return values(groupBy(data, key));
 };
 
 /* // Draw a legend. ==> rename to axis?
@@ -119,7 +121,7 @@ g.legend = function (scale, position, direction, nTicks) {
 g.keys = function (data) {
     var allKeys = [];
     for (var i = 0; i < data.length; i++) {
-        allKeys = allKeys.concat(_.keys(data[i]));
+        allKeys = allKeys.concat(Object.keys(data[i]));
     }
     return list.distinct(allKeys);
 };
@@ -135,15 +137,17 @@ g.lookup = function (table, key) {
         }
         return v;
     }
-    _.each(key.split('.'), function (token) {
-        if (!obj) return null;
+    var token, tokens = key.split('.');
+    for (var i = 0; i < tokens.length; i += 1) {
+        token = tokens[i];
+        if (!obj) { continue; }
         if (typeof obj[token] === 'function') {
             v = obj[token];
             obj = v.call(obj);
         } else {
             obj = obj[token];
         }
-    });
+    }
     return obj;
 };
 

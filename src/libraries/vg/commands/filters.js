@@ -2,6 +2,8 @@
 
 'use strict';
 
+var flatten = require('lodash.flatten');
+
 var ClipperLib = require('../../../../third_party/clipper');
 var bezier = require('../util/bezier');
 var geo = require('../util/geo');
@@ -15,12 +17,6 @@ var Point = require('../objects/point');
 var Rect = require('../objects/rect');
 var Transform = require('../objects/transform');
 var Transformable = require('../objects/transformable');
-
-function flatten(arr) {
-    return arr.reduce(function (flat, toFlatten) {
-        return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
-    }, []);
-}
 
 function _cloneCommand(cmd) {
     var newCmd = {type: cmd.type};
@@ -102,8 +98,7 @@ vg.makeRect = function (x, y, width, height) {
 // This function works like makeGroup, except that this can take any number
 // of arguments.
 vg.merge = function () {
-    var args = Array.apply(null, arguments);
-    args = flatten(args);
+    var args = flatten(arguments);
     var shapes = [];
     for (var i = 0; i < args.length; i += 1) {
         if (args[i] && args[i].length !== 0) {
@@ -875,8 +870,7 @@ vg.shapeSort = function (shapes, method, origin) {
 };
 
 vg.group = function () {
-    var args = Array.apply(null, arguments);
-    return new Group(flatten(args));
+    return new Group(flatten(arguments));
 };
 
 vg.ungroup = function (shape) {
