@@ -22,7 +22,7 @@ var Transform = function (m) {
     if (m !== undefined) {
         this.m = m;
     } else {
-        this.m = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // Identity matrix.
+        this.m = [1, 0, 0, 1, 0, 0]; // Identity matrix.
     }
 };
 
@@ -40,18 +40,18 @@ Transform._mmult = function (a, b) {
     if (b.m !== undefined) { b = b.m; }
 
     return new Transform([
-        a[0] * b[0] + a[1] * b[3],
-        a[0] * b[1] + a[1] * b[4], 0,
-        a[3] * b[0] + a[4] * b[3],
-        a[3] * b[1] + a[4] * b[4], 0,
-        a[6] * b[0] + a[7] * b[3] + b[6],
-        a[6] * b[1] + a[7] * b[4] + b[7], 1
+        a[0] * b[0] + a[1] * b[2],
+        a[0] * b[1] + a[1] * b[3],
+        a[2] * b[0] + a[3] * b[2],
+        a[2] * b[1] + a[3] * b[3],
+        a[4] * b[0] + a[5] * b[2] + b[4],
+        a[4] * b[1] + a[5] * b[3] + b[5]
     ]);
 };
 
 Transform.prototype.isIdentity = function () {
     var m = this.m;
-    return (m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 0 && m[4] === 1 && m[5] === 0 && m[6] === 0 && m[7] === 0 && m[8] === 1);
+    return (m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1 && m[4] === 0 && m[5] === 0);
 };
 
 Transform.prototype.prepend = function (matrix) {
@@ -64,36 +64,36 @@ Transform.prototype.append = function (matrix) {
 
 Transform.prototype.inverse = function () {
     var m = this.m,
-        d = m[0] * m[4] - m[1] * m[3];
+        d = m[0] * m[3] - m[1] * m[2];
     return new Transform([
-        m[4] / d,
-        -m[1] / d, 0,
-        -m[3] / d,
-        m[0] / d, 0,
-        (m[3] * m[7] - m[4] * m[6]) / d,
-        -(m[0] * m[7] - m[1] * m[6]) / d, 1
+        m[3] / d,
+        -m[1] / d,
+        -m[2] / d,
+        m[0] / d,
+        (m[2] * m[5] - m[3] * m[4]) / d,
+        -(m[0] * m[5] - m[1] * m[4]) / d
     ]);
 };
 
 Transform.prototype.scale = function (x, y) {
     if (y === undefined) { y = x; }
-    return Transform._mmult([x, 0, 0, 0, y, 0, 0, 0, 1], this.m);
+    return Transform._mmult([x, 0, 0, y, 0, 0], this.m);
 };
 
 Transform.prototype.translate = function (x, y) {
-    return Transform._mmult([1, 0, 0, 0, 1, 0, x, y, 1], this.m);
+    return Transform._mmult([1, 0, 0, 1, x, y], this.m);
 };
 
 Transform.prototype.rotate = function (angle) {
     var c = Math.cos(math.radians(angle)),
         s = Math.sin(math.radians(angle));
-    return Transform._mmult([c, s, 0, -s, c, 0, 0, 0, 1], this.m);
+    return Transform._mmult([c, s, -s, c, 0, 0], this.m);
 };
 
 Transform.prototype.skew = function (x, y) {
     var kx = Math.PI * x / 180.0,
         ky = Math.PI * y / 180.0;
-    return Transform._mmult([1, Math.tan(ky), 0, -Math.tan(kx), 1, 0, 0, 0, 1], this.m);
+    return Transform._mmult([1, Math.tan(ky), -Math.tan(kx), 1, 0, 0], this.m);
 };
 
 // Returns the new coordinates of the given point (x,y) after transformation.
@@ -102,8 +102,8 @@ Transform.prototype.transformPoint = function (point) {
         y = point.y,
         m = this.m;
     return new Point(
-        x * m[0] + y * m[3] + m[6],
-        x * m[1] + y * m[4] + m[7]
+        x * m[0] + y * m[2] + m[4],
+        x * m[1] + y * m[3] + m[5]
     );
 };
 
@@ -126,28 +126,28 @@ Transform.prototype.transformPath = function (path) {
             case LINETO:
                 commands[i] = {
                     type: cmd.type,
-                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
-                    y: cmd.x * m[1] + cmd.y * m[4] + m[7]
+                    x: cmd.x * m[0] + cmd.y * m[2] + m[4],
+                    y: cmd.x * m[1] + cmd.y * m[3] + m[5]
                 };
                 break;
             case QUADTO:
                 commands[i] = {
                     type: QUADTO,
-                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
-                    y: cmd.x * m[1] + cmd.y * m[4] + m[7],
-                    x1: cmd.x1 * m[0] + cmd.y1 * m[3] + m[6],
-                    y1: cmd.x1 * m[1] + cmd.y1 * m[4] + m[7]
+                    x: cmd.x * m[0] + cmd.y * m[2] + m[4],
+                    y: cmd.x * m[1] + cmd.y * m[3] + m[5],
+                    x1: cmd.x1 * m[0] + cmd.y1 * m[2] + m[4],
+                    y1: cmd.x1 * m[1] + cmd.y1 * m[3] + m[5]
                 };
                 break;
             case CURVETO:
                 commands[i] = {
                     type: CURVETO,
-                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
-                    y: cmd.x * m[1] + cmd.y * m[4] + m[7],
-                    x1: cmd.x1 * m[0] + cmd.y1 * m[3] + m[6],
-                    y1: cmd.x1 * m[1] + cmd.y1 * m[4] + m[7],
-                    x2: cmd.x2 * m[0] + cmd.y2 * m[3] + m[6],
-                    y2: cmd.x2 * m[1] + cmd.y2 * m[4] + m[7]
+                    x: cmd.x * m[0] + cmd.y * m[2] + m[4],
+                    y: cmd.x * m[1] + cmd.y * m[3] + m[5],
+                    x1: cmd.x1 * m[0] + cmd.y1 * m[2] + m[4],
+                    y1: cmd.x1 * m[1] + cmd.y1 * m[3] + m[5],
+                    x2: cmd.x2 * m[0] + cmd.y2 * m[2] + m[4],
+                    y2: cmd.x2 * m[1] + cmd.y2 * m[3] + m[5]
                 };
                 break;
             case CLOSE:
