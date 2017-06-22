@@ -261,85 +261,17 @@ vg.fitTo = function (shape, bounding, stretch) {
     return vg.fit(shape, {x: bx + bw / 2, y: by + bh / 2}, bw, bh, stretch);
 };
 
-vg._mirrorPoints = function (points, fn) {
-    var pt, mPoints = [];
-    mPoints.length = points.length;
-    for (var i = 0; i < points.length; i += 1) {
-        pt = points[i];
-        mPoints[i] = fn(pt.x, pt.y);
-    }
-    return mPoints;
-};
-
-vg._mirrorPath = function (path, fn) {
-    var pt, cmd, ctrl1, ctrl2;
-    var p = new Path([], path.fill, path.stroke, path.strokeWidth);
-    for (var i = 0; i < path.commands.length; i += 1) {
-        cmd = path.commands[i];
-        if (cmd.type === bezier.MOVETO) {
-            pt = fn(cmd.x, cmd.y);
-            p.moveTo(pt.x, pt.y);
-        } else if (cmd.type === bezier.LINETO) {
-            pt = fn(cmd.x, cmd.y);
-            p.lineTo(pt.x, pt.y);
-        } else if (cmd.type === bezier.CURVETO) {
-            pt = fn(cmd.x, cmd.y);
-            ctrl1 = fn(cmd.x1, cmd.y1);
-            ctrl2 = fn(cmd.x2, cmd.y2);
-            p.curveTo(ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, pt.x, pt.y);
-        } else if (cmd.type === bezier.CLOSE) {
-            p.close();
-        } else {
-            throw new Error('Unknown command ' + cmd);
-        }
-    }
-    return p;
-};
-
-vg._mirrorGroup = function (group, fn) {
-    var shape, mShapes = [];
-    mShapes.length = group.shapes.length;
-    for (var i = 0; i < group.shapes.length; i += 1) {
-        shape = group.shapes[i];
-        mShapes[i] = vg._mirror(shape, fn);
-    }
-    return new Group(mShapes);
-};
-
-vg._mirror = function (shape, fn) {
-    if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
-        return vg._mirrorPoints(shape, fn);
-    }
-    if (shape.shapes) {
-        return vg._mirrorGroup(shape, fn);
-    } else {
-        return vg._mirrorPath(shape, fn);
-    }
-};
-
 vg.mirror = function (shape, angle, origin, keepOriginal) {
-    if (!shape) {
-        return;
-    }
-    origin = origin || new Point();
-    if (angle !== 0) {
-        angle = angle || 90;
-    }
-
-    var fn = function (x, y) {
-        var d = geo.distance(x, y, origin.x, origin.y),
-            a = geo.angle(x, y, origin.x, origin.y),
-            pt = geo.coordinates(origin.x, origin.y, 180 + angle, d * Math.cos(math.radians(a - angle)));
-        d = geo.distance(x, y, pt.x, pt.y);
-        a = geo.angle(x, y, pt.x, pt.y);
-        pt = geo.coordinates(x, y, a, d * 2);
-        return new Point(pt.x, pt.y);
-    };
-
-    var newShape = vg._mirror(shape, fn);
+    if (!shape) { return; }
+    var t = new Transform();
+    t = t.translate(origin.x, origin.y);
+    t = t.rotate(angle * 2 - 180);
+    t = t.scale(-1, 1);
+    t = t.translate(-origin.x, -origin.y);
+    var newShape = t.transformShape(shape);
 
     if (keepOriginal) {
-        if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+        if (Array.isArray(shape) && shape.length > 0) {
             return shape.concat(newShape);
         }
         return new Group([shape, newShape]);
