@@ -234,7 +234,7 @@ vg.freehand = function (pathString) {
     var i, j, x, y, values,
         contours = [],
         elems = pathString.split('M');
-        
+
     for (i = 0; i < elems.length; i += 1) {
         if (nonEmpty(elems[i])) {
             contours.push(stripCommas(elems[i]));
@@ -309,10 +309,9 @@ vg.grid = function (columns, rows, columnWidth, rowHeight, position) {
 //     vg.text('Hello', 0, 0, {fontFamily: 'Helvetica', fontSize: 12});  // align: center is the default.
 //     vg.text('Hello', {fontFamily: 'Helvetica', fontSize: 12}); // the position defaults to 0,0.
 vg.text = function () {
-    var t = Object.create(gText.prototype);
-    t.constructor = gText.prototype;
-    gText.apply(t, arguments);
-    return t;
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift(null);
+    return new (Function.prototype.bind.apply(gText, args));
 };
 
 vg.demoRect = function () {

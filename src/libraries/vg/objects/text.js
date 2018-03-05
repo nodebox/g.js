@@ -33,20 +33,20 @@ var GText = function (text) {
 
     // Second argument is position (as object or array) or x (as number).
     if (typeof secondArg === 'number') {
-        this.x = secondArg;
-        this.y = thirdArg;
+        this._x = secondArg;
+        this._y = thirdArg;
         args = args.slice(2);
     } else if (Array.isArray(secondArg)) {
-        this.x = secondArg[0];
-        this.y = secondArg[1];
+        this._x = secondArg[0];
+        this._y = secondArg[1];
         args = args.slice(1);
     } else if (typeof secondArg === 'object') {
-        this.x = secondArg.x !== undefined ? secondArg.x : 0;
-        this.y = secondArg.y !== undefined ? secondArg.y : 0;
+        this._x = secondArg.x !== undefined ? secondArg.x : 0;
+        this._y = secondArg.y !== undefined ? secondArg.y : 0;
         args = args.slice(1);
     } else {
-        this.x = 0;
-        this.y = 0;
+        this._x = 0;
+        this._y = 0;
     }
 
     // The options object, if provided, is always the last argument.
@@ -89,8 +89,8 @@ var GText = function (text) {
 GText.prototype.clone = function () {
     var t = new GText();
     t.text = this.text;
-    t.x = this.x;
-    t.y = this.y;
+    t._x = this._x;
+    t._y = this._y;
     t.fontFamily = this.fontFamily;
     t.fontSize = this.fontSize;
     t.textAlign = this.textAlign;
@@ -137,29 +137,29 @@ GText.prototype.draw = function (ctx) {
     var m = this.transform.m;
     ctx.transform(m[0], m[1], m[3], m[4], m[6], m[7]);
     ctx.fillStyle = Color.toCSS(this.fill);
-    ctx.fillText(this.text, this.x, this.y);
+    ctx.fillText(this.text, this._x, this._y);
     ctx.restore();
 };
 
 GText.prototype.bounds = function () {
     var ctx = GText._getDummyContext(),
         metrics,
-        x = this.x;
+        x = this._x;
     ctx.font = this._getFont();
     // FIXME: measureText returns a TextMetrics object that only contains width.
     metrics = ctx.measureText(this.text);
     if (this.textAlign === 'center') {
-        x = this.x - (metrics.width / 2);
+        x = this._x - (metrics.width / 2);
     } else if (this.textAlign === 'right') {
-        x = this.x - metrics.width;
+        x = this._x - metrics.width;
     }
-    return new Rect(x, this.y - this.fontSize, metrics.width, this.fontSize * 1.2);
+    return new Rect(x, this._y - this.fontSize, metrics.width, this.fontSize * 1.2);
 };
 
 GText.prototype.toSVG = function () {
     var svg = '<text';
-    svg += ' x="' + this.x + '"';
-    svg += ' y="' + this.y + '"';
+    svg += ' x="' + this._x + '"';
+    svg += ' y="' + this._y + '"';
     svg += ' font-family="' + this.fontFamily + '"';
     svg += ' font-size="' + this.fontSize + '"';
     var textAnchor;
