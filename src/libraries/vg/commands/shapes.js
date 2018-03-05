@@ -311,7 +311,7 @@ vg.grid = function (columns, rows, columnWidth, rowHeight, position) {
 vg.text = function () {
     var args = Array.prototype.slice.call(arguments);
     args.unshift(null);
-    return new (Function.prototype.bind.apply(gText, args));
+    return new (Function.prototype.bind.apply(gText, args))();
 };
 
 vg.demoRect = function () {

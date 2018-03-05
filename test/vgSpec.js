@@ -292,8 +292,8 @@ describe('A text object', function () {
 
     function testArgs(t) {
         assert.equal(t.text, 'Hello');
-        assert.equal(t.x, 10);
-        assert.equal(t.y, 20);
+        assert.equal(t._x, 10);
+        assert.equal(t._y, 20);
         assert.equal(t.fontFamily, 'Helvetica');
         assert.equal(t.fontSize, 12);
         assert.equal(t.textAlign, 'right');
@@ -301,8 +301,8 @@ describe('A text object', function () {
 
     function testDefaultArgs(t) {
         assert.equal(t.text, 'Hello');
-        assert.equal(t.x, 0);
-        assert.equal(t.y, 0);
+        assert.equal(t._x, 0);
+        assert.equal(t._y, 0);
         assert.equal(t.fontFamily, 'sans-serif');
         assert.equal(t.fontSize, 24);
         assert.equal(t.textAlign, 'left');
