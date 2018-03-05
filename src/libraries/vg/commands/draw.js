@@ -15,9 +15,9 @@ vg.isDrawable = function (o) {
         return false;
     } else if (typeof o.draw === 'function') {
         return true;
-    } else if (o.x !== undefined && o.y !== undefined) {
+    } else if (typeof o.x === 'number' && typeof o.y === 'number') {
         return true;
-    } else if (o.r !== undefined && o.g !== undefined && o.b !== undefined) {
+    } else if (typeof o.r === 'number' && typeof o.g === 'number' && typeof o.b === 'number') {
         return true;
     } else {
         return false;
@@ -87,15 +87,15 @@ vg.draw = function (ctx, o) {
             } else {
                 o.draw(ctx);
             }
-        } else if (k.x !== undefined && k.y !== undefined) {
-            if (k.r !== undefined && k.g !== undefined && k.b !== undefined) {
+        } else if (typeof k.x === 'number' && typeof k.y === 'number') {
+            if (typeof k.r === 'number' && typeof k.g === 'number' && typeof k.b === 'number') {
                 vg.drawColoredPoints(ctx, isArray ? o : [o]);
-            } else if (k.width !== undefined && k.height !== undefined) {
+            } else if (typeof k.width === 'number' && typeof k.height === 'number') {
                 vg.drawRectangles(ctx, isArray ? o : [o]);
             } else {
                 vg.drawPoints(ctx, isArray ? o : [o]);
             }
-        } else if (k.r !== undefined && k.g !== undefined && k.b !== undefined) {
+        } else if (typeof k.r === 'number' && typeof k.g === 'number' && typeof k.b === 'number') {
             vg.drawColors(ctx, isArray ? o : [o]);
         }
     }
