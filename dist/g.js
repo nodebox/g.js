@@ -21139,9 +21139,9 @@ vg.isDrawable = function (o) {
         return false;
     } else if (typeof o.draw === 'function') {
         return true;
-    } else if (o.x !== undefined && o.y !== undefined) {
+    } else if (typeof o.x === 'number' && typeof o.y === 'number') {
         return true;
-    } else if (o.r !== undefined && o.g !== undefined && o.b !== undefined) {
+    } else if (typeof o.r === 'number' && typeof o.g === 'number' && typeof o.b === 'number') {
         return true;
     } else {
         return false;
@@ -21211,15 +21211,15 @@ vg.draw = function (ctx, o) {
             } else {
                 o.draw(ctx);
             }
-        } else if (k.x !== undefined && k.y !== undefined) {
-            if (k.r !== undefined && k.g !== undefined && k.b !== undefined) {
+        } else if (typeof k.x === 'number' && typeof k.y === 'number') {
+            if (typeof k.r === 'number' && typeof k.g === 'number' && typeof k.b === 'number') {
                 vg.drawColoredPoints(ctx, isArray ? o : [o]);
-            } else if (k.width !== undefined && k.height !== undefined) {
+            } else if (typeof k.width === 'number' && typeof k.height === 'number') {
                 vg.drawRectangles(ctx, isArray ? o : [o]);
             } else {
                 vg.drawPoints(ctx, isArray ? o : [o]);
             }
-        } else if (k.r !== undefined && k.g !== undefined && k.b !== undefined) {
+        } else if (typeof k.r === 'number' && typeof k.g === 'number' && typeof k.b === 'number') {
             vg.drawColors(ctx, isArray ? o : [o]);
         }
     }
@@ -21521,85 +21521,17 @@ vg.fitTo = function (shape, bounding, stretch) {
     return vg.fit(shape, {x: bx + bw / 2, y: by + bh / 2}, bw, bh, stretch);
 };
 
-vg._mirrorPoints = function (points, fn) {
-    var pt, mPoints = [];
-    mPoints.length = points.length;
-    for (var i = 0; i < points.length; i += 1) {
-        pt = points[i];
-        mPoints[i] = fn(pt.x, pt.y);
-    }
-    return mPoints;
-};
-
-vg._mirrorPath = function (path, fn) {
-    var pt, cmd, ctrl1, ctrl2;
-    var p = new Path([], path.fill, path.stroke, path.strokeWidth);
-    for (var i = 0; i < path.commands.length; i += 1) {
-        cmd = path.commands[i];
-        if (cmd.type === bezier.MOVETO) {
-            pt = fn(cmd.x, cmd.y);
-            p.moveTo(pt.x, pt.y);
-        } else if (cmd.type === bezier.LINETO) {
-            pt = fn(cmd.x, cmd.y);
-            p.lineTo(pt.x, pt.y);
-        } else if (cmd.type === bezier.CURVETO) {
-            pt = fn(cmd.x, cmd.y);
-            ctrl1 = fn(cmd.x1, cmd.y1);
-            ctrl2 = fn(cmd.x2, cmd.y2);
-            p.curveTo(ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, pt.x, pt.y);
-        } else if (cmd.type === bezier.CLOSE) {
-            p.close();
-        } else {
-            throw new Error('Unknown command ' + cmd);
-        }
-    }
-    return p;
-};
-
-vg._mirrorGroup = function (group, fn) {
-    var shape, mShapes = [];
-    mShapes.length = group.shapes.length;
-    for (var i = 0; i < group.shapes.length; i += 1) {
-        shape = group.shapes[i];
-        mShapes[i] = vg._mirror(shape, fn);
-    }
-    return new Group(mShapes);
-};
-
-vg._mirror = function (shape, fn) {
-    if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
-        return vg._mirrorPoints(shape, fn);
-    }
-    if (shape.shapes) {
-        return vg._mirrorGroup(shape, fn);
-    } else {
-        return vg._mirrorPath(shape, fn);
-    }
-};
-
 vg.mirror = function (shape, angle, origin, keepOriginal) {
-    if (!shape) {
-        return;
-    }
-    origin = origin || new Point();
-    if (angle !== 0) {
-        angle = angle || 90;
-    }
-
-    var fn = function (x, y) {
-        var d = geo.distance(x, y, origin.x, origin.y),
-            a = geo.angle(x, y, origin.x, origin.y),
-            pt = geo.coordinates(origin.x, origin.y, 180 + angle, d * Math.cos(math.radians(a - angle)));
-        d = geo.distance(x, y, pt.x, pt.y);
-        a = geo.angle(x, y, pt.x, pt.y);
-        pt = geo.coordinates(x, y, a, d * 2);
-        return new Point(pt.x, pt.y);
-    };
-
-    var newShape = vg._mirror(shape, fn);
+    if (!shape) { return; }
+    var t = new Transform();
+    t = t.translate(origin.x, origin.y);
+    t = t.rotate(angle * 2 - 180);
+    t = t.scale(-1, 1);
+    t = t.translate(-origin.x, -origin.y);
+    var newShape = t.transformShape(shape);
 
     if (keepOriginal) {
-        if (Array.isArray(shape) && shape.length > 0 && shape[0].x !== undefined && shape[0].y !== undefined) {
+        if (Array.isArray(shape) && shape.length > 0) {
             return shape.concat(newShape);
         }
         return new Group([shape, newShape]);
@@ -24232,7 +24164,7 @@ var Transform = function (m) {
     if (m !== undefined) {
         this.m = m;
     } else {
-        this.m = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // Identity matrix.
+        this.m = [1, 0, 0, 1, 0, 0]; // Identity matrix.
     }
 };
 
@@ -24250,18 +24182,18 @@ Transform._mmult = function (a, b) {
     if (b.m !== undefined) { b = b.m; }
 
     return new Transform([
-        a[0] * b[0] + a[1] * b[3],
-        a[0] * b[1] + a[1] * b[4], 0,
-        a[3] * b[0] + a[4] * b[3],
-        a[3] * b[1] + a[4] * b[4], 0,
-        a[6] * b[0] + a[7] * b[3] + b[6],
-        a[6] * b[1] + a[7] * b[4] + b[7], 1
+        a[0] * b[0] + a[1] * b[2],
+        a[0] * b[1] + a[1] * b[3],
+        a[2] * b[0] + a[3] * b[2],
+        a[2] * b[1] + a[3] * b[3],
+        a[4] * b[0] + a[5] * b[2] + b[4],
+        a[4] * b[1] + a[5] * b[3] + b[5]
     ]);
 };
 
 Transform.prototype.isIdentity = function () {
     var m = this.m;
-    return (m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 0 && m[4] === 1 && m[5] === 0 && m[6] === 0 && m[7] === 0 && m[8] === 1);
+    return (m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1 && m[4] === 0 && m[5] === 0);
 };
 
 Transform.prototype.prepend = function (matrix) {
@@ -24274,36 +24206,36 @@ Transform.prototype.append = function (matrix) {
 
 Transform.prototype.inverse = function () {
     var m = this.m,
-        d = m[0] * m[4] - m[1] * m[3];
+        d = m[0] * m[3] - m[1] * m[2];
     return new Transform([
-        m[4] / d,
-        -m[1] / d, 0,
-        -m[3] / d,
-        m[0] / d, 0,
-        (m[3] * m[7] - m[4] * m[6]) / d,
-        -(m[0] * m[7] - m[1] * m[6]) / d, 1
+        m[3] / d,
+        -m[1] / d,
+        -m[2] / d,
+        m[0] / d,
+        (m[2] * m[5] - m[3] * m[4]) / d,
+        -(m[0] * m[5] - m[1] * m[4]) / d
     ]);
 };
 
 Transform.prototype.scale = function (x, y) {
     if (y === undefined) { y = x; }
-    return Transform._mmult([x, 0, 0, 0, y, 0, 0, 0, 1], this.m);
+    return Transform._mmult([x, 0, 0, y, 0, 0], this.m);
 };
 
 Transform.prototype.translate = function (x, y) {
-    return Transform._mmult([1, 0, 0, 0, 1, 0, x, y, 1], this.m);
+    return Transform._mmult([1, 0, 0, 1, x, y], this.m);
 };
 
 Transform.prototype.rotate = function (angle) {
     var c = Math.cos(math.radians(angle)),
         s = Math.sin(math.radians(angle));
-    return Transform._mmult([c, s, 0, -s, c, 0, 0, 0, 1], this.m);
+    return Transform._mmult([c, s, -s, c, 0, 0], this.m);
 };
 
 Transform.prototype.skew = function (x, y) {
     var kx = Math.PI * x / 180.0,
         ky = Math.PI * y / 180.0;
-    return Transform._mmult([1, Math.tan(ky), 0, -Math.tan(kx), 1, 0, 0, 0, 1], this.m);
+    return Transform._mmult([1, Math.tan(ky), -Math.tan(kx), 1, 0, 0], this.m);
 };
 
 // Returns the new coordinates of the given point (x,y) after transformation.
@@ -24312,8 +24244,8 @@ Transform.prototype.transformPoint = function (point) {
         y = point.y,
         m = this.m;
     return new Point(
-        x * m[0] + y * m[3] + m[6],
-        x * m[1] + y * m[4] + m[7]
+        x * m[0] + y * m[2] + m[4],
+        x * m[1] + y * m[3] + m[5]
     );
 };
 
@@ -24336,28 +24268,28 @@ Transform.prototype.transformPath = function (path) {
             case LINETO:
                 commands[i] = {
                     type: cmd.type,
-                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
-                    y: cmd.x * m[1] + cmd.y * m[4] + m[7]
+                    x: cmd.x * m[0] + cmd.y * m[2] + m[4],
+                    y: cmd.x * m[1] + cmd.y * m[3] + m[5]
                 };
                 break;
             case QUADTO:
                 commands[i] = {
                     type: QUADTO,
-                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
-                    y: cmd.x * m[1] + cmd.y * m[4] + m[7],
-                    x1: cmd.x1 * m[0] + cmd.y1 * m[3] + m[6],
-                    y1: cmd.x1 * m[1] + cmd.y1 * m[4] + m[7]
+                    x: cmd.x * m[0] + cmd.y * m[2] + m[4],
+                    y: cmd.x * m[1] + cmd.y * m[3] + m[5],
+                    x1: cmd.x1 * m[0] + cmd.y1 * m[2] + m[4],
+                    y1: cmd.x1 * m[1] + cmd.y1 * m[3] + m[5]
                 };
                 break;
             case CURVETO:
                 commands[i] = {
                     type: CURVETO,
-                    x: cmd.x * m[0] + cmd.y * m[3] + m[6],
-                    y: cmd.x * m[1] + cmd.y * m[4] + m[7],
-                    x1: cmd.x1 * m[0] + cmd.y1 * m[3] + m[6],
-                    y1: cmd.x1 * m[1] + cmd.y1 * m[4] + m[7],
-                    x2: cmd.x2 * m[0] + cmd.y2 * m[3] + m[6],
-                    y2: cmd.x2 * m[1] + cmd.y2 * m[4] + m[7]
+                    x: cmd.x * m[0] + cmd.y * m[2] + m[4],
+                    y: cmd.x * m[1] + cmd.y * m[3] + m[5],
+                    x1: cmd.x1 * m[0] + cmd.y1 * m[2] + m[4],
+                    y1: cmd.x1 * m[1] + cmd.y1 * m[3] + m[5],
+                    x2: cmd.x2 * m[0] + cmd.y2 * m[2] + m[4],
+                    y2: cmd.x2 * m[1] + cmd.y2 * m[3] + m[5]
                 };
                 break;
             case CLOSE:
