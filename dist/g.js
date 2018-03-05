@@ -22421,7 +22421,7 @@ vg.freehand = function (pathString) {
     var i, j, x, y, values,
         contours = [],
         elems = pathString.split('M');
-        
+
     for (i = 0; i < elems.length; i += 1) {
         if (nonEmpty(elems[i])) {
             contours.push(stripCommas(elems[i]));
@@ -22496,10 +22496,9 @@ vg.grid = function (columns, rows, columnWidth, rowHeight, position) {
 //     vg.text('Hello', 0, 0, {fontFamily: 'Helvetica', fontSize: 12});  // align: center is the default.
 //     vg.text('Hello', {fontFamily: 'Helvetica', fontSize: 12}); // the position defaults to 0,0.
 vg.text = function () {
-    var t = Object.create(gText.prototype);
-    t.constructor = gText.prototype;
-    gText.apply(t, arguments);
-    return t;
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift(null);
+    return new (Function.prototype.bind.apply(gText, args))();
 };
 
 vg.demoRect = function () {
@@ -23991,20 +23990,20 @@ var GText = function (text) {
 
     // Second argument is position (as object or array) or x (as number).
     if (typeof secondArg === 'number') {
-        this.x = secondArg;
-        this.y = thirdArg;
+        this._x = secondArg;
+        this._y = thirdArg;
         args = args.slice(2);
     } else if (Array.isArray(secondArg)) {
-        this.x = secondArg[0];
-        this.y = secondArg[1];
+        this._x = secondArg[0];
+        this._y = secondArg[1];
         args = args.slice(1);
     } else if (typeof secondArg === 'object') {
-        this.x = secondArg.x !== undefined ? secondArg.x : 0;
-        this.y = secondArg.y !== undefined ? secondArg.y : 0;
+        this._x = secondArg.x !== undefined ? secondArg.x : 0;
+        this._y = secondArg.y !== undefined ? secondArg.y : 0;
         args = args.slice(1);
     } else {
-        this.x = 0;
-        this.y = 0;
+        this._x = 0;
+        this._y = 0;
     }
 
     // The options object, if provided, is always the last argument.
@@ -24047,8 +24046,8 @@ var GText = function (text) {
 GText.prototype.clone = function () {
     var t = new GText();
     t.text = this.text;
-    t.x = this.x;
-    t.y = this.y;
+    t._x = this._x;
+    t._y = this._y;
     t.fontFamily = this.fontFamily;
     t.fontSize = this.fontSize;
     t.textAlign = this.textAlign;
@@ -24095,29 +24094,29 @@ GText.prototype.draw = function (ctx) {
     var m = this.transform.m;
     ctx.transform(m[0], m[1], m[3], m[4], m[6], m[7]);
     ctx.fillStyle = Color.toCSS(this.fill);
-    ctx.fillText(this.text, this.x, this.y);
+    ctx.fillText(this.text, this._x, this._y);
     ctx.restore();
 };
 
 GText.prototype.bounds = function () {
     var ctx = GText._getDummyContext(),
         metrics,
-        x = this.x;
+        x = this._x;
     ctx.font = this._getFont();
     // FIXME: measureText returns a TextMetrics object that only contains width.
     metrics = ctx.measureText(this.text);
     if (this.textAlign === 'center') {
-        x = this.x - (metrics.width / 2);
+        x = this._x - (metrics.width / 2);
     } else if (this.textAlign === 'right') {
-        x = this.x - metrics.width;
+        x = this._x - metrics.width;
     }
-    return new Rect(x, this.y - this.fontSize, metrics.width, this.fontSize * 1.2);
+    return new Rect(x, this._y - this.fontSize, metrics.width, this.fontSize * 1.2);
 };
 
 GText.prototype.toSVG = function () {
     var svg = '<text';
-    svg += ' x="' + this.x + '"';
-    svg += ' y="' + this.y + '"';
+    svg += ' x="' + this._x + '"';
+    svg += ' y="' + this._y + '"';
     svg += ' font-family="' + this.fontFamily + '"';
     svg += ' font-size="' + this.fontSize + '"';
     var textAnchor;
@@ -24139,6 +24138,7 @@ GText.prototype.toSVG = function () {
 };
 
 module.exports = GText;
+
 },{"../objects/color":32,"../objects/rect":37,"../objects/transform":39}],39:[function(require,module,exports){
 // 2-dimensional transformation matrix
 
