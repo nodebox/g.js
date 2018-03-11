@@ -681,7 +681,7 @@ vg['delete'] = function (shape, bounding, scope, invert) {
 
 vg.pointOnPath = function (shape, t) {
     if (!shape) {
-        return;
+        return new Point(0, 0);
     }
     if (shape.shapes) {
         shape = new Path(vg.combinePaths(shape));

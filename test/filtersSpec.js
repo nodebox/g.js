@@ -21,3 +21,18 @@ describe('The pathLength function', function () {
     });
 
 });
+
+describe('The pointOnPath function', function () {
+
+    it('works', function () {
+        const p = g.line(0, 0, 100, 300);
+        const pt = g.pointOnPath(p, 0.5);
+        assert.deepEqual(pt, {x: 50, y: 150});
+    });
+
+    it('can handle null values', function () {
+        const pt = g.pointOnPath(null, 0.5);
+        assert.deepEqual(pt, {x: 0, y: 0});
+    });
+
+});
