@@ -39,6 +39,15 @@ describe('The coordinates function', function () {
 
 });
 
+describe('The copy function', function () {
+
+    it('can handle null values', function () {
+        const p = g.copy(null, 10, 'rts', {x: 0, y: 0}, 0, {x: 1.0, y: 1.0});
+        assert.deepEqual(p, []);
+    });
+
+});
+
 describe('The distance function', function () {
 
     it('returns the distance between two points', function () {

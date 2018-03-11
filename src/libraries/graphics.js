@@ -94,6 +94,7 @@ g.colorize = function (shape, options) {
 };
 
 g.copy = function (shape, copies, order, translate, rotate, scale) {
+    if (!shape) return [];
     var i, t, j, op, fn,
         shapes = [],
         tx = 0,
