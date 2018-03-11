@@ -588,6 +588,8 @@ vg.snap = function (shape, distance, strength, center) {
 };
 
 vg.deletePoints = function (shape, bounding, invert) {
+    if (!shape) return null;
+    if (!bounding) return shape;
     var i, cmd, commands = [];
     var pt, points = [];
     if (shape.commands) {
