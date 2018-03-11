@@ -164,8 +164,8 @@ g.rest = function (l) {
 };
 
 g.reverse = function (l) {
+    if (!l) { return []; }
     return l.slice().reverse();
-
 };
 
 g.second = function (l) {

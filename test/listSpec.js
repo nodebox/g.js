@@ -44,3 +44,14 @@ describe('The repeat function', function () {
     });
 
 });
+
+describe('The reverse function', function () {
+    it('works', function () {
+        assert.deepEqual(g.reverse([]), []);
+        assert.deepEqual(g.reverse([1, 2, 3, 4]), [4, 3, 2, 1]);
+    });
+
+    it('supports null values', function () {
+        assert.deepEqual(g.reverse(null), []);
+    });
+});
