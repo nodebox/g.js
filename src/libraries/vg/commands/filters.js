@@ -137,13 +137,12 @@ vg.shapePoints = vg.toPoints = function (shape) {
 // FILTERS //////////////////////////////////////////////////////////////
 
 vg.colorize = function (shape, fill, stroke, strokeWidth) {
-    if (!shape) {
-        return;
-    }
+    if (!shape) return null;
     return shape.colorize(fill, stroke, strokeWidth);
 };
 
 vg.translate = function (shape, position) {
+    if (!shape) return null;
     if (shape.translate) {
         return shape.translate(position);
     }
@@ -151,6 +150,7 @@ vg.translate = function (shape, position) {
 };
 
 vg.scale = function (shape, scale, origin) {
+    if (!shape) return null;
     if (shape.scale) {
         return shape.scale(scale, origin);
     }
@@ -158,6 +158,7 @@ vg.scale = function (shape, scale, origin) {
 };
 
 vg.rotate = function (shape, angle, origin) {
+    if (!shape) return null;
     if (shape.rotate) {
         return shape.rotate(angle, origin);
     }
@@ -165,6 +166,7 @@ vg.rotate = function (shape, angle, origin) {
 };
 
 vg.skew = function (shape, skew, origin) {
+    if (!shape) return null;
     if (shape.skew) {
         return shape.skew(skew, origin);
     }
@@ -207,9 +209,7 @@ vg.copy = function (shape, copies, order, translate, rotate, scale) {
 };
 
 vg.fit = function (shape, position, width, height, stretch) {
-    if (!shape) {
-        return;
-    }
+    if (!shape) return null;
     stretch = stretch !== undefined ? stretch : false;
     var t, sx, sy,
         bounds = vg.bounds(shape),
@@ -245,12 +245,8 @@ vg.fit = function (shape, position, width, height, stretch) {
 // Fit the given shape to the bounding shape.
 // If stretch = true, proportions will be distorted.
 vg.fitTo = function (shape, bounding, stretch) {
-    if (!shape) {
-        return;
-    }
-    if (!bounding) {
-        return;
-    }
+    if (!shape) return null;
+    if (!bounding) return shape;
 
     var bounds = vg.bounds(bounding),
         bx = bounds.x,
@@ -262,7 +258,7 @@ vg.fitTo = function (shape, bounding, stretch) {
 };
 
 vg.mirror = function (shape, angle, origin, keepOriginal) {
-    if (!shape) { return; }
+    if (!shape) return null;
     var t = new Transform();
     t = t.translate(origin.x, origin.y);
     t = t.rotate(angle * 2 - 180);
@@ -290,12 +286,12 @@ vg.pathLength = function (shape, options) {
 };
 
 vg.resampleByLength = function (shape, maxLength) {
-    if (!shape) { return; }
+    if (!shape) return null;
     return shape.resampleByLength(maxLength);
 };
 
 vg.resampleByAmount = function (shape, amount, perContour) {
-    if (!shape) { return; }
+    if (!shape) return null;
     return shape.resampleByAmount(amount, perContour);
 };
 
@@ -345,6 +341,7 @@ vg._wigglePoints = function (shape, offset, rand) {
 };
 
 vg.wigglePoints = function (shape, offset, seed) {
+    if (!shape) return null;
     seed = seed !== undefined ? seed : Math.random();
     var rand = random.generator(seed);
     if (offset === undefined) {
@@ -386,6 +383,7 @@ vg._wiggleContours = function (shape, offset, rand) {
 };
 
 vg.wiggleContours = function (shape, offset, seed) {
+    if (!shape) return null;
     seed = seed !== undefined ? seed : Math.random();
     var rand = random.generator(seed);
     if (offset === undefined) {
@@ -419,6 +417,7 @@ vg._wigglePaths = function (shape, offset, rand) {
 };
 
 vg.wigglePaths = function (shape, offset, seed) {
+    if (!shape) return null;
     seed = seed !== undefined ? seed : Math.random();
     var rand = random.generator(seed);
     if (offset === undefined) {
@@ -429,11 +428,9 @@ vg.wigglePaths = function (shape, offset, seed) {
     return vg._wigglePaths(shape, offset, rand);
 };
 
+// Generate points within the boundaries of a shape.
 vg.scatterPoints = function (shape, amount, seed) {
-    // Generate points within the boundaries of a shape.
-    if (!shape) {
-        return;
-    }
+    if (!shape) return [];
     seed = seed !== undefined ? seed : Math.random();
     var i, j, contourPath, nrKeypoints, tries, inContourCount, x, y,
         rand = random.generator(seed),
@@ -475,9 +472,7 @@ vg.scatterPoints = function (shape, amount, seed) {
 };
 
 vg.connectPoints = function (points, closed) {
-    if (!points) {
-        return;
-    }
+    if (!points)  return null;
     var pt, p = new Path();
     for (var i = 0; i < points.length; i += 1) {
         pt = points[i];
@@ -496,9 +491,7 @@ vg.connectPoints = function (points, closed) {
 };
 
 vg.align = function (shape, position, hAlign, vAlign) {
-    if (!shape) {
-        return;
-    }
+    if (!shape) return null;
     var dx, dy, t,
         x = position.x,
         y = position.y,
@@ -528,9 +521,7 @@ vg.align = function (shape, position, hAlign, vAlign) {
 
 // Snap geometry to a grid.
 vg.snap = function (shape, distance, strength, center) {
-    if (!shape) {
-        return;
-    }
+    if (!shape) return null;
     strength = strength !== undefined ? strength : 1;
     center = center || Point.ZERO;
 
@@ -680,9 +671,7 @@ vg['delete'] = function (shape, bounding, scope, invert) {
 };
 
 vg.pointOnPath = function (shape, t) {
-    if (!shape) {
-        return new Point(0, 0);
-    }
+    if (!shape) return Point.ZERO;
     if (shape.shapes) {
         shape = new Path(vg.combinePaths(shape));
     }
@@ -781,9 +770,7 @@ vg._distanceToPoint = function (point) {
 };
 
 vg.shapeSort = function (shapes, method, origin) {
-    if (!shapes) {
-        return;
-    }
+    if (!shapes) return null;
     origin = origin || Point.ZERO;
 
     var methods = {
@@ -831,18 +818,13 @@ vg.ungroup = function (shape) {
 };
 
 vg.centerPoint = function (shape) {
-    if (!shape) {
-        return Point.ZERO;
-    }
+    if (!shape) return Point.ZERO;
     var r = vg.bounds(shape);
     return new Point(r.x + r.width / 2, r.y + r.height / 2);
 };
 
 vg.link = function (shape1, shape2, orientation) {
-    if (!shape1 || !shape2) {
-        return;
-    }
-
+    if (!shape1 || !shape2) return null;
     var p = new Path();
     var a = shape1.bounds();
     var b = shape2.bounds();
