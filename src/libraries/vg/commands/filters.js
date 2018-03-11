@@ -636,11 +636,12 @@ vg.deletePoints = function (shape, bounding, invert) {
 };
 
 vg.deletePaths = function (shape, bounding, invert) {
-    if (shape.commands) {
+    if (!shape || shape.commands) {
         return null;
     } else if (shape.shapes) {
         return new Group(vg.deletePaths(shape.shapes, bounding, invert));
     } else if (Array.isArray(shape)) {
+        if (!bounding) return shape;
         var j, s, selected, cmd, subShapes, newShapes = [];
         var shapes = shape;
         for (var i = 0; i < shapes.length; i += 1) {
