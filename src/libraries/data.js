@@ -32,6 +32,7 @@ g.convert = function (v, inMin, inMax, outMin, outMax) {
 };
 
 g.filterData = function (data, key, op, value) {
+    if (!data) return [];
     var i, l, row, obj;
     if (value === null || value === undefined) {
         return data;

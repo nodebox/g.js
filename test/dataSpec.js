@@ -34,4 +34,9 @@ describe('The filterData function', function () {
         assert.deepEqual(filtered[0], {name: 'Bob', age: 33});
     });
 
+    it('supports null value', function () {
+        var filtered = g.filterData(null, 'name', '==', 'Alice');
+        assert.deepEqual(filtered, []);
+    });
+
 });
