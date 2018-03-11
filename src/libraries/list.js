@@ -201,7 +201,7 @@ g.shuffle = function (l, seed) {
 };
 
 g.slice = function (l, start, size, invert) {
-    if (!l) { return []; }
+    if (!l) return [];
     var firstList, secondList;
     if (!invert) {
         return l.slice(start, start + size);
@@ -214,7 +214,7 @@ g.slice = function (l, start, size, invert) {
 };
 
 g.sort = function (l, key) {
-    if (!l) { return []; }
+    if (!l) return [];
     if (key) {
         if (typeof key === 'string') {
             return l.slice().sort(function (a, b) {
@@ -242,6 +242,7 @@ g.switch = function (index) {
 };
 
 g.takeEvery = function (l, n, offset) {
+    if (!l) return [];
     var i, results = [];
     offset = offset || 0;
     for (i = 0; i < l.length; i += 1) {
