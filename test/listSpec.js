@@ -23,6 +23,23 @@ describe('The interleave function', function () {
 
 });
 
+describe('The sort function', function () {
+
+    it('works', function () {
+        assert.deepEqual(g.sort([]), []);
+        assert.deepEqual(g.sort([1]), [1]);
+        assert.deepEqual(g.sort([5, 3, 1, 2, 4]), [1, 2, 3, 4, 5]);
+    });
+
+    it('supports keys', function () {
+        assert.deepEqual(g.sort([{x: 2}, {x: 3}, {x: 1}], 'x'), [{x: 1}, {x: 2}, {x: 3}]);
+    });
+
+    it('supports null values', function () {
+        assert.deepEqual(g.sort(null), []);
+    });
+
+});
 
 describe('The repeat function', function () {
 

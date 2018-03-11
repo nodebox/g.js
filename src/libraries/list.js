@@ -214,6 +214,7 @@ g.slice = function (l, start, size, invert) {
 };
 
 g.sort = function (l, key) {
+    if (!l) { return []; }
     if (key) {
         if (typeof key === 'string') {
             return l.slice().sort(function (a, b) {
