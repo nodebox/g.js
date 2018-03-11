@@ -16,6 +16,7 @@ g.combine = function () {
 };
 
 g.contains = function (l, value) {
+    if (!l) { return false; }
     for (var i = 0; i < l.length; i += 1) {
         if (deepEqual.deepEqual(l[i], value)) {
             return true;
