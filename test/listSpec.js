@@ -10,6 +10,9 @@ var g = require('../src/g');
 describe('The interleave function', function () {
 
     it('works', function () {
+        assert.deepEqual(g.interleave(null), []);
+        assert.deepEqual(g.interleave(null, null), []);
+        assert.deepEqual(g.interleave(null, [1, 2, 3], [11, 22]), [1, 11, 2, 22, 3]);
         assert.deepEqual(g.interleave(), []);
         assert.deepEqual(g.interleave([1]), [1]);
         assert.deepEqual(g.interleave([1], [2]), [1, 2]);

@@ -86,12 +86,13 @@ g.get = function (l, i) {
 };
 
 g.interleave = function () {
-    if (arguments.length === 0) return [];
-    var results = [];
-    var elIndex = 0;
+    const args = Array.from(arguments).filter(l => !!l);
+    if (args.length === 0) return [];
+    const results = [];
+    let elIndex = 0;
     while (true) {
-        for (var i = 0; i < arguments.length; i++) {
-            var arg = arguments[i];
+        for (let i = 0; i < args.length; i++) {
+            let arg = args[i];
             if (arg.length > elIndex) {
                 results.push(arg[elIndex]);
             } else {
