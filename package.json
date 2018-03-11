@@ -1,6 +1,6 @@
 {
   "name": "g.js",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Graphic Objects Library",
   "main": "src/g.js",
   "scripts": {
