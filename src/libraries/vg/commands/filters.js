@@ -281,6 +281,7 @@ vg.mirror = function (shape, angle, origin, keepOriginal) {
 };
 
 vg.pathLength = function (shape, options) {
+    if (!shape) return 0;
     var precision = 20;
     if (options && options.precision) {
         precision = options.precision;
