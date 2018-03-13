@@ -21,6 +21,11 @@ var CLOSE_COMMAND = Object.freeze({ type: CLOSE });
 
 var KAPPA = 0.5522847498307936; // (-1 + Math.sqrt(2)) / 3 * 4
 
+function _roundCoord(n) {
+    if (n % 1 === 0) return n;
+    return n.toFixed(3);
+}
+
 function _cloneCommand(cmd) {
     var newCmd = {type: cmd.type};
     if (newCmd.type !== CLOSE) {
@@ -445,16 +450,16 @@ Path.prototype.toPathData = function () {
     for (i = 0; i < this.commands.length; i += 1) {
         cmd = this.commands[i];
         if (cmd.x !== undefined) {
-            x = math.clamp(cmd.x, -9999, 9999);
-            y = math.clamp(cmd.y, -9999, 9999);
+            x = _roundCoord(math.clamp(cmd.x, -9999, 9999));
+            y = _roundCoord(math.clamp(cmd.y, -9999, 9999));
         }
         if (cmd.x1 !== undefined) {
-            x1 = math.clamp(cmd.x1, -9999, 9999);
-            y1 = math.clamp(cmd.y1, -9999, 9999);
+            x1 = _roundCoord(math.clamp(cmd.x1, -9999, 9999));
+            y1 = _roundCoord(math.clamp(cmd.y1, -9999, 9999));
         }
         if (cmd.x2 !== undefined) {
-            x2 = math.clamp(cmd.x2, -9999, 9999);
-            y2 = math.clamp(cmd.y2, -9999, 9999);
+            x2 = _roundCoord(math.clamp(cmd.x2, -9999, 9999));
+            y2 = _roundCoord(math.clamp(cmd.y2, -9999, 9999));
         }
         if (cmd.type === MOVETO) {
             if (!isNaN(x) && !isNaN(y)) {

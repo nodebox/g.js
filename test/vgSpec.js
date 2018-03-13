@@ -120,6 +120,14 @@ describe('A path', function () {
         assert.equal(p.toSVG(), '<path d="M10 20L30 40Z"/>');
     });
 
+    it('can probably round coordinates', function () {
+        var p;
+        p = new vg.Path();
+        p.moveTo(Math.PI, Math.E);
+        p.lineTo(100 / 3, 200 / 3);
+        assert.equal(p.toSVG(), '<path d="M3.142 2.718L33.333 66.667"/>');
+    });
+
     it('can clone itself', function () {
         var p, newP;
         p = new vg.Path();
