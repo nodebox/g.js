@@ -23497,9 +23497,9 @@ var CLOSE_COMMAND = Object.freeze({ type: CLOSE });
 
 var KAPPA = 0.5522847498307936; // (-1 + Math.sqrt(2)) / 3 * 4
 
-function _roundCoord(n) {
+function _roundCoord(n, fractionDigits=3) {
     if (n % 1 === 0) return n;
-    return n.toFixed(3);
+    return n.toFixed(fractionDigits);
 }
 
 function _cloneCommand(cmd) {
@@ -23920,22 +23920,22 @@ Path.prototype.resampleByLength = function (segmentLength, options) {
     return new Path(commands, this.fill, this.stroke, this.strokeWidth);
 };
 
-Path.prototype.toPathData = function () {
+Path.prototype.toPathData = function (fractionDigits=3) {
     var i, d, cmd, x, y, x1, y1, x2, y2;
     d = '';
     for (i = 0; i < this.commands.length; i += 1) {
         cmd = this.commands[i];
         if (cmd.x !== undefined) {
-            x = _roundCoord(math.clamp(cmd.x, -9999, 9999));
-            y = _roundCoord(math.clamp(cmd.y, -9999, 9999));
+            x = _roundCoord(math.clamp(cmd.x, -9999, 9999), fractionDigits);
+            y = _roundCoord(math.clamp(cmd.y, -9999, 9999), fractionDigits);
         }
         if (cmd.x1 !== undefined) {
-            x1 = _roundCoord(math.clamp(cmd.x1, -9999, 9999));
-            y1 = _roundCoord(math.clamp(cmd.y1, -9999, 9999));
+            x1 = _roundCoord(math.clamp(cmd.x1, -9999, 9999), fractionDigits);
+            y1 = _roundCoord(math.clamp(cmd.y1, -9999, 9999), fractionDigits);
         }
         if (cmd.x2 !== undefined) {
-            x2 = _roundCoord(math.clamp(cmd.x2, -9999, 9999));
-            y2 = _roundCoord(math.clamp(cmd.y2, -9999, 9999));
+            x2 = _roundCoord(math.clamp(cmd.x2, -9999, 9999), fractionDigits);
+            y2 = _roundCoord(math.clamp(cmd.y2, -9999, 9999), fractionDigits);
         }
         if (cmd.type === MOVETO) {
             if (!isNaN(x) && !isNaN(y)) {
