@@ -135,7 +135,7 @@ GText.prototype.draw = function (ctx) {
     ctx.font = this._getFont();
     ctx.textAlign = this.textAlign;
     var m = this.transform.m;
-    ctx.transform(m[0], m[1], m[3], m[4], m[6], m[7]);
+    ctx.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
     ctx.fillStyle = Color.toCSS(this.fill);
     ctx.fillText(this.text, this._x, this._y);
     ctx.restore();
