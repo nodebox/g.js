@@ -15110,7 +15110,7 @@ g.importCSV = function (csvString, delimiter) {
     csvRows = csvString.split(/\r\n|\r|\n/g);
     header = splitRow(csvRows[0], delimiter);
     csvRows = csvRows.slice(1);
-    
+
     var row, rows = [];
     var m, sr, col, index;
     for (var i = 0; i < csvRows.length; i += 1) {
@@ -15153,6 +15153,13 @@ g.mix = function (a, b, t) {
     t = t !== undefined ? t : 0.5;
     if (typeof a === 'number') {
         return (a * (1 - t)) + (b * t);
+    } else if (a instanceof g.Color && b instanceof g.Color) {
+        return new g.Color(
+            g.mix(a.r, b.r, t),
+            g.mix(a.g, b.g, t),
+            g.mix(a.b, b.b, t),
+            g.mix(a.a, b.a, t)
+        );
     } else if (typeof a === 'object') {
         var result = {};
         var keys = Object.keys(a);
@@ -23035,15 +23042,18 @@ Color.toCSS = function (c) {
     } else if (typeof c === 'string') {
         return c;
     } else if (c instanceof Color) {
-        var r255 = Math.round(c.r * 255),
+        let r255 = Math.round(c.r * 255),
             g255 = Math.round(c.g * 255),
             b255 = Math.round(c.b * 255);
         return 'rgba(' + r255 + ', ' + g255 + ', ' + b255 + ', ' + c.a + ')';
     } else if (c.r !== undefined && c.g !== undefined && c.b !== undefined) {
+        let r255 = Math.round(c.r * 255),
+            g255 = Math.round(c.g * 255),
+            b255 = Math.round(c.b * 255);
         if (c.a === undefined) {
-            return 'rgb(' + c.r + ', ' + c.g + ', ' + c.b + ')';
+            return 'rgb(' + r255 + ', ' + g255 + ', ' + b255 + ')';
         } else {
-            return 'rgba(' + c.r + ', ' + c.g + ', ' + c.b + ', ' + c.a + ')';
+            return 'rgba(' + r255 + ', ' + g255 + ', ' + b255 + ', ' + c.a + ')';
         }
     } else {
         throw new Error('Don\'t know how to convert ' + c + ' to CSS.');
