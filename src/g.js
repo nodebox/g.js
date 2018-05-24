@@ -81,7 +81,7 @@ g.importCSV = function (csvString, delimiter) {
     csvRows = csvString.split(/\r\n|\r|\n/g);
     header = splitRow(csvRows[0], delimiter);
     csvRows = csvRows.slice(1);
-    
+
     var row, rows = [];
     var m, sr, col, index;
     for (var i = 0; i < csvRows.length; i += 1) {
@@ -124,6 +124,13 @@ g.mix = function (a, b, t) {
     t = t !== undefined ? t : 0.5;
     if (typeof a === 'number') {
         return (a * (1 - t)) + (b * t);
+    } else if (a instanceof g.Color && b instanceof g.Color) {
+        return new g.Color(
+            g.mix(a.r, b.r, t),
+            g.mix(a.g, b.g, t),
+            g.mix(a.b, b.b, t),
+            g.mix(a.a, b.a, t)
+        );
     } else if (typeof a === 'object') {
         var result = {};
         var keys = Object.keys(a);

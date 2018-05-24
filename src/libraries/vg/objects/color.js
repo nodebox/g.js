@@ -219,15 +219,18 @@ Color.toCSS = function (c) {
     } else if (typeof c === 'string') {
         return c;
     } else if (c instanceof Color) {
-        var r255 = Math.round(c.r * 255),
+        let r255 = Math.round(c.r * 255),
             g255 = Math.round(c.g * 255),
             b255 = Math.round(c.b * 255);
         return 'rgba(' + r255 + ', ' + g255 + ', ' + b255 + ', ' + c.a + ')';
     } else if (c.r !== undefined && c.g !== undefined && c.b !== undefined) {
+        let r255 = Math.round(c.r * 255),
+            g255 = Math.round(c.g * 255),
+            b255 = Math.round(c.b * 255);
         if (c.a === undefined) {
-            return 'rgb(' + c.r + ', ' + c.g + ', ' + c.b + ')';
+            return 'rgb(' + r255 + ', ' + g255 + ', ' + b255 + ')';
         } else {
-            return 'rgba(' + c.r + ', ' + c.g + ', ' + c.b + ', ' + c.a + ')';
+            return 'rgba(' + r255 + ', ' + g255 + ', ' + b255 + ', ' + c.a + ')';
         }
     } else {
         throw new Error('Don\'t know how to convert ' + c + ' to CSS.');
