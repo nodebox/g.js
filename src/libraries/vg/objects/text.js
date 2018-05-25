@@ -172,7 +172,11 @@ GText.prototype.toSVG = function () {
     }
     svg += ' text-anchor="' + textAnchor + '"';
     if (this.fill !== 'black') {
-        svg += ' fill="' + Color.toCSS(this.fill) + '"';
+        var fill = Color.parse(this.fill);
+        svg += ' fill="' + fill.toHex(true) + '"';
+        if (fill.a < 1) {
+            svg += ' opacity="' + fill.a + '"';
+        }
     }
     if (!this.transform.isIdentity()) {
         svg += ' transform="matrix(' + this.transform.m.join(',') + ')"';

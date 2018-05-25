@@ -25,4 +25,10 @@ describe('The text object', function () {
         assert.equal(t.toSVG(), '<text x="0" y="0" font-family="sans-serif" font-size="24" text-anchor="start" transform="matrix(1,0,0,1,10,20)">Hello</text>');
     });
 
+    it('specifies SVG colors compatible with Illustrator', function () {
+        var t = new g.Text('Hello');
+        t.fill = new g.Color(1, 0, 0, 0.5);
+        assert.equal(t.toSVG(), '<text x="0" y="0" font-family="sans-serif" font-size="24" text-anchor="start" fill="#FF0000" opacity="0.5">Hello</text>');
+    });
+
 });
