@@ -23000,8 +23000,8 @@ Color.prototype.toCSS = function () {
     return Color.toCSS(this);
 };
 
-Color.prototype.toHex = function () {
-    if (this.a >= 1) {
+Color.prototype.toHex = function (ignoreAlpha) {
+    if (ignoreAlpha || this.a >= 1) {
         return color.rgb2hex(this.r, this.g, this.b);
     } else {
         return color.rgba2hex(this.r, this.g, this.b, this.a);
@@ -23060,8 +23060,8 @@ Color.toCSS = function (c) {
     }
 };
 
-Color.toHex = function (c) {
-    return Color.parse(c).toHex();
+Color.toHex = function (c, ignoreAlpha) {
+    return Color.parse(c, ignoreAlpha).toHex();
 };
 
 Color.make = function () {
@@ -24446,7 +24446,11 @@ GText.prototype.toSVG = function () {
     }
     svg += ' text-anchor="' + textAnchor + '"';
     if (this.fill !== 'black') {
-        svg += ' fill="' + Color.toCSS(this.fill) + '"';
+        var fill = Color.parse(this.fill);
+        svg += ' fill="' + fill.toHex(true) + '"';
+        if (fill.a < 1) {
+            svg += ' opacity="' + fill.a + '"';
+        }
     }
     if (!this.transform.isIdentity()) {
         svg += ' transform="matrix(' + this.transform.m.join(',') + ')"';
