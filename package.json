@@ -43,7 +43,7 @@
     "browserify": "^16.1.1",
     "jshint": "^2.9.4",
     "mocha": "^5.0.4",
-    "uglifyify": "^4.0.5",
+    "uglifyify": "^5.0.1",
     "watchify": "^3.8.0"
   }
 }
