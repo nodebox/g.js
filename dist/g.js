@@ -1,5 +1,5 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.g = f()}})(function(){var define,module,exports;return (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
-(function (process,global){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.g = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+(function (process,global,setImmediate){
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -666,10 +666,13 @@ var reIsUint = /^(?:0|[1-9]\d*)$/;
  * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
  */
 function isIndex(value, length) {
+  var type = typeof value;
   length = length == null ? MAX_SAFE_INTEGER$1 : length;
+
   return !!length &&
-    (typeof value == 'number' || reIsUint.test(value)) &&
-    (value > -1 && value % 1 == 0 && value < length);
+    (type == 'number' ||
+      (type != 'symbol' && reIsUint.test(value))) &&
+        (value > -1 && value % 1 == 0 && value < length);
 }
 
 /** `Object#toString` result references. */
@@ -755,6 +758,14 @@ var freeProcess = moduleExports$1 && freeGlobal.process;
 /** Used to access faster Node.js helpers. */
 var nodeUtil = (function() {
   try {
+    // Use `util.types` for Node.js 10+.
+    var types = freeModule$1 && freeModule$1.require && freeModule$1.require('util').types;
+
+    if (types) {
+      return types;
+    }
+
+    // Legacy `process.binding('util')` for Node.js < 10.
     return freeProcess && freeProcess.binding && freeProcess.binding('util');
   } catch (e) {}
 }());
@@ -970,6 +981,7 @@ function _eachOfLimit(limit) {
         var nextElem = iterator(obj);
         var done = false;
         var running = 0;
+        var looping = false;
 
         function iterateeCallback(err, value) {
             running -= 1;
@@ -981,12 +993,13 @@ function _eachOfLimit(limit) {
                 done = true;
                 return callback(null);
             }
-            else {
+            else if (!looping) {
                 replenish();
             }
         }
 
         function replenish () {
+            looping = true;
             while (running < limit && !done) {
                 var elem = nextElem();
                 if (elem === null) {
@@ -999,6 +1012,7 @@ function _eachOfLimit(limit) {
                 running += 1;
                 iteratee(elem.value, elem.key, onlyOnce(iterateeCallback));
             }
+            looping = false;
         }
 
         replenish();
@@ -3819,7 +3833,7 @@ function memoize(fn, hasher) {
 
 /**
  * Calls `callback` on a later loop around the event loop. In Node.js this just
- * calls `process.nextTicl`.  In the browser it will use `setImmediate` if
+ * calls `process.nextTick`.  In the browser it will use `setImmediate` if
  * available, otherwise `setTimeout(callback, 0)`, which means other higher
  * priority events may precede the execution of `callback`.
  *
@@ -5596,8 +5610,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
 
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":8}],2:[function(require,module,exports){
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
+},{"_process":8,"timers":10}],2:[function(require,module,exports){
 /**
  * lodash (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -12893,6 +12907,85 @@ function BlurStack()
 
 module.exports = blur;
 },{}],10:[function(require,module,exports){
+(function (setImmediate,clearImmediate){
+var nextTick = require('process/browser.js').nextTick;
+var apply = Function.prototype.apply;
+var slice = Array.prototype.slice;
+var immediateIds = {};
+var nextImmediateId = 0;
+
+// DOM APIs, for completeness
+
+exports.setTimeout = function() {
+  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+};
+exports.setInterval = function() {
+  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+};
+exports.clearTimeout =
+exports.clearInterval = function(timeout) { timeout.close(); };
+
+function Timeout(id, clearFn) {
+  this._id = id;
+  this._clearFn = clearFn;
+}
+Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+Timeout.prototype.close = function() {
+  this._clearFn.call(window, this._id);
+};
+
+// Does not start the time, just sets up the members needed.
+exports.enroll = function(item, msecs) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = msecs;
+};
+
+exports.unenroll = function(item) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = -1;
+};
+
+exports._unrefActive = exports.active = function(item) {
+  clearTimeout(item._idleTimeoutId);
+
+  var msecs = item._idleTimeout;
+  if (msecs >= 0) {
+    item._idleTimeoutId = setTimeout(function onTimeout() {
+      if (item._onTimeout)
+        item._onTimeout();
+    }, msecs);
+  }
+};
+
+// That's not how node.js implements it but the exposed api is the same.
+exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
+  var id = nextImmediateId++;
+  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
+
+  immediateIds[id] = true;
+
+  nextTick(function onNextTick() {
+    if (immediateIds[id]) {
+      // fn.call() is faster so we optimize for the common use-case
+      // @see http://jsperf.com/call-apply-segu
+      if (args) {
+        fn.apply(null, args);
+      } else {
+        fn.call(null);
+      }
+      // Prevent ids from leaking
+      exports.clearImmediate(id);
+    }
+  });
+
+  return id;
+};
+
+exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
+  delete immediateIds[id];
+};
+}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
+},{"process/browser.js":8,"timers":10}],11:[function(require,module,exports){
 function DOMParser(options){
 	this.options = options ||{locator:{}};
 	
@@ -13145,7 +13238,7 @@ function appendElement (hander,node) {
 	exports.DOMParser = DOMParser;
 //}
 
-},{"./dom":11,"./sax":12}],11:[function(require,module,exports){
+},{"./dom":12,"./sax":13}],12:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -14391,7 +14484,7 @@ try{
 	exports.XMLSerializer = XMLSerializer;
 //}
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -15026,7 +15119,7 @@ function split(source,start){
 exports.XMLReader = XMLReader;
 
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var isEmpty = require('lodash.isempty');
@@ -15179,7 +15272,7 @@ g.mix = function (a, b, t) {
 
 module.exports = g;
 
-},{"./libraries/data":14,"./libraries/easing":16,"./libraries/graphics":17,"./libraries/image":18,"./libraries/img/img":22,"./libraries/list":25,"./libraries/math":26,"./libraries/string":27,"./libraries/vg/vg":49,"lodash.flatten":3,"lodash.isempty":5}],14:[function(require,module,exports){
+},{"./libraries/data":15,"./libraries/easing":17,"./libraries/graphics":18,"./libraries/image":19,"./libraries/img/img":23,"./libraries/list":26,"./libraries/math":27,"./libraries/string":28,"./libraries/vg/vg":50,"lodash.flatten":3,"lodash.isempty":5}],15:[function(require,module,exports){
 'use strict';
 
 var values = require('lodash.values');
@@ -15370,7 +15463,7 @@ g.ticks = function (min, max, n) {
 
 module.exports = g;
 
-},{"./list":25,"lodash.groupby":4,"lodash.values":7}],15:[function(require,module,exports){
+},{"./list":26,"lodash.groupby":4,"lodash.values":7}],16:[function(require,module,exports){
 /* jshint eqeqeq:false */
 
 'use strict';
@@ -15510,7 +15603,7 @@ objEquiv = function (a, b) {
 };
 
 module.exports = deepEqual;
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 // Easing functions in javascript ported from jQuery Easing Plugin:
@@ -15714,7 +15807,7 @@ g.easing = function (f) {
 
 module.exports = g;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 var vg = require('./vg/vg');
@@ -16248,7 +16341,7 @@ g.invert = function (shape) {
 
 module.exports = g;
 
-},{"./img/img":22,"./math":26,"./vg/vg":49}],18:[function(require,module,exports){
+},{"./img/img":23,"./math":27,"./vg/vg":50}],19:[function(require,module,exports){
 'use strict';
 
 var vg = require('./vg/vg');
@@ -16504,7 +16597,7 @@ g.twirl = function (image, position, radius, angle) {
 
 module.exports = g;
 
-},{"./img/img":22,"./vg/vg":49}],19:[function(require,module,exports){
+},{"./img/img":23,"./vg/vg":50}],20:[function(require,module,exports){
 'use strict';
 
 var async = require('async');
@@ -16731,7 +16824,7 @@ AsyncRenderer.renderBW = function (iCanvas, callback) {
 
 module.exports = AsyncRenderer;
 
-},{"./canvasrenderer":21,"./process":23,"async":1}],20:[function(require,module,exports){
+},{"./canvasrenderer":22,"./process":24,"async":1}],21:[function(require,module,exports){
 'use strict';
 
 var blend, process;
@@ -17648,7 +17741,7 @@ blend = (function () {
 
 module.exports = blend;
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 var blend = require('./blend');
@@ -18105,7 +18198,7 @@ CanvasRenderer.renderBW = function (iCanvas) {
 
 module.exports = CanvasRenderer;
 
-},{"./blend":20,"./process":23,"./util":24}],22:[function(require,module,exports){
+},{"./blend":21,"./process":24,"./util":25}],23:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -19015,7 +19108,7 @@ img.merge = merge;
 
 module.exports = img;
 
-},{"./asyncrenderer":19,"./canvasrenderer":21,"./util":24,"async":1}],23:[function(require,module,exports){
+},{"./asyncrenderer":20,"./canvasrenderer":22,"./util":25,"async":1}],24:[function(require,module,exports){
 /*!
  * Image processing based on Pixastic library:
  *
@@ -20432,7 +20525,7 @@ var process = {
 
 module.exports = process;
 
-},{"./util":24,"stackblur":9}],24:[function(require,module,exports){
+},{"./util":25,"stackblur":9}],25:[function(require,module,exports){
 'use strict';
 
 // UTILITIES.
@@ -20552,7 +20645,7 @@ module.exports = {
     transform: transform
 };
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 var deepEqual = require('./deepequal');
@@ -20822,7 +20915,7 @@ g.zipMap = function (keys, vals) {
 
 module.exports = g;
 
-},{"./deepequal":15,"./util":28}],26:[function(require,module,exports){
+},{"./deepequal":16,"./util":29}],27:[function(require,module,exports){
 'use strict';
 
 var reduce = require('lodash.reduce');
@@ -21254,7 +21347,7 @@ g.xor = function (bool1, bool2) {
 
 module.exports = g;
 
-},{"./util":28,"./vg/vg":49,"lodash.reduce":6}],27:[function(require,module,exports){
+},{"./util":29,"./vg/vg":50,"lodash.reduce":6}],28:[function(require,module,exports){
 'use strict';
 
 var g = {};
@@ -21417,7 +21510,7 @@ g.toWords = function (s) {
 
 module.exports = g;
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 var randomGenerator = function (seed) {
@@ -21444,7 +21537,7 @@ var randomGenerator = function (seed) {
 };
 
 exports.randomGenerator = randomGenerator;
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 // Draw objects to the canvas
 
 'use strict';
@@ -21580,7 +21673,7 @@ vg.toSVG = function (o, options) {
 
 module.exports = vg;
 
-},{"../objects/color":32}],30:[function(require,module,exports){
+},{"../objects/color":33}],31:[function(require,module,exports){
 // Object creation / manipulation commands
 
 'use strict';
@@ -22493,7 +22586,7 @@ vg.compound = function (shape1, shape2, method) {
 
 module.exports = vg;
 
-},{"../../../../third_party/clipper":50,"../objects/color":32,"../objects/group":33,"../objects/path":35,"../objects/point":36,"../objects/rect":37,"../objects/transform":39,"../objects/transformable":40,"../util/bezier":42,"../util/geo":44,"../util/math":46,"../util/random":47,"lodash.flatten":3}],31:[function(require,module,exports){
+},{"../../../../third_party/clipper":51,"../objects/color":33,"../objects/group":34,"../objects/path":36,"../objects/point":37,"../objects/rect":38,"../objects/transform":40,"../objects/transformable":41,"../util/bezier":43,"../util/geo":45,"../util/math":47,"../util/random":48,"lodash.flatten":3}],32:[function(require,module,exports){
 // Basic shapes
 
 'use strict';
@@ -22820,7 +22913,7 @@ vg.demoEllipse = function () {
 
 module.exports = vg;
 
-},{"../objects/color":32,"../objects/path":35,"../objects/point":36,"../objects/text":38,"../util/geo":44}],32:[function(require,module,exports){
+},{"../objects/color":33,"../objects/path":36,"../objects/point":37,"../objects/text":39,"../util/geo":45}],33:[function(require,module,exports){
 // Color object
 
 'use strict';
@@ -23150,7 +23243,7 @@ Color.hsl = function (hue, saturation, lightness, alpha, range) {
 
 module.exports = Color;
 
-},{"../util/color":43,"../util/js":45,"../util/math":46}],33:[function(require,module,exports){
+},{"../util/color":44,"../util/js":46,"../util/math":47}],34:[function(require,module,exports){
 // Shape group object
 
 'use strict';
@@ -23299,7 +23392,7 @@ Group.prototype.draw = function (ctx) {
 
 module.exports = Group;
 
-},{"../objects/color":32,"../objects/path":35,"../objects/rect":37}],34:[function(require,module,exports){
+},{"../objects/color":33,"../objects/path":36,"../objects/rect":38}],35:[function(require,module,exports){
 // 3-dimensional matrix
 
 'use strict';
@@ -23483,7 +23576,7 @@ Matrix4.prototype.translate = function (tx, ty, tz) {
 };
 
 module.exports = Matrix4;
-},{"../objects/vec3":41}],35:[function(require,module,exports){
+},{"../objects/vec3":42}],36:[function(require,module,exports){
 // Bézier path object
 
 'use strict';
@@ -24071,7 +24164,7 @@ Path.combine = function () {
 
 module.exports = Path;
 
-},{"../objects/color":32,"../objects/rect":37,"../util/bezier":42,"../util/geo":44,"../util/math":46,"lodash.flatten":3}],36:[function(require,module,exports){
+},{"../objects/color":33,"../objects/rect":38,"../util/bezier":43,"../util/geo":45,"../util/math":47,"lodash.flatten":3}],37:[function(require,module,exports){
 // 2-dimensional point object.
 
 'use strict';
@@ -24174,7 +24267,7 @@ Point.prototype.toString = function () {
 };
 
 module.exports = Point;
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 // Rectangle object
 
 'use strict';
@@ -24271,7 +24364,7 @@ Rect.prototype.centerPoint = function () {
 };
 
 module.exports = Rect;
-},{"../objects/point":36}],38:[function(require,module,exports){
+},{"../objects/point":37}],39:[function(require,module,exports){
 // Text object
 
 // Internally the object is called "GText" to avoid conflicts with the DOM Text object.
@@ -24463,7 +24556,7 @@ GText.prototype.toSVG = function () {
 
 module.exports = GText;
 
-},{"../objects/color":32,"../objects/rect":37,"../objects/transform":39}],39:[function(require,module,exports){
+},{"../objects/color":33,"../objects/rect":38,"../objects/transform":40}],40:[function(require,module,exports){
 // 2-dimensional transformation matrix
 
 'use strict';
@@ -24670,7 +24763,7 @@ Transform.prototype.transformShape = function (shape) {
 
 module.exports = Transform;
 
-},{"../objects/group":33,"../objects/path":35,"../objects/point":36,"../util/bezier":42,"../util/math":46}],40:[function(require,module,exports){
+},{"../objects/group":34,"../objects/path":36,"../objects/point":37,"../util/bezier":43,"../util/math":47}],41:[function(require,module,exports){
 // Mixin for Path and Group
 
 'use strict';
@@ -24723,7 +24816,7 @@ var Transformable = {
 
 module.exports = Transformable;
 
-},{"../objects/point":36,"../objects/transform":39}],41:[function(require,module,exports){
+},{"../objects/point":37,"../objects/transform":40}],42:[function(require,module,exports){
 //// VECTORS AND MATRICES ///////////////////////////////////////////////
 
 'use strict';
@@ -24810,7 +24903,7 @@ Vec3.prototype.transform = function (matrix4) {
 };
 
 module.exports = Vec3;
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 // Bézier Math
 // Thanks to Prof. F. De Smedt at the Vrije Universiteit Brussel, 2006.
 
@@ -25096,7 +25189,7 @@ bezier.extrema = function (x1, y1, x2, y2, x3, y3, x4, y4) {
 
 module.exports = bezier;
 
-},{"../objects/point":36,"../objects/rect":37,"../util/math":46}],43:[function(require,module,exports){
+},{"../objects/point":37,"../objects/rect":38,"../util/math":47}],44:[function(require,module,exports){
 // Color conversion functions
 
 'use strict';
@@ -25420,7 +25513,7 @@ color.hsl2rgb = function (h, s, l) {
 
 module.exports = color;
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 // Geometry
 
 'use strict';
@@ -25480,7 +25573,7 @@ geo.pointInPolygon = function (points, x, y) {
 
 module.exports = geo;
 
-},{"../objects/point":36,"../util/math":46}],45:[function(require,module,exports){
+},{"../objects/point":37,"../util/math":47}],46:[function(require,module,exports){
 // Generic JavaScript utility methods
 
 'use strict';
@@ -25505,7 +25598,7 @@ exports.defineGetter = function (cls, property, getterFn) {
     });
 };
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 // Math Utility functions
 
 'use strict';
@@ -25657,7 +25750,7 @@ math.noise = function (x, y, z) {
 
 module.exports = math;
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 // Pseudo-random generator
 
 'use strict';
@@ -25688,7 +25781,7 @@ function generator(seed) {
 
 exports.generator = generator;
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 // SVG Parser
 
 // The SVG engine uses code from the following libraries:
@@ -26446,7 +26539,7 @@ exports.parseString = function (s) {
     }
 };
 
-},{"../objects/color":32,"../objects/group":33,"../objects/path":35,"../objects/point":36,"../objects/transform":39,"xmldom":10}],49:[function(require,module,exports){
+},{"../objects/color":33,"../objects/group":34,"../objects/path":36,"../objects/point":37,"../objects/transform":40,"xmldom":11}],50:[function(require,module,exports){
 // vg.js
 // JavaScript library for vector graphics
 // https://github.com/nodebox/vg.js
@@ -26498,7 +26591,7 @@ importCommands(require('./commands/filters'));
 importCommands(require('./commands/shapes'));
 
 module.exports = vg;
-},{"./commands/draw":29,"./commands/filters":30,"./commands/shapes":31,"./objects/color":32,"./objects/group":33,"./objects/matrix4":34,"./objects/path":35,"./objects/point":36,"./objects/rect":37,"./objects/text":38,"./objects/transform":39,"./objects/transformable":40,"./objects/vec3":41,"./util/bezier":42,"./util/color":43,"./util/geo":44,"./util/math":46,"./util/random":47,"./util/svg":48,"lodash.assignin":2}],50:[function(require,module,exports){
+},{"./commands/draw":30,"./commands/filters":31,"./commands/shapes":32,"./objects/color":33,"./objects/group":34,"./objects/matrix4":35,"./objects/path":36,"./objects/point":37,"./objects/rect":38,"./objects/text":39,"./objects/transform":40,"./objects/transformable":41,"./objects/vec3":42,"./util/bezier":43,"./util/color":44,"./util/geo":45,"./util/math":47,"./util/random":48,"./util/svg":49,"lodash.assignin":2}],51:[function(require,module,exports){
 // rev 482
 /********************************************************************************
  *                                                                              *
@@ -33423,5 +33516,5 @@ module.exports = vg;
   };
 })();
 
-},{}]},{},[13])(13)
+},{}]},{},[14])(14)
 });
