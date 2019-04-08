@@ -928,22 +928,22 @@ function constructPath(points, closed) {
         }
     });
     const commands = [];
-    length = segments.length;
+    let length = segments.length;
     if (closed) { length += 1; }
     for (i = 0; i < length; i += 1) {
         let seg = segments[i % segments.length];
         if (i === 0) {
-            commands.push({ cmd: "moveto", pt: seg._pt });
+            commands.push({ cmd: 'moveto', pt: seg._pt });
         } else {
-            d = { cmd: "curveto", pt: seg._pt, ctrl1: segments[i - 1]._out, ctrl2: seg._in };
+            d = { cmd: 'curveto', pt: seg._pt, ctrl1: segments[i - 1]._out, ctrl2: seg._in };
             commands.push(d);
         }
     }
     const path = new Path();
     commands.forEach(el => {
-        if (el.cmd === "moveto") {
+        if (el.cmd === 'moveto') {
             path.moveTo(el.pt.x, el.pt.y);
-        } else if (el.cmd === "curveto") {
+        } else if (el.cmd === 'curveto') {
             path.curveTo(el.ctrl1.x, el.ctrl1.y, el.ctrl2.x, el.ctrl2.y, el.pt.x, el.pt.y);
         }
     });
@@ -962,9 +962,9 @@ vg.roundedSegments = function (shape, d) {
             prev = points[i - 1];
         }
         let next = points[(i + 1) % points.length];
-        let a = g.angle(prev, next);
-        let c1 = g.coordinates(pt.x, pt.y, a, -d[i % d.length]);
-        let c2 = g.coordinates(pt.x, pt.y, a, d[i % d.length]);
+        let a = math.degrees(Math.atan2(next.y - prev.y, next.x - prev.x));
+        let c1 = geo.coordinates(pt.x, pt.y, a, -d[i % d.length]);
+        let c2 = geo.coordinates(pt.x, pt.y, a, d[i % d.length]);
         newPoints.push(c1);
         newPoints.push(pt);
         newPoints.push(c2);
