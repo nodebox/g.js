@@ -951,6 +951,7 @@ function constructPath(points, closed) {
 }
 
 vg.roundedSegments = function (shape, d) {
+    if (!d || d.length === 0) { return shape; }
     const points = vg.toPoints(shape);
     const newPoints = [];
     for (let i = 0; i < points.length; i +=1) {
