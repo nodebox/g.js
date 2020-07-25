@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/nodebox/g.js",
   "dependencies": {
-    "async": "^2.1.4",
+    "async": "^3.2.0",
     "lodash.assignin": "^4.2.0",
     "lodash.flatten": "^4.4.0",
     "lodash.groupby": "^4.6.0",
@@ -37,13 +37,13 @@
     "lodash.reduce": "^4.6.0",
     "lodash.values": "^4.3.0",
     "stackblur": "^1.0.0",
-    "xmldom": "^0.1.27"
+    "xmldom": "^0.3.0"
   },
   "devDependencies": {
-    "browserify": "^16.1.1",
-    "jshint": "^2.9.4",
-    "mocha": "^5.0.4",
-    "uglifyify": "^5.0.1",
-    "watchify": "^3.8.0"
+    "browserify": "^16.5.1",
+    "jshint": "^2.11.1",
+    "mocha": "^8.0.1",
+    "uglifyify": "^5.0.2",
+    "watchify": "^3.11.1"
   }
 }
