@@ -870,9 +870,72 @@ vg._compoundToPoints = function (shape) {
     return l1;
 };
 
+function cmdToPathKit(cmd) {
+	if (!window.PathKit) {
+		throw new Error('PathKit module not found.');
+	}
+	var PathKit = window.PathKit;
+	if (cmd.type === bezier.MOVETO) {
+		return [PathKit.MOVE_VERB, cmd.x, cmd.y];
+	} else if (cmd.type === bezier.LINETO) {
+		return [PathKit.LINE_VERB, cmd.x, cmd.y];
+	} else if (cmd.type === bezier.CURVETO) {
+		return [PathKit.CUBIC_VERB, cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y];
+	} else if (cmd.type === bezier.CLOSE) {
+		return [PathKit.CLOSE_VERB];
+	}
+}
+
+var compoundOpsPathKit;
+
+vg._compoundPathKit = function (shape1, shape2, method) {
+	if (!window.PathKit) {
+		throw new Error('PathKit module not found.');
+	}
+	var PathKit = window.PathKit;
+	if (!compoundOpsPathKit) {
+		compoundOpsPathKit = {
+			'union': PathKit.PathOp.UNION,
+			'difference': PathKit.PathOp.DIFFERENCE,
+			'intersection': PathKit.PathOp.INTERSECT,
+			'xor': PathKit.PathOp.XOR
+		};
+	}
+
+	var cmds1 = shape1.commands.map(cmdToPathKit);
+	var cmds2 = shape2.commands.map(cmdToPathKit);
+	var p1 = PathKit.FromCmds(cmds1);
+	var p2 = PathKit.FromCmds(cmds2);
+	p1.op(p2, compoundOpsPathKit[method]);
+	var cmds = p1.toCmds();
+	var path = new Path();
+	cmds.forEach(function (cmd) {
+		if (cmd[0] === PathKit.MOVE_VERB) {
+			path.moveTo(cmd[1], cmd[2]);
+		} else if (cmd[0] === PathKit.LINE_VERB) {
+			path.lineTo(cmd[1], cmd[2]);
+		} else if (cmd[0] === PathKit.CUBIC_VERB) {
+			path.curveTo(cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], cmd[6]);
+		} else if (cmd[0] === PathKit.CLOSE_VERB) {
+			path.closePath();
+		}
+	});
+	p1.delete();
+	p2.delete();
+	return path;
+};
+
 vg.compound = function (shape1, shape2, method) {
     if (!shape1.commands) { shape1 = Path.combine(shape1); }
     if (!shape2.commands) { shape2 = Path.combine(shape2); }
+	
+	// With curved input, try returning smooth curves instead of line segmented shapes.
+	// For this to work, the Skia PathKit webassembly needs to be included into the page and the page served through http or https.
+	// See https://skia.org/user/modules/pathkit
+	
+	if (typeof window !== 'undefined' && window.PathKit && window.PathKit.NewPath) {
+		return vg._compoundPathKit(shape1, shape2, method);
+	}
     var contours1 = shape1.resampleByLength(1).contours();
     var contours2 = shape2.resampleByLength(1).contours();
 
