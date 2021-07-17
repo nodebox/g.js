@@ -2,7 +2,7 @@
 
 'use strict';
 
-var flatten = require('lodash.flatten');
+var flatten = require('../../util').flatten;
 
 var bezier = require('../util/bezier');
 var geo = require('../util/geo');
@@ -569,8 +569,7 @@ Path.prototype.draw = function (ctx) {
 };
 
 Path.combine = function () {
-    var args = Array.apply(null, arguments);
-    var shapes = flatten(args);
+    var shapes = flatten(arguments);
     var shape, commands = [];
     for (var i = 0; i < shapes.length; i += 1) {
         shape = shapes[i];

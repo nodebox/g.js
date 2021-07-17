@@ -8,8 +8,6 @@
 
 'use strict';
 
-var assignIn = require('lodash.assignin');
-
 var vg = {};
 
 // Utility functions
@@ -39,10 +37,10 @@ function importCommands(module) {
 }
 
 var Transformable = require('./objects/transformable');
-assignIn(vg.Point.prototype, Transformable);
-assignIn(vg.Path.prototype, Transformable);
-assignIn(vg.Group.prototype, Transformable);
-assignIn(vg.Text.prototype, Transformable);
+Object.assign(vg.Point.prototype, Transformable);
+Object.assign(vg.Path.prototype, Transformable);
+Object.assign(vg.Group.prototype, Transformable);
+Object.assign(vg.Text.prototype, Transformable);
 
 importCommands(require('./commands/draw'));
 importCommands(require('./commands/filters'));

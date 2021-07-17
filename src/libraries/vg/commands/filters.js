@@ -2,7 +2,7 @@
 
 'use strict';
 
-var flatten = require('lodash.flatten');
+var flatten = require('../../util').flatten;
 
 var ClipperLib = require('../../../../third_party/clipper');
 var bezier = require('../util/bezier');

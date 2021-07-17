@@ -1,10 +1,8 @@
 'use strict';
 
-var isEmpty = require('lodash.isempty');
-var flatten = require('lodash.flatten');
-
 var vg = require('./libraries/vg/vg');
 var img = require('./libraries/img/img');
+var util = require('./libraries/util');
 
 var g = {};
 
@@ -86,7 +84,7 @@ g.importCSV = function (csvString, delimiter) {
     var m, sr, col, index;
     for (var i = 0; i < csvRows.length; i += 1) {
         row = csvRows[i];
-        if (!isEmpty(row)) {
+        if (!!row) {
             m = {};
             sr = splitRow(row, delimiter);
             for (index = 0; index < sr.length; index += 1) {
@@ -100,11 +98,11 @@ g.importCSV = function (csvString, delimiter) {
 };
 
 g.merge = function () {
-    var args = flatten(arguments);
+    var args = util.flatten(arguments);
     if (Array.isArray(args)) {
         var objects = [];
         for (var i = 0; i < args.length; i += 1) {
-            if (!isEmpty(args[i])) {
+            if (!!args[i]) {
                 objects.push(args[i]);
             }
         }
