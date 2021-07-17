@@ -37,13 +37,13 @@
     "lodash.reduce": "^4.6.0",
     "lodash.values": "^4.3.0",
     "stackblur": "^1.0.0",
-    "xmldom": "^0.3.0"
+    "xmldom": "^0.6.0"
   },
   "devDependencies": {
-    "browserify": "^16.5.1",
-    "jshint": "^2.11.1",
-    "mocha": "^8.0.1",
+    "browserify": "^17.0.0",
+    "jshint": "^2.13.0",
+    "mocha": "^9.0.2",
     "uglifyify": "^5.0.2",
-    "watchify": "^3.11.1"
+    "watchify": "^4.0.0"
   }
 }
