@@ -870,11 +870,10 @@ vg._compoundToPoints = function (shape) {
     return l1;
 };
 
-function cmdToPathKit(cmd) {
-	if (!window.PathKit) {
+function cmdToPathKit(PathKit, cmd) {
+	if (!PathKit) {
 		throw new Error('PathKit module not found.');
 	}
-	var PathKit = window.PathKit;
 	if (cmd.type === bezier.MOVETO) {
 		return [PathKit.MOVE_VERB, cmd.x, cmd.y];
 	} else if (cmd.type === bezier.LINETO) {
@@ -888,11 +887,11 @@ function cmdToPathKit(cmd) {
 
 var compoundOpsPathKit;
 
-vg._compoundPathKit = function (shape1, shape2, method) {
-	if (!window.PathKit) {
+vg._compoundPathKit = function (shape1, shape2, method, PathKit) {
+	if (!PathKit) {
 		throw new Error('PathKit module not found.');
 	}
-	var PathKit = window.PathKit;
+
 	if (!compoundOpsPathKit) {
 		compoundOpsPathKit = {
 			'union': PathKit.PathOp.UNION,
@@ -902,8 +901,11 @@ vg._compoundPathKit = function (shape1, shape2, method) {
 		};
 	}
 
-	var cmds1 = shape1.commands.map(cmdToPathKit);
-	var cmds2 = shape2.commands.map(cmdToPathKit);
+    const cmdToPathKitCurried = function(cmd) {
+        return cmdToPathKit(PathKit, cmd);
+    };
+	var cmds1 = shape1.commands.map(cmdToPathKitCurried);
+	var cmds2 = shape2.commands.map(cmdToPathKitCurried);
 	var p1 = PathKit.FromCmds(cmds1);
 	var p2 = PathKit.FromCmds(cmds2);
 	p1.op(p2, compoundOpsPathKit[method]);
@@ -928,14 +930,19 @@ vg._compoundPathKit = function (shape1, shape2, method) {
 vg.compound = function (shape1, shape2, method) {
     if (!shape1.commands) { shape1 = Path.combine(shape1); }
     if (!shape2.commands) { shape2 = Path.combine(shape2); }
-	
+
 	// With curved input, try returning smooth curves instead of line segmented shapes.
 	// For this to work, the Skia PathKit webassembly needs to be included into the page and the page served through http or https.
 	// See https://skia.org/user/modules/pathkit
-	
+
+    // XXX jshint doesn't know that self can exist in web workers
+    /* globals self: any */
 	if (typeof window !== 'undefined' && window.PathKit && window.PathKit.NewPath) {
-		return vg._compoundPathKit(shape1, shape2, method);
-	}
+		return vg._compoundPathKit(shape1, shape2, method, window.PathKit);
+	} else if (typeof self !== 'undefined' && self.PathKit && self.PathKit.NewPath) {
+        return vg._compoundPathKit(shape1, shape2, method, self.PathKit);
+    }
+
     var contours1 = shape1.resampleByLength(1).contours();
     var contours2 = shape2.resampleByLength(1).contours();
 

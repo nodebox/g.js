@@ -37,7 +37,7 @@ var flatten = function (arg) {
 		}
 	}
 	return args;
-} 
+};
 
 exports.randomGenerator = randomGenerator;
 exports.flatten = flatten;
