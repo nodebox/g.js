@@ -2,8 +2,10 @@
   "name": "g.js",
   "version": "0.1.17",
   "description": "Graphic Objects Library",
+  "type": "module",
   "main": "src/g.js",
   "scripts": {
+    "build": "node scripts/build.mjs",
     "test": "mocha --recursive && jshint .",
     "watchify": "mkdir -p build && watchify src/g.js --standalone g --debug -o build/g.js -v",
     "browserify": "browserify src/g.js --standalone g > dist/g.js",
@@ -29,18 +31,15 @@
   },
   "homepage": "https://github.com/nodebox/g.js",
   "dependencies": {
-    "async": "^3.2.0",
+    "@xmldom/xmldom": "0.8.7",
+    "async-es": "3.2.4",
+    "js-clipper": "1.0.1",
     "lodash.groupby": "^4.6.0",
-    "lodash.reduce": "^4.6.0",
     "lodash.values": "^4.3.0",
-    "stackblur": "^1.0.0",
-    "xmldom": "^0.6.0"
+    "stackblur": "^1.0.0"
   },
   "devDependencies": {
-    "browserify": "^17.0.0",
-    "jshint": "^2.13.0",
-    "mocha": "^9.0.2",
-    "uglifyify": "^5.0.2",
-    "watchify": "^4.0.0"
+    "esbuild": "0.17.15",
+    "mocha": "^9.0.2"
   }
 }
