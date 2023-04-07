@@ -1,19 +1,22 @@
 import * as esbuild from "esbuild";
 
-await esbuild.build({
-  entryPoints: ["src/g.js"],
-  bundle: true,
-  minify: true,
-  sourcemap: true,
-  format: "esm",
-  outfile: "dist/esm/g.min.js",
-});
+(async () => {
+  await esbuild.build({
+    entryPoints: ["src/g.js"],
+    bundle: true,
+    minify: true,
+    sourcemap: true,
+    format: "esm",
+    outfile: "dist/esm/g.min.js",
+  });
 
-await esbuild.build({
-  entryPoints: ["src/g.js"],
-  bundle: true,
-  minify: true,
-  sourcemap: true,
-  format: "iife",
-  outfile: "dist/iife/g.min.js",
-});
+  await esbuild.build({
+    entryPoints: ["src/g.js"],
+    bundle: true,
+    minify: true,
+    sourcemap: true,
+    globalName: "g",
+    format: "iife",
+    outfile: "dist/iife/g.min.js",
+  });
+})();
