@@ -1,21 +1,24 @@
 // Bézier path object
 
-"use strict";
+import {
+  MOVETO,
+  LINETO,
+  QUADTO,
+  CURVETO,
+  CLOSE,
+  extrema,
+  segmentLengths as bezierSegmentLengths,
+  length as bezierLength,
+  point as bezierPoint,
+} from "../util/bezier";
+import Rect from "../objects/rect";
+import Color from "../objects/color";
 
-var flatten = require("../../util").flatten;
+import { flatten } from "../../util";
+import { pointInPolygon } from "../util/geo";
+import { radians, clamp } from "../util/math";
 
-var bezier = require("../util/bezier");
-var geo = require("../util/geo");
 var math = require("../util/math");
-
-var Color = require("../objects/color");
-var Rect = require("../objects/rect");
-
-var MOVETO = bezier.MOVETO;
-var LINETO = bezier.LINETO;
-var QUADTO = bezier.QUADTO;
-var CURVETO = bezier.CURVETO;
-var CLOSE = bezier.CLOSE;
 
 var CLOSE_COMMAND = Object.freeze({ type: CLOSE });
 
@@ -227,7 +230,7 @@ export default class Path {
       coords;
     w = width / 2;
     h = height / 2;
-    angStRad = math.radians(startAngle);
+    angStRad = radians(startAngle);
     ext = degrees;
 
     if (ext >= 360.0 || ext <= -360) {
@@ -240,7 +243,7 @@ export default class Path {
       }
     } else {
       arcSegs = Math.ceil(Math.abs(ext) / 90.0);
-      increment = math.radians(ext / arcSegs);
+      increment = radians(ext / arcSegs);
       cv =
         ((4.0 / 3.0) * Math.sin(increment / 2.0)) /
         (1.0 + Math.cos(increment / 2.0));
@@ -406,7 +409,7 @@ export default class Path {
         }
         prev = cmd;
       } else if (cmd.type === CURVETO) {
-        var r = bezier.extrema(
+        var r = extrema(
           prev.x,
           prev.y,
           cmd.x1,
@@ -440,9 +443,9 @@ export default class Path {
   point(t, segmentLengths) {
     if (segmentLengths === undefined) {
       // Cache the segment lengths for performance.
-      segmentLengths = bezier.segmentLengths(this.commands, true, 10);
+      segmentLengths = bezierSegmentLengths(this.commands, true, 10);
     }
-    return bezier.point(this, t, segmentLengths);
+    return bezierPoint(this, t, segmentLengths);
   }
   // Returns an array of DynamicPathElements along the path.
   // To omit the last point on closed paths: {end: 1-1.0/amount}
@@ -466,7 +469,7 @@ export default class Path {
       d = amount > 1 ? (end - start) / (amount - 1) : end - start;
     }
     var pts = [];
-    var segmentLengths = bezier.segmentLengths(this.commands, true, 10);
+    var segmentLengths = bezierSegmentLengths(this.commands, true, 10);
     for (var i = 0; i < amount; i += 1) {
       pts.push(this.point(start + d * i, segmentLengths));
     }
@@ -477,12 +480,12 @@ export default class Path {
     if (precision === undefined) {
       precision = 20;
     }
-    return bezier.length(this, precision);
+    return bezierLength(this, precision);
   }
   // Returns true when point (x,y) falls within the contours of the path.
   contains(x, y, precision) {
     var points = this.points(precision !== undefined ? precision : 100);
-    return geo.pointInPolygon(points, x, y);
+    return pointInPolygon(points, x, y);
   }
   resampleByAmount(points, perContour) {
     var subPaths = perContour ? this.contours() : [this.commands];
@@ -529,16 +532,16 @@ export default class Path {
     for (i = 0; i < this.commands.length; i += 1) {
       cmd = this.commands[i];
       if (cmd.x !== undefined) {
-        x = _roundCoord(math.clamp(cmd.x, -9999, 9999), fractionDigits);
-        y = _roundCoord(math.clamp(cmd.y, -9999, 9999), fractionDigits);
+        x = _roundCoord(clamp(cmd.x, -9999, 9999), fractionDigits);
+        y = _roundCoord(clamp(cmd.y, -9999, 9999), fractionDigits);
       }
       if (cmd.x1 !== undefined) {
-        x1 = _roundCoord(math.clamp(cmd.x1, -9999, 9999), fractionDigits);
-        y1 = _roundCoord(math.clamp(cmd.y1, -9999, 9999), fractionDigits);
+        x1 = _roundCoord(clamp(cmd.x1, -9999, 9999), fractionDigits);
+        y1 = _roundCoord(clamp(cmd.y1, -9999, 9999), fractionDigits);
       }
       if (cmd.x2 !== undefined) {
-        x2 = _roundCoord(math.clamp(cmd.x2, -9999, 9999), fractionDigits);
-        y2 = _roundCoord(math.clamp(cmd.y2, -9999, 9999), fractionDigits);
+        x2 = _roundCoord(clamp(cmd.x2, -9999, 9999), fractionDigits);
+        y2 = _roundCoord(clamp(cmd.y2, -9999, 9999), fractionDigits);
       }
       if (cmd.type === MOVETO) {
         if (!isNaN(x) && !isNaN(y)) {
