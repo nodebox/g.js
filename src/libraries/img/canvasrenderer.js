@@ -1,6 +1,6 @@
 "use strict";
 
-import * as blend from "./blend";
+import blend from "./blend";
 import process from "./process";
 import { transform } from "./util";
 
