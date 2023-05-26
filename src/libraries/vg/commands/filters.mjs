@@ -1,19 +1,19 @@
 // Object creation / manipulation commands
 
-import { flatten } from "../../util";
+import { flatten } from "../../util.mjs";
 
-import { MOVETO, LINETO, QUADTO, CURVETO, CLOSE } from "../util/bezier";
-import { pointInPolygon, angle, distance, coordinates } from "../util/geo";
-import { degrees, snap } from "../util/math";
-import randomGenerator from "../../random";
+import { MOVETO, LINETO, QUADTO, CURVETO, CLOSE } from "../util/bezier.mjs";
+import { pointInPolygon, angle, distance, coordinates } from "../util/geo.mjs";
+import { degrees, snap } from "../util/math.mjs";
+import randomGenerator from "../../random.mjs";
 
-import Color from "../objects/color";
-import Group from "../objects/group";
-import Path from "../objects/path";
-import Point from "../objects/point";
-import Rect from "../objects/rect";
-import Transform from "../objects/transform";
-import Transformable from "../objects/transformable";
+import Color from "../objects/color.mjs";
+import Group from "../objects/group.mjs";
+import Path from "../objects/path.mjs";
+import Point from "../objects/point.mjs";
+import Rect from "../objects/rect.mjs";
+import Transform from "../objects/transform.mjs";
+import Transformable from "../objects/transformable.mjs";
 import ClipperLib from "js-clipper";
 // var ClipperLib = require("../../../../third_party/clipper");
 

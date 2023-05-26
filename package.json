@@ -1,6 +1,6 @@
 {
   "name": "g.js",
-  "version": "0.1.17",
+  "version": "0.2.0",
   "description": "Graphic Objects Library",
   "type": "module",
   "main": "src/g.js",
@@ -39,7 +39,9 @@
     "stackblur": "^1.0.0"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.2",
     "esbuild": "0.17.15",
-    "mocha": "^9.0.2"
+    "mocha": "^9.0.2",
+    "rollup": "^3.21.7"
   }
 }

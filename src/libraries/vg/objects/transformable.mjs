@@ -1,7 +1,7 @@
 // Mixin for Path and Group
 
-import Point from "./point";
-import Transform from "./transform";
+import Point from "./point.mjs";
+import Transform from "./transform.mjs";
 
 const Transformable = {
   translate: function (position) {

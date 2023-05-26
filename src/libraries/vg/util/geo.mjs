@@ -1,7 +1,7 @@
 // Geometry
 
-import { radians, degrees } from "./math";
-import Point from "../objects/point";
+import { radians, degrees } from "./math.mjs";
+import Point from "../objects/point.mjs";
 
 // Returns the angle between two points.
 export function angle(x0, y0, x1, y1) {

@@ -10,15 +10,13 @@ import {
   segmentLengths as bezierSegmentLengths,
   length as bezierLength,
   point as bezierPoint,
-} from "../util/bezier";
-import Rect from "../objects/rect";
-import Color from "../objects/color";
+} from "../util/bezier.mjs";
+import Rect from "../objects/rect.mjs";
+import Color from "./color.mjs";
 
-import { flatten } from "../../util";
-import { pointInPolygon } from "../util/geo";
-import { radians, clamp } from "../util/math";
-
-var math = require("../util/math");
+import { flatten } from "../../util.mjs";
+import { pointInPolygon } from "../util/geo.mjs";
+import { radians, clamp } from "../util/math.mjs";
 
 var CLOSE_COMMAND = Object.freeze({ type: CLOSE });
 

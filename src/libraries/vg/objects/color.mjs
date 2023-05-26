@@ -1,8 +1,8 @@
 // Color object
 
-import { clamp } from "../../math";
-import * as color from "../util/color";
-import { defineAlias, defineGetter } from "../util/js";
+import { clamp } from "../../math.mjs";
+import * as color from "../util/color.mjs";
+import { defineAlias, defineGetter } from "../util/js.mjs";
 
 const RGB = "RGB";
 const HSB = "HSB";

@@ -1,8 +1,8 @@
 // Shape group object
 
-import Path from "../objects/path";
-import Rect from "../objects/rect";
-import Color from "../objects/color";
+import Path from "./path.mjs";
+import Rect from "./rect.mjs";
+import Color from "./color.mjs";
 
 export default class Group {
   constructor(shapes) {

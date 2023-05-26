@@ -1,6 +1,6 @@
 // Rectangle object
 
-import Point from "./point";
+import Point from "./point.mjs";
 
 export default class Rect {
   constructor(x, y, width, height) {

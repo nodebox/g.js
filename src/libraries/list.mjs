@@ -1,7 +1,7 @@
 "use strict";
 
-import randomGenerator from "./random";
-import deepEqual from "./deepequal";
+import randomGenerator from "./random.mjs";
+import deepEqual from "./deepequal.mjs";
 
 export function combine() {
   var i,

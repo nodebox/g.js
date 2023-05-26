@@ -2,7 +2,7 @@ import * as esbuild from "esbuild";
 
 (async () => {
   await esbuild.build({
-    entryPoints: ["src/g.js"],
+    entryPoints: ["src/g.mjs"],
     bundle: true,
     minify: true,
     sourcemap: true,
@@ -11,7 +11,7 @@ import * as esbuild from "esbuild";
   });
 
   await esbuild.build({
-    entryPoints: ["src/g.js"],
+    entryPoints: ["src/g.mjs"],
     bundle: true,
     minify: true,
     sourcemap: true,

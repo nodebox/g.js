@@ -2,9 +2,9 @@
 
 import * as async from "async-es";
 
-import { clamp, transform } from "./util";
-import CanvasRenderer from "./canvasrenderer";
-import AsyncRenderer from "./asyncrenderer";
+import { clamp, transform } from "./util.mjs";
+import CanvasRenderer from "./canvasrenderer.mjs";
+import AsyncRenderer from "./asyncrenderer.mjs";
 
 var DEFAULT_WIDTH = 800;
 var DEFAULT_HEIGHT = 800;

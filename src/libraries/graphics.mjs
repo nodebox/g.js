@@ -8,10 +8,10 @@ import {
   bounds,
   scale,
   centerPoint,
-} from "./vg";
-import { coordinates as geoCoordinates } from "./vg/util/geo";
-import { Img } from "./img";
-import { degrees } from "./math";
+} from "./vg/index.mjs";
+import { coordinates as geoCoordinates } from "./vg/util/geo.mjs";
+import { Img } from "./img/index.mjs";
+import { degrees } from "./math.mjs";
 
 export const HORIZONTAL = "horizontal";
 export const VERTICAL = "vertical";

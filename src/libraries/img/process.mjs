@@ -12,7 +12,7 @@
  */
 
 import stackblur from "stackblur";
-import { radians, distance, transform, clamp } from "./util";
+import { radians, distance, transform, clamp } from "./util.mjs";
 
 var LUMINOSITY_ITU_R_BT601 = "ITU-R BT.601";
 var LUMINOSITY_ITU_R_BT709 = "ITU-R BT.709";

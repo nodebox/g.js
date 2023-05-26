@@ -1,7 +1,7 @@
 import values from "lodash.values";
 import _groupBy from "lodash.groupby";
 
-import { distinct } from "./list";
+import { distinct } from "./list.mjs";
 
 // Convert values from one range to another
 export function convert(v, inMin, inMax, outMin, outMax) {

@@ -2,7 +2,7 @@
 
 "use strict";
 
-import Color from "../objects/color";
+import Color from "../objects/color.mjs";
 
 // Return true if an object can be drawn using the `g.draw` function.
 export function isDrawable(o) {

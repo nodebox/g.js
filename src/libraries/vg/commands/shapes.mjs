@@ -2,12 +2,12 @@
 
 "use strict";
 
-import { angle, coordinates } from "../util/geo";
+import { angle, coordinates } from "../util/geo.mjs";
 
-import Color from "../objects/color";
-import Path from "../objects/path";
-import Point from "../objects/point";
-import Text from "../objects/text";
+import Color from "../objects/color.mjs";
+import Path from "../objects/path.mjs";
+import Point from "../objects/point.mjs";
+import Text from "../objects/text.mjs";
 
 export function roundedRect(cx, cy, width, height, rx, ry) {
   var p = new Path();
