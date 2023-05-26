@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/g.js",
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "rollup -c rollup.config.js",
     "test": "mocha --recursive && jshint .",
     "watchify": "mkdir -p build && watchify src/g.js --standalone g --debug -o build/g.js -v",
     "browserify": "browserify src/g.js --standalone g > dist/g.js",
